@@ -1,11 +1,15 @@
-export default defineNuxtPlugin(() => {
-  const colorMode = useColorMode()
+export default defineNuxtPlugin({
+  name: 'color-mode-init',
+  parallel: true,
+  setup () {
+    const colorMode = useColorMode()
 
-  colorMode.preference = 'light'
-  colorMode.value = 'light'
+    colorMode.preference = 'light'
+    colorMode.value = 'light'
 
-  if (process.client) {
-    document.documentElement.classList.remove('dark')
-    document.documentElement.classList.add('light')
+    if (import.meta.client) {
+      document.documentElement.classList.remove('dark')
+      document.documentElement.classList.add('light')
+    }
   }
 })

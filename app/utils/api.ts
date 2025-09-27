@@ -34,7 +34,7 @@ async function apiFetch<T>(
       // hapus token
       token.value = null
       // redirect ke login
-      return navigateTo('/login') as unknown as T
+      return navigateTo('/auth/login') as unknown as T
     }
 
     throw err

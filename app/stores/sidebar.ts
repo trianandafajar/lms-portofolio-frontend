@@ -1,8 +1,8 @@
-// ~/stores/sidebar.ts
 export const useSidebarStore = defineStore("sidebar", {
   state: () => ({
     collapsed: false,
     classListOpen: true,
+    hovered: false 
   }),
 
   actions: {
@@ -12,6 +12,9 @@ export const useSidebarStore = defineStore("sidebar", {
     toggleClassList() {
       this.classListOpen = !this.classListOpen
     },
+    setHovered(status: boolean) { 
+      this.hovered = status
+    }
   },
 
   persist: true

@@ -16,7 +16,7 @@ export default defineNuxtConfig({
         { name: 'description', content: 'ims Portofolio' }
       ],
       link: [
-        { rel: 'preload', as: 'style', href: '/_nuxt/assets/css/main.css' }
+        { rel: 'preload', as: 'style', href: '/assets/css/main.css' }
       ]
     }
   },
