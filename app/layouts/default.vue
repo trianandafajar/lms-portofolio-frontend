@@ -4,7 +4,7 @@
       <PartialSidebar />
       <div class="flex-1 flex flex-col">
         <PartialHeader />
-        <main class="p-6">
+        <main class="p-6 overflow-y-auto" style="height: calc(100vh - 64px);">
           <slot />
         </main>
       </div>

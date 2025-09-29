@@ -7,14 +7,14 @@
     </div>
 
     <div class="flex items-center gap-3">
-      <UButton size="sm" variant="ghost" class="p-2 rounded-full" aria-label="Create">
+      <UButton size="sm" variant="ghost" class="p-2 rounded-full cursor-pointer" aria-label="Create" @click="openModal">
         <UIcon name="heroicons-plus" class="h-4 w-4 text-slate-700" />
       </UButton>
 
       <UPopover placement="bottom-end" arrow>
         <UTooltip text="Akun saya">
           <UButton
-            class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 text-white flex items-center justify-center font-medium focus:outline-none"
+            class="cursor-pointer w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 text-white flex items-center justify-center font-medium focus:outline-none"
           >
             {{ auth?.user?.profile?.display_name?.charAt(0)?.toUpperCase() || '' }}
           </UButton>
@@ -33,18 +33,32 @@
             </div>
             <div class="my-2 border-t border-slate-100"></div>
             <nav class="flex flex-col">
-              <UButton color="primary" variant="ghost" class="justify-start">Profil</UButton>
-              <UButton color="primary" variant="ghost" class="justify-start">Pengaturan</UButton>
-              <UButton color="warning" variant="ghost" class="justify-start">Keluar</UButton>
+              <UButton color="primary" variant="ghost" class="justify-start cursor-pointer">Profile</UButton>
+              <UButton color="primary" variant="ghost" class="justify-start cursor-pointer">Settings</UButton>
+              <UButton color="warning" variant="ghost" class="justify-start cursor-pointer" @click="handleLogout">Logout</UButton>
             </nav>
           </div>
         </template>
       </UPopover>
     </div>
+
   </header>
+
+  <Modal ref="modalRef" />
 </template>
 
 <script setup lang="ts">
+import Modal from '@/components/ui/Modal.vue'
 const sidebar = useSidebarStore()
 const auth = useAuthStore()
+const modalRef = ref()
+
+function openModal() {
+  modalRef.value?.open()
+}
+
+async function handleLogout() {
+  await auth.logout()
+  navigateTo('/auth/login')
+}
 </script>
