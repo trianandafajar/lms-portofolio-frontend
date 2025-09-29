@@ -3,7 +3,18 @@ export default defineNuxtPlugin({
   async setup (nuxtApp) {
     const token = useCookie<string | null>('token')
     const authStore = useAuthStore()
+    const classStore = useLmsClassStore()
 
+    
+    if(token && !classStore.clases) {
+      try {
+        await classStore.getMyClass()
+      } catch (error) {
+        console.error('Failed Fetch My Class', error);
+        
+      }
+    }
+    
     if (token && !authStore.user) {
       try {
         await authStore.fetchCurrentUser()

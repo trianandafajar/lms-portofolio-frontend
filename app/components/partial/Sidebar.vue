@@ -13,18 +13,18 @@
         (sidebar.collapsed && !sidebar.hovered) ? 'justify-center' : 'justify-between'
       ]"
     >
-      <span class="font-semibold text-slate-800 text-lg" v-if="!sidebar.collapsed || sidebar.hovered">
+      <NuxtLink to="/" class="font-semibold text-slate-800 text-lg" v-if="!sidebar.collapsed || sidebar.hovered">
         LMS
-      </span>
-      <span v-else class="font-semibold text-slate-800 text-lg">LMS</span> 
+      </NuxtLink>
+      <NuxtLink to="/" v-else class="font-semibold text-slate-800 text-lg">LMS</NuxtLink> 
     </div>
 
     <!-- Main nav -->
     <nav class="px-0 py-2">
       <ul class="space-y-1">
         <li v-for="item in mainNav" :key="item.label">
-          <a
-            :href="item.to"
+          <NuxtLink
+            :to="item.to"
             :class="[
               'group flex items-center gap-3 p-2 rounded-lg transition-colors duration-150 w-full',
               (sidebar.collapsed && !sidebar.hovered) ? 'justify-center px-0' : 'justify-start px-3'
@@ -39,7 +39,7 @@
             <span v-if="!sidebar.collapsed || sidebar.hovered" class="text-sm text-slate-700">
               {{ item.label }}
             </span>
-          </a>
+          </NuxtLink>
         </li>
       </ul>
     </nav>
@@ -70,13 +70,13 @@
 
       <transition name="slide-fade">
         <div v-if="sidebar.classListOpen && (!sidebar.collapsed || sidebar.hovered)" class="flex-1 overflow-hidden mt-2">
-          <div class="h-full pr-2 overflow-y-auto">
+          <div class="h-full overflow-y-auto">
             <div class="space-y-3 py-1">
-              <a
+              <NuxtLink
                 v-for="cls in classesWithColor"
                 :key="cls.id"
-                :href="`/classes/${cls.id}`"
-                class="group flex items-center gap-3 p-3 rounded-2xl bg-white hover:shadow-md transition-shadow"
+                :to="`/classes/${cls.id}`"
+                class="group flex items-center gap-3 p-3 rounded-md hover:bg-gray-50 transition-colors bg-white"
               >
                 <div
                   :class="[
@@ -84,13 +84,13 @@
                     cls.color
                   ]"
                 >
-                  {{ cls.name[0] }}
+                  {{ cls.title[0] }}
                 </div>
                 <div class="flex flex-col min-w-0">
-                  <span class="text-sm font-medium text-slate-800 leading-5 truncate">{{ cls.name }}</span>
-                  <span class="text-xs text-slate-500 truncate">{{ cls.teacher }}</span>
+                  <span class="text-sm font-medium text-slate-800 leading-5 truncate">{{ cls.title }}</span>
+                  <span class="text-xs text-slate-500 truncate">{{ cls.creator.profile?.display_name }}</span>
                 </div>
-              </a>
+              </NuxtLink>
             </div>
           </div>
         </div>
@@ -101,8 +101,8 @@
     <div class="px-0 pb-4">
       <ul class="space-y-1">
         <li v-for="item in footerNav" :key="item.label">
-          <a
-            :href="item.to"
+          <NuxtLink
+            :to="item.to"
             :class="[
               'group flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition w-full',
               (sidebar.collapsed && !sidebar.hovered) ? 'justify-center px-0' : 'justify-start px-3'
@@ -114,7 +114,7 @@
             <span v-if="!sidebar.collapsed || sidebar.hovered" class="text-sm text-slate-700">
               {{ item.label }}
             </span>
-          </a>
+          </NuxtLink>
         </li>
       </ul>
     </div>
@@ -123,6 +123,7 @@
 
 <script setup lang="ts">
 const sidebar = useSidebarStore()
+const LmsClassStore = useLmsClassStore()
 
 const mainNav = [
   { label: 'Beranda', icon: 'heroicons-home', to: '/' },
@@ -132,13 +133,6 @@ const mainNav = [
 const footerNav = [
   { label: 'Kelas diarsipkan', icon: 'heroicons-archive-box', to: '/archived' },
   { label: 'Setelan', icon: 'heroicons-cog-6-tooth', to: '/settings' },
-]
-
-const classes = [
-  { id: 1, name: 'Matematika 11A', teacher: 'Pak Budi' },
-  { id: 2, name: 'Bahasa Inggris 10B', teacher: 'Bu Sari' },
-  { id: 3, name: 'Fisika 12C', teacher: 'Pak Andi' },
-  { id: 4, name: 'Biologi 10A', teacher: 'Bu Rina' },
 ]
 
 const avatarColors = [
@@ -153,12 +147,17 @@ function gradientFor(id: number) {
   return avatarColors[id % avatarColors.length]
 }
 
-const classesWithColor = computed(() =>
-  classes.map(c => ({
+console.log(LmsClassStore.clases, 'LmsClassStore.clases');
+
+
+const classesWithColor = computed(() => {
+  if (!LmsClassStore.clases || LmsClassStore.clases.length === 0) return []
+  return LmsClassStore.clases.map(c => ({
     ...c,
-    color: `bg-gradient-to-br ${gradientFor(c.id)}`
+    color: `bg-gradient-to-br ${gradientFor(c.id)}`,
   }))
-)
+})
+
 </script>
 
 <style scoped>

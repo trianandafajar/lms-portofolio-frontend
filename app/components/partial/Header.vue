@@ -16,7 +16,7 @@
           <UButton
             class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 text-white flex items-center justify-center font-medium focus:outline-none"
           >
-            {{ auth.user?.profile?.display_name?.charAt(0)?.toUpperCase() || '' }}
+            {{ auth?.user?.profile?.display_name?.charAt(0)?.toUpperCase() || '' }}
           </UButton>
         </UTooltip>
 
@@ -27,8 +27,8 @@
                 A
               </div>
               <div class="flex flex-col">
-                <span class="text-sm font-medium text-slate-800">{{ auth.user?.profile?.display_name }}</span>
-                <span class="text-xs text-slate-500">{{ auth.user?.email }}</span>
+                <span class="text-sm font-medium text-slate-800">{{ auth?.user?.profile?.display_name }}</span>
+                <span class="text-xs text-slate-500">{{ auth?.user?.email }}</span>
               </div>
             </div>
             <div class="my-2 border-t border-slate-100"></div>

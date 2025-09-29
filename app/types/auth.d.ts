@@ -16,12 +16,6 @@ declare global {
   interface UserMe extends User {
     permissions: string[],
     roles: string[]
-    profile: {
-      avatar_file_id: string | null,
-      bio: string
-      display_name: string
-      extra: string
-    } | null
   }
 }
 
