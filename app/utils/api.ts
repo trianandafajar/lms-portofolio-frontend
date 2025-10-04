@@ -1,9 +1,13 @@
 import { navigateTo } from '#app'
-import type { NitroFetchOptions } from 'nitropack'
+import { toRaw } from 'vue'
 
 async function apiFetch<T>(
   endpoint: string,
-  options: NitroFetchOptions<any> = {}
+  options: {
+    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+    body?: any
+    headers?: Record<string, string>
+  } = {}
 ): Promise<T> {
   const config = useRuntimeConfig()
   const token = useCookie<string | null>('token')
@@ -12,48 +16,37 @@ async function apiFetch<T>(
     return await $fetch<T>(endpoint, {
       baseURL: config.public.apiBaseUrl,
       credentials: 'include',
+      method: options.method || 'GET',
       headers: {
-        'Content-Type': 'application/json',
         ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
         ...(options.headers || {}),
       },
-      method: options.method as
-        | 'GET'
-        | 'POST'
-        | 'PUT'
-        | 'PATCH'
-        | 'DELETE'
-        | 'HEAD'
-        | 'OPTIONS'
-        | undefined,
-      body: options.body,
+      // pastikan body bukan proxy vue
+      body: options.body ? JSON.parse(JSON.stringify(toRaw(options.body))) : undefined,
     })
   } catch (err: any) {
-    // Interceptor error global
     if (err?.status === 401) {
-      // hapus token
       token.value = null
-      // redirect ke login
-      return navigateTo('/auth/login') as unknown as T
+      await navigateTo('/auth/login')
+      throw err
     }
-
     throw err
   }
 }
 
 export const api = {
-  get: <T>(url: string, opts: Omit<RequestInit, 'method'> = {}) =>
+  get: <T>(url: string, opts: any = {}) =>
     apiFetch<T>(url, { ...opts, method: 'GET' }),
 
-  post: <T>(url: string, body?: any, opts: Omit<RequestInit, 'method'> = {}) =>
+  post: <T>(url: string, body?: any, opts: any = {}) =>
     apiFetch<T>(url, { ...opts, method: 'POST', body }),
 
-  put: <T>(url: string, body?: any, opts: Omit<RequestInit, 'method'> = {}) =>
+  put: <T>(url: string, body?: any, opts: any = {}) =>
     apiFetch<T>(url, { ...opts, method: 'PUT', body }),
 
-  patch: <T>(url: string, body?: any, opts: Omit<RequestInit, 'method'> = {}) =>
+  patch: <T>(url: string, body?: any, opts: any = {}) =>
     apiFetch<T>(url, { ...opts, method: 'PATCH', body }),
 
-  delete: <T>(url: string, opts: Omit<RequestInit, 'method'> = {}) =>
+  delete: <T>(url: string, opts: any = {}) =>
     apiFetch<T>(url, { ...opts, method: 'DELETE' }),
 }

@@ -1,46 +1,49 @@
 <template>
+  <div>
+    <!-- Skeleton Loading -->
+    <div v-if="LmsClassStore.loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <USkeleton v-for="n in 6" :key="n" class="h-48 rounded-xl" />
+    </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <UCard v-for="n in 12" :key="n">
-      <template #header>
-        <Placeholder class="h-8">
-          <h1 class="text-2xl font-bold">
-            XII RPL 1
-          </h1>
-          <h4 class="text-sm text-gray-500">
-            KARIR DIRI
-          </h4>
-        </Placeholder>
-      </template>
+    <!-- Empty State -->
+    <div
+      v-else-if="!LmsClassStore.clases || LmsClassStore.clases.length === 0"
+      class="text-center py-10 text-gray-500"
+    >
+      No classes found
+    </div>
 
-      <Placeholder class="h-32">
-        <div class="flex items-center gap-3">
+    <!-- Data State -->
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <UCard v-for="classList in LmsClassStore.clases" :key="classList.id">
+        <template #header>
+          <h1 class="text-2xl font-bold">{{ classList.title }}</h1>
+          <h4 class="text-sm text-gray-500">{{ classList.description }}</h4>
+        </template>
+
+        <div class="flex items-center gap-3 py-3">
           <div
             class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 text-white flex items-center justify-center font-medium">
-            A
+            {{ classList.creator.profile?.display_name?.[0] || classList.title[0] }}
           </div>
           <div class="flex flex-col">
             <span class="text-sm font-medium text-slate-800">
-              Andi
+              {{ classList.creator.profile?.display_name }}
             </span>
             <span class="text-xs text-slate-500">
-              andi@gmail.com
+              {{ classList.creator.email }}
             </span>
           </div>
         </div>
-      </Placeholder>
 
-      <template #footer>
-        <Placeholder class="h-8">
-          <span>
-            18 Student
-          </span>
-        </Placeholder>
-      </template>
-    </UCard>
+        <template #footer>
+          <span>{{ classList.member_count }} Student</span>
+        </template>
+      </UCard>
+    </div>
   </div>
-
 </template>
 
 <script setup lang="ts">
+const LmsClassStore = useLmsClassStore()
 </script>

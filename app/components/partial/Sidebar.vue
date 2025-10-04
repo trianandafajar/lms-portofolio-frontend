@@ -144,15 +144,6 @@ const footerNav = [
   { label: 'Settings', icon: 'heroicons-cog-6-tooth', to: '/settings' },
 ]
 
-const defaultClasses = [
-  { id: 1, title: 'XII RPL 1', creator: { profile: { display_name: 'Electronics' } } },
-  { id: 2, title: 'XII RPL 2', creator: { profile: { display_name: 'Indonesian' } } },
-  { id: 3, title: 'XI RPL 1', creator: { profile: { display_name: 'Mathematics' } } },
-  { id: 4, title: 'XI RPL 2', creator: { profile: { display_name: 'Basic Programming' } } },
-  { id: 5, title: 'X RPL 1', creator: { profile: { display_name: 'Physics' } } },
-  { id: 6, title: 'X RPL 2', creator: { profile: { display_name: 'Informatics' } } },
-]
-
 const avatarColors = [
   'from-indigo-500 to-indigo-600',
   'from-pink-500 to-pink-600',
@@ -168,7 +159,7 @@ function gradientFor(id: number) {
 const classesWithColor = computed(() => {
   const source = (LmsClassStore.clases && LmsClassStore.clases.length > 0)
     ? LmsClassStore.clases
-    : defaultClasses
+    : []
   return source.map(c => ({
     ...c,
     color: `bg-gradient-to-br ${gradientFor(c.id)}`,
