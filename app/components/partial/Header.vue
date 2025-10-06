@@ -17,7 +17,8 @@
         <template #content>
           <div class="w-32 p-3">
              <nav class="flex flex-col">
-              <UButton color="neutral" variant="ghost" class="justify-start cursor-pointer"> Join a class</UButton>
+              <!-- <UButton color="neutral" variant="ghost" class="justify-start cursor-pointer"> Join a class</UButton> -->
+
               <UModal v-model:open="modalCreate" title="Create New Class">
                 <UButton color="neutral" variant="ghost" class="justify-start cursor-pointer"> Create class</UButton>
                 <template #content>
@@ -32,7 +33,7 @@
                       </UFormField>
   
                       <div class="flex justify-end gap-2">
-                        <UButton @click.prevent="handleCancle" type="button" color="secondary" variant="soft">
+                        <UButton @click.prevent="handleCancel" type="button" color="secondary" variant="soft">
                           Cancel
                         </UButton>
                         <UButton type="submit" color="primary">
@@ -43,6 +44,29 @@
                   </UCard>
                 </template>
               </UModal>
+
+              <UModal v-model:open="modalJoin" title="Join Class">
+                <UButton color="neutral" variant="ghost" class="justify-start cursor-pointer"> Join class</UButton>
+                <template #content>
+                  <UCard>
+                    <UForm :schema="schema" :state="state" class="space-y-4 w-full" @submit="handleSubmit">
+                      <UFormField label="Class Code" name="class_code" class="w-full">
+                        <UInput v-model="state.title" placeholder="Enter class code" class="w-full" />
+                      </UFormField>
+  
+                      <div class="flex justify-end gap-2">
+                        <UButton @click.prevent="handleCancelJoin" type="button" color="secondary" variant="soft">
+                          Cancel
+                        </UButton>
+                        <UButton type="submit" color="primary">
+                          Join
+                        </UButton>
+                      </div>
+                    </UForm>
+                  </UCard>
+                </template>
+              </UModal>
+
             </nav>
           </div>
         </template>
@@ -100,15 +124,21 @@ const schema = v.object({
 type Schema = v.InferOutput<typeof schema>
 
 const modalCreate = ref(false)
+const modalJoin = ref(false)
 const state = reactive<CreateLmsClass>({
   title: '',
   description: ''
 })
 
-const handleCancle = () => {
+const handleCancel = () => {
   state.title = '';
   state.description = '';
 
+  modalCreate.value = false
+}
+
+const handleCancelJoin = () => {
+  state.title = '';
   modalCreate.value = false
 }
 
