@@ -1,3 +1,4 @@
+import { UModal } from '../../../../.nuxt/components';
 <template>
     <div class="flex items-center gap-2 mb-4 bg-white px-4 py-2 rounded-lg border border-gray-200">
         <h1 class="text-base font-bold">XII RPL 1 > English Learning > Budi Santoso</h1>
@@ -21,29 +22,51 @@
 	</div>
 
 	<UTabs :items="tabs">
-		<template #forums>
-            <ul class="bg-white rounded-md border border-gray-200 p-4 mt-2 flex flex-col gap-3">
-				<li
-					v-for="i in 80"
-					:key="i"
-					class="flex flex-row mb-5 gap-3"
-				>
-					<div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 text-white flex items-center justify-center font-medium">
-					A
-					</div>
-					<div class="flex flex-col gap-3">
-						<div class="flex flex-row items-center">
-							<b class="mr-3">Revan Dika {{ i }}</b>
-							<span class="text-xs">21:32</span>
-						</div>
-						<div class="border border-gray-300 p-3 rounded-md">
-							<p>Halo selamat pagi pak Eko, lorem ipsum, dolor amet, Maaf pak ijin gak berangkat.</p>
-						</div>
-					</div>
-				</li>
-			</ul>
-		</template>
 		<template #lessons>
+			<div class="flex flex-row mt-4">
+
+				<UButton color="primary" size="md" class="ml-auto py-2 cursor-pointer" @click.prevent="openLessonModal">
+					<UIcon name="heroicons-plus" class="h-4 w-4 mr-2" />
+					Add New Lesson
+				</UButton>
+
+				<UModal ref="lessonModal" :width="600">
+					<template #trigger>
+						<button class="hidden"></button>
+					</template>
+					<template #header>
+						<h2 class="text-lg font-bold">Add New Lesson</h2>
+					</template>
+					<template #body>
+						<form class="space-y-4" @submit.prevent="saveLesson">
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Lesson Title</label>
+								<input v-model="form.title" type="text" class="w-full border border-gray-300 rounded-md p-2" placeholder="Enter lesson title" />
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Lesson Type</label>
+								<select v-model="form.type" class="w-full border border-gray-300 rounded-md p-2">
+									<option value="multiple-choice">Multiple Choice</option>
+									<option value="essay">Essay</option>
+									<option value="true-false">True/False</option>
+								</select>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+								<textarea v-model="form.description" class="w-full border border-gray-300 rounded-md p-2" rows="4" placeholder="Enter lesson description"></textarea>
+							</div>
+							<div v-if="error" class="text-sm text-red-600">{{ error }}</div>
+						</form>
+					</template>
+					<template #footer>
+						<div class="flex justify-end gap-2">
+							<UButton color="secondary" size="md" :disabled="loading" @click="closeLessonModal">Cancel</UButton>
+							<UButton color="primary" size="md" :loading="loading" @click="saveLesson">Save Lesson</UButton>
+						</div>
+					</template>
+				</UModal>
+			</div>
+
 			<ul class="bg-white rounded-md border border-gray-200 p-4 mt-2 flex flex-col gap-3">
 				<li
 				v-for="i in 80"
@@ -83,13 +106,61 @@
 	</UTabs>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
 const route = useRoute()
-const classId = 1;
-
+const classId = Number(route.params.id) || 1
 const tabs = [
-	{ label: 'Forums', slot: 'forums' },
-	{ label: 'Lessons', slot: 'lessons' },
-	{ label: 'Students', slot: 'students' }
+		{ label: 'Lessons', slot: 'lessons' },
+		{ label: 'Students', slot: 'students' }
 ]
-</script> 
+
+const lessonModal = ref(null)
+const form = reactive({
+	title: '',
+	type: 'multiple-choice',
+	description: ''
+})
+
+const loading = ref(false)
+const error = ref<string | null>(null)
+
+import { api } from '~/utils/api'
+
+function openLessonModal() {
+	;(lessonModal.value as any)?.open?.()
+}
+
+function closeLessonModal() {
+	;(lessonModal.value as any)?.close?.()
+}
+
+async function saveLesson(): Promise<void> {
+	error.value = null
+	if (!form.title || !form.title.trim()) {
+		error.value = 'Title is required'
+		return
+	}
+	loading.value = true
+	try {
+		const payload = {
+			title: form.title,
+			type: form.type,
+			description: form.description
+		}
+		await api.post('/classes/' + classId + '/lessons', payload)
+
+		form.title = ''
+		form.type = 'multiple-choice'
+		form.description = ''
+		closeLessonModal()
+
+		return
+	} catch (err: any) {
+		error.value = err?.response?.data?.message || err?.message || 'Failed to create lesson'
+		throw err
+	} finally {
+		loading.value = false
+	}
+}
+</script>

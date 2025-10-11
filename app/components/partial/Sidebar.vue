@@ -136,11 +136,11 @@ const route = useRoute()
 
 const mainNav = [
   { label: 'Homepage', icon: 'heroicons-home', to: '/' },
-  { label: 'Calendar', icon: 'heroicons-calendar', to: '/calendar' },
+  // { label: 'Calendar', icon: 'heroicons-calendar', to: '/calendar' },
 ]
 
 const footerNav = [
-  { label: 'Archived', icon: 'heroicons-archive-box', to: '/archived' },
+  // { label: 'Archived', icon: 'heroicons-archive-box', to: '/archived' },
   { label: 'Settings', icon: 'heroicons-cog-6-tooth', to: '/settings' },
 ]
 
