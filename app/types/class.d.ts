@@ -16,6 +16,10 @@ declare global {
         color?: string 
     }
 
+    interface CreateMemberClassCode {
+        code: string
+    }
+
     interface CreateLmsClass {
         title: string
         description?: string

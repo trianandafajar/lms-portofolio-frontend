@@ -28,6 +28,7 @@ export const useAuthStore = defineStore('auth', {
         await nextTick()
         
         this.user = await this.fetchCurrentUser()
+        
         return response
       } catch (error) {
         this.clearAuth()

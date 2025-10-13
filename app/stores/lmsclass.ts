@@ -64,6 +64,22 @@ export const useLmsClassStore = defineStore('lmsclass', {
       }
     },
 
+    async joinClassByCode(code: string) {
+      this.loading = true
+      this.error = null
+      try {
+        const res = await classService.joinClassByCode(code)
+        this.getMyClass()
+        return res
+      } catch (err: any) {
+        this.error = err?.response?.data?.error || err.message || "Failed to join class"
+        throw err
+      } finally {
+        this.loading = false
+      }
+    },
+
+
     clearClasses() {
       this.clases = null
       this.error = null

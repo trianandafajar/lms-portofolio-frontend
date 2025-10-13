@@ -65,6 +65,7 @@
 <script setup lang="ts">
 const router = useRouter()
 const authStore = useAuthStore()
+const lmsClassStore = useLmsClassStore()
 
 definePageMeta({
   layout: 'auth'
@@ -81,6 +82,7 @@ const handleLogin = async () => {
   try {
     loading.value = true
     await authStore.login(form.value)
+    await lmsClassStore.getMyClass()
     await router.push('/')
   } catch (error: any) {
     useToast().add({
