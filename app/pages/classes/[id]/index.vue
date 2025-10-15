@@ -18,12 +18,12 @@
 		<template #lessons>
 			<div class="flex flex-row mt-4">
 				<!-- Modal (trigger inside) -->
-				<UModal	Modal v-model:show="modalOpen" class="w-full max-w-5xl">
+				<UModal Modal v-model:show="modalOpen" class="w-full max-w-5xl">
 					<div class="mb-3">
-						<UButton color="primary" size="md" class="ml-auto py-2 cursor-pointer"
+						<UButton color="primary" size="md" class="mr-auto py-2 cursor-pointer"
 							@click.prevent="openLessonModal">
-							<UIcon name="hyderoicons-plus" class="h-4 w-4 mr-2" />
-							Add New Lesson
+							<UIcon name="heroicons-plus" class="h-4 w-4" />
+							Add Lesson
 						</UButton>
 					</div>
 
@@ -122,7 +122,9 @@
 											<div v-else-if="block.type === 'image'" class="space-y-2">
 												<UInput v-model="block.title" placeholder="Image title"
 													class="w-full" />
-												<UInput v-model="block.url" placeholder="Image URL" class="w-full" />
+												<input type="file" accept="image/*"
+													@change="(e) => handleFileUpload(e, idx, 'image')"
+													class="block w-full border border-gray-300 rounded-lg p-2 cursor-pointer text-sm" />
 												<UInput v-model="block.alt" class="w-full"
 													placeholder="Alternative text (optional)" />
 												<div v-if="block.url" class="mt-2">
@@ -135,8 +137,9 @@
 											<div v-else-if="block.type === 'video'" class="space-y-2">
 												<UInput v-model="block.title" placeholder="Video title"
 													class="w-full" />
-												<UInput v-model="block.url" class="w-full"
-													placeholder="Video URL (YouTube/embed)" />
+												<input type="file" accept="video/*"
+													@change="(e) => handleFileUpload(e, idx, 'video')"
+													class="block w-full border border-gray-300 rounded-lg p-2 cursor-pointer text-sm" />
 												<video v-if="block.url" controls
 													class="rounded-lg border mt-2 w-full max-h-60">
 													<source :src="block.url" type="video/mp4" />
@@ -150,8 +153,6 @@
 												<div class="space-y-3">
 													<div v-for="(opt, oidx) in block.options" :key="oidx"
 														class="flex items-center gap-2">
-														<UInput v-model="opt.label" placeholder="Label"
-															class="flex-1 w-full" />
 														<UInput v-model="opt.value" placeholder="Value"
 															class="w-full" />
 														<label class="flex items-center gap-1 text-sm text-gray-600">
@@ -301,8 +302,6 @@ const tabs = [
 	{ label: 'Students', slot: 'students' }
 ]
 
-const prettyJson = computed(() => JSON.stringify(state.content_json, null, 2))
-
 const openLessonModal = () => {
 	step.value = 1
 	formState.title = ''
@@ -382,6 +381,20 @@ const setBlockType = (index: number, type: string) => {
 	newBlock.__id = block.__id
 		; (state.content_json as any)[index] = newBlock
 }
+
+const handleFileUpload = (event: Event, index: number, type: string) => {
+	const input = event.target as HTMLInputElement
+	const file = input.files?.[0]
+	if (!file) return
+
+	const reader = new FileReader()
+	reader.onload = () => {
+		const base64String = reader.result as string
+		(state.content_json as any)[index].url = base64String
+	}
+	reader.readAsDataURL(file)
+}
+
 
 const removeBlock = (index: number) => {
 	if (index < 0 || index >= state.content_json.length) return
