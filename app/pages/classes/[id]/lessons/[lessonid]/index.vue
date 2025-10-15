@@ -1,17 +1,14 @@
 <template>
   <div class="max-w-3xl mx-auto p-6 space-y-6">
-    <!-- loading state -->
+    <!-- loading -->
     <div v-if="lessonStore.loading" class="space-y-4">
       <USkeleton class="h-6 w-1/3" />
       <USkeleton class="h-4 w-full" v-for="i in 3" :key="i" />
     </div>
 
-    <div v-else-if="
-      !lessonStore.lesson ||
-      !lessonStore.lesson.content_json ||
-      lessonStore.lesson.content_json.length === 0
-    ">
-      <!-- empty state -->
+    <!-- empty -->
+    <div
+      v-else-if="!lessonStore.lesson || !lessonStore.lesson.content_json || lessonStore.lesson.content_json.length === 0">
       <UCard class="p-4" :bordered="false">
         <template #header>
           <h3 class="text-lg font-semibold">Empty Content</h3>
@@ -20,111 +17,106 @@
       </UCard>
     </div>
 
+    <!-- main -->
     <div v-else>
-      <!-- ====================== SOAL ====================== -->
+      <!-- SOAL (per-content) -->
       <div v-if="!isSubmitted">
-        <div v-for="(block, idx) in lessonStore.lesson.content_json" :key="idx" class="p-4 shadow-sm bg-white">
+        <div v-if="currentBlock" class="p-4 shadow-sm bg-white">
           <div class="mb-3">
-            <h3 class="font-semibold text-lg">
-              {{ block.title ?? `Section ${idx + 1}` }}
-            </h3>
+            <h3 class="font-semibold text-lg">{{ currentBlock.title ?? `Section ${currentIndex + 1}` }}</h3>
           </div>
 
           <div class="space-y-4">
             <!-- text -->
-            <div v-if="isType(block, 'text')" class="prose">
-              <div v-html="safeHtml(block.content)"></div>
+            <div v-if="isType(currentBlock, 'text')" class="prose">
+              <div v-html="safeHtml(currentBlock.content)"></div>
             </div>
 
             <!-- image -->
-            <div v-else-if="isType(block, 'image')" class="flex justify-center">
-              <img :src="block.url" :alt="block.alt ?? block.title ?? 'image'" class="max-h-80 object-contain rounded"
-                @error="onMediaError(Number(idx))" />
+            <div v-else-if="isType(currentBlock, 'image')" class="flex justify-center">
+              <img :src="currentBlock.url" :alt="currentBlock.alt ?? currentBlock.title ?? 'image'"
+                class="max-h-80 object-contain rounded" @error="onMediaError(currentIndex)" />
             </div>
 
             <!-- video -->
-            <div v-else-if="isType(block, 'video')" class="w-full">
-              <video controls class="w-full rounded shadow-md" :src="block.url" @error="onMediaError(Number(idx))">
+            <div v-else-if="isType(currentBlock, 'video')" class="w-full">
+              <video controls class="w-full rounded shadow-md" :src="currentBlock.url"
+                @error="onMediaError(currentIndex)">
                 Your browser does not support video tags.
               </video>
             </div>
 
             <!-- multiple_choice -->
-            <div v-else-if="isType(block, 'multiple_choice')" class="space-y-2">
+            <div v-else-if="isType(currentBlock, 'multiple_choice')" class="space-y-2">
               <p class="text-gray-700">
-                {{ block.title ? '' : 'Select the answer you think is correct:' }}
+                {{ currentBlock.title ? '' : 'Select the answer you think is correct:' }}
               </p>
 
-              <div v-if="block.options && block.options.length">
-                <URadioGroup v-model="answers[idx]" :items="getRadioItems(block.options)"
-                  @update:modelValue="(val) => computeMCQResult(Number(idx), val)" />
+              <div v-if="currentBlock.options && currentBlock.options.length">
+                <!-- NOTE: bind to answers[currentIndex] -->
+                <URadioGroup v-model="answers[currentIndex]" :items="getRadioItems(currentBlock.options)"
+                  @update:modelValue="(val) => computeMCQResult(currentIndex, val)" />
 
-                <div v-if="block.explanation && results[idx]?.submitted" class="mt-2 text-sm text-gray-600">
-                  <strong>Explanation:</strong> {{ block.explanation }}
+                <div v-if="currentBlock.explanation && results[currentIndex]?.submitted"
+                  class="mt-2 text-sm text-gray-600">
+                  <strong>Explanation:</strong> {{ currentBlock.explanation }}
                 </div>
               </div>
 
-              <div v-else class="text-sm text-red-600">
-                No options available (invalid option format).
-              </div>
+              <div v-else class="text-sm text-red-600">No options available (invalid option format).</div>
             </div>
 
             <!-- essay -->
-            <div v-else-if="isType(block, 'essay')">
-              <UTextarea :placeholder="block.placeholder ?? 'Write your answer here...'" class="min-h-[120px] w-full"
-                v-model="localEssay[idx]" @blur="submitEssayDebounced(Number(idx), true)"
-                @input="submitEssayDebounced(Number(idx), false)" />
+            <div v-else-if="isType(currentBlock, 'essay')">
+              <UTextarea :placeholder="currentBlock.placeholder ?? 'Write your answer here...'"
+                class="min-h-[120px] w-full" v-model="localEssay[currentIndex]"
+                @blur="submitEssayDebounced(currentIndex, true)" @input="submitEssayDebounced(currentIndex, false)" />
 
               <div class="flex items-center gap-3 mt-2">
-                <div v-if="results[idx]?.submitted" class="text-sm text-green-600">
-                  Answer sent
-                </div>
+                <div v-if="results[currentIndex]?.submitted" class="text-sm text-green-600">Answer sent</div>
                 <div v-else class="text-sm text-gray-500">
-                  The answer will be saved automatically when you stop typing or
-                  exit the box.
+                  The answer will be saved automatically when you stop typing or exit the box.
                 </div>
-                <div v-if="block.explanation && results[idx]?.submitted" class="text-sm text-gray-600">
-                  • {{ block.explanation }}
+                <div v-if="currentBlock.explanation && results[currentIndex]?.submitted" class="text-sm text-gray-600">
+                  • {{ currentBlock.explanation }}
                 </div>
               </div>
             </div>
 
             <!-- unknown -->
-            <div v-else class="text-sm text-red-600">
-              Unrecognized content type:
-              <strong>{{ getBlockType(block) }}</strong>
-            </div>
+            <div v-else class="text-sm text-red-600">Unrecognized content type: <strong>{{ getBlockType(currentBlock)
+                }}</strong></div>
 
-            <div v-if="results[idx]?.error" class="text-sm text-red-600">
-              {{ results[idx].error }}
+            <div v-if="results[currentIndex]?.error" class="text-sm text-red-600">
+              {{ results[currentIndex].error }}
             </div>
           </div>
         </div>
 
-        <!-- actions -->
-        <div class="flex justify-between mt-6">
-          <UButton color="neutral" @click="resetAll">Reset All</UButton>
-          <div class="flex gap-2">
-            <UButton color="success" @click="submitAll">Submit all</UButton>
+        <!-- pagination controls -->
+        <div class="flex items-center justify-between mt-6">
+          <div class="flex items-center gap-2">
+            <UButton color="neutral" @click="resetAll">Reset All</UButton>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <UButton :disabled="currentIndex === 0" size="sm" @click="prevPage">Prev</UButton>
+            <div class="text-sm text-gray-600">Page {{ currentIndex + 1 }} / {{ totalPages }}</div>
+            <UButton :disabled="currentIndex >= totalPages - 1" size="sm" @click="nextPage">Next</UButton>
+            <!-- jika di page terakhir, tombol submitAll -->
+            <UButton color="success" @click="submitAll" v-if="currentIndex >= totalPages - 1">Submit all</UButton>
           </div>
         </div>
       </div>
 
-      <!-- ====================== HASIL ====================== -->
       <div v-else class="p-4 bg-white rounded-lg shadow">
-        <h2 class="text-xl font-bold mb-4">📊 Hasil Jawaban</h2>
-        <p class="text-green-700 font-semibold">
-          Benar: {{ score.correct }}
-        </p>
-        <p class="text-red-600 font-semibold">
-          Salah: {{ score.wrong }}
-        </p>
+        <h2 class="text-xl font-bold mb-4">📊 Answer Results</h2>
+        <p class="text-green-700 font-semibold">Correct: {{ score.correct }}</p>
+        <p class="text-red-600 font-semibold">Wrong: {{ score.wrong }}</p>
 
         <div class="mt-6 flex gap-2">
           <UButton color="neutral" @click="resetAll">Reset All</UButton>
-          <UButton color="primary" @click="isSubmitted = false">
-            Kembali ke soal
-          </UButton>
+          <UButton color="primary" @click="goToFirstPage">Back</UButton>
         </div>
       </div>
     </div>
@@ -137,12 +129,18 @@ const classId = computed(() => Number(route.params.id))
 const lessonId = computed(() => Number(route.params.lessonid))
 const lessonStore = useLessonStore()
 
+// pagination
+const currentIndex = ref(0)
 const isSubmitted = ref(false)
-const score = ref({ correct: 0, wrong: 0 }) // ✅ tambah ini
+const score = ref({ correct: 0, wrong: 0 })
 const results = ref<Record<number, any>>({})
 const localEssay = reactive<Record<number, string>>({})
 const answers = reactive<Record<number, string>>({})
 const essayTimers = new Map<number, number | undefined>()
+
+// computed helpers
+const totalPages = computed(() => lessonStore.lesson?.content_json?.length ?? 0)
+const currentBlock = computed(() => lessonStore.lesson?.content_json?.[currentIndex.value])
 
 // helpers
 const safeHtml = (html?: string) => html ?? ''
@@ -154,7 +152,7 @@ const clearErrorFor = (idx: number) => {
 }
 const isType = (block: any, t: string) => !!(block && block.type === t)
 const getBlockType = (block: any) => block?.type ?? 'unknown'
-const onMediaError = (idx: number) => setErrorFor(idx, 'Gagal memuat media (video/gambar).')
+const onMediaError = (idx: number) => setErrorFor(idx, 'Failed to load media (video/image).')
 
 // radio items
 function getRadioItems(options: any[] | undefined) {
@@ -198,7 +196,7 @@ function computeMCQResult(idx: number, value: string | undefined) {
     }
   } catch (err) {
     console.error('computeMCQResult error', err)
-    setErrorFor(idx, 'Kesalahan saat mengevaluasi jawaban pilihan ganda.')
+    setErrorFor(idx, 'Errors when evaluating multiple choice answers.')
   }
 }
 
@@ -218,7 +216,7 @@ function submitEssay(idx: number) {
     const text = (localEssay[idx] ?? '').trim()
 
     if (block?.max_length && text.length > block.max_length) {
-      setErrorFor(idx, `Jawaban melebihi batas ${block.max_length} karakter.`)
+      setErrorFor(idx, `Answer exceeds the ${block.max_length} character limit.`)
       return
     }
 
@@ -261,7 +259,22 @@ async function saveResults() {
   }
 }
 
-// ✅ submitAll sekarang menghitung score dan ubah UI
+function prevPage() {
+  // save current essay (force)
+  if (isType(currentBlock.value, 'essay')) submitEssay(currentIndex.value)
+  if (currentIndex.value > 0) currentIndex.value--
+}
+
+function nextPage() {
+  if (isType(currentBlock.value, 'essay')) submitEssay(currentIndex.value)
+  if (currentIndex.value < totalPages.value - 1) currentIndex.value++
+}
+
+function goToFirstPage() {
+  isSubmitted.value = false
+  currentIndex.value = 0
+}
+
 async function submitAll() {
   lessonStore.lesson?.content_json?.forEach((b: any, i: any) => {
     if (b.type === 'essay' && !results.value[i]) submitEssay(i)
@@ -288,6 +301,10 @@ function resetAll() {
   Object.keys(results.value).forEach(k => delete results.value[Number(k)])
   Object.keys(localEssay).forEach(k => delete localEssay[Number(k)])
   Object.keys(answers).forEach(k => delete answers[Number(k)])
+  score.value.correct = 0
+  score.value.wrong = 0
+  isSubmitted.value = false
+  currentIndex.value = 0
 }
 
 onMounted(async () => {
@@ -299,3 +316,9 @@ onMounted(async () => {
 
 const prettyResults = computed(() => JSON.stringify(results.value, null, 2))
 </script>
+
+<style scoped>
+.prose img {
+  max-width: 100%;
+}
+</style>

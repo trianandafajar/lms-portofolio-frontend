@@ -61,6 +61,10 @@
                         <UInput v-model="joinClassState.code" placeholder="Enter class code" class="w-full" />
                       </UFormField>
 
+                      <div v-if="LmsClassStore.error">
+                        {{ LmsClassStore.error }}
+                      </div>
+
                       <div class="flex justify-end gap-2">
                         <UButton @click.prevent="handleCancelJoin" type="button" color="secondary" variant="soft">
                           Cancel

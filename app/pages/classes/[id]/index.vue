@@ -18,10 +18,9 @@
 		<template #lessons>
 			<div class="flex flex-row mt-4">
 				<!-- Modal (trigger inside) -->
-				<UModal Modal v-model:show="modalOpen" class="w-full max-w-5xl">
+				<UModal Modal v-model:open="modalOpen" class="w-full max-w-5xl">
 					<div class="mb-3">
-						<UButton color="primary" size="md" class="mr-auto py-2 cursor-pointer"
-							@click.prevent="openLessonModal">
+						<UButton color="primary" size="md" class="mr-auto py-2 cursor-pointer">
 							<UIcon name="heroicons-plus" class="h-4 w-4" />
 							Add Lesson
 						</UButton>
@@ -54,7 +53,7 @@
 								</div>
 
 								<div class="flex justify-end gap-2">
-									<UButton type="button" color="neutral" size="md" @click="closeLessonModal">Cancel
+									<UButton type="button" color="neutral" size="md" @click.stop="closeLessonModal">Cancel
 									</UButton>
 									<UButton type="submit" color="primary" size="md" :loading="lmsClassStore.loading">
 										Next: Create Content

@@ -72,7 +72,7 @@ export const useLmsClassStore = defineStore('lmsclass', {
         this.getMyClass()
         return res
       } catch (err: any) {
-        this.error = err?.response?.data?.error || err.message || "Failed to join class"
+        this.error = err?.response?.data?.error || "Failed to join class"
         throw err
       } finally {
         this.loading = false
