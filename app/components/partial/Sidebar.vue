@@ -140,7 +140,7 @@ const mainNav = [
 ]
 
 const footerNav = [
-  // { label: 'Archived', icon: 'heroicons-archive-box', to: '/archived' },
+  { label: 'Subscription', icon: 'heroicons-credit-card', to: '/subscription' },
   { label: 'Settings', icon: 'heroicons-cog-6-tooth', to: '/settings' },
 ]
 

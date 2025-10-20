@@ -21,7 +21,7 @@ async function apiFetch<T>(
         ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
         ...(options.headers || {}),
       },
-      // pastikan body bukan proxy vue
+      
       body: options.body ? JSON.parse(JSON.stringify(toRaw(options.body))) : undefined,
     })
   } catch (err: any) {
