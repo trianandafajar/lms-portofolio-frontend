@@ -42,14 +42,6 @@
                   placeholder="Enter lesson description"
                   class="w-full"
                 />
-                <UButton
-                  color="primary"
-                  size="md"
-                  @click.stop="aiGenerateSummary"
-                  :loading="aiLoading.summary"
-                >
-                  AI
-                </UButton>
               </div>
             </UFormField>
 
@@ -317,12 +309,12 @@
           >
             <div class="w-full">
               <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Generate Block dengan AI</label
+                >Generate Content With AI</label
               >
               <div class="flex gap-2">
                 <UTextarea
                   v-model="aiPrompt"
-                  placeholder="Contoh: Buat block text tentang fotosintesis dengan penjelasan singkat..."
+                  placeholder="Exemple: make a space module and a short explanation with 5 multiple choices and ..."
                   class="flex-1 h-20"
                 />
                 <div class="flex flex-col gap-2">
@@ -334,10 +326,10 @@
                     class="whitespace-nowrap"
                   >
                     <UIcon name="i-heroicons-sparkles" class="h-4 w-4" />
-                    Generate
+                    Generate Ai
                   </UButton>
                   <span class="text-xs text-gray-500 text-center"
-                    >Atau buat manual:</span
+                    >or create manual:</span
                   >
                   <UButton
                     color="primary"
@@ -584,12 +576,11 @@ const submitFinal = async () => {
   state.author_id = authStore.user.id;
 
   await lessonStore.createLesson({ ...state });
-  // refresh class details
   await lmsClassStore.getDetailsClass(props.classId);
   closeLessonModal();
 };
 
-const callGrok = async (
+const callAi = async (
   type: string,
   payload: {
     prompt?: string;
@@ -604,140 +595,387 @@ const callGrok = async (
     console.error("AI error", res);
     return "";
   }
-  return (res as any).output ?? "";
-};
-
-const aiGenerateSummary = async () => {
-  if (!formState.title) {
-    formState.summary = "";
-    return;
+  let out = (res as any).output ?? "";
+  if (out && typeof out === "object") {
+    try {
+      out = JSON.stringify(out);
+    } catch (e) {
+      out = String(out);
+    }
   }
-  aiLoading.summary = true;
-  try {
-    const prompt = `Buat ringkasan singkat dan menarik untuk pelajaran berjudul: "${formState.title}". Panjang: 2-3 kalimat.`;
-    const text = await callGrok("summary", { prompt });
-    formState.summary = text;
-  } catch (err) {
-    console.error("AI summary error", err);
-  } finally {
-    aiLoading.summary = false;
-  }
+  return out;
 };
 
 const aiGenerateBlock = async () => {
   if (!aiPrompt.value.trim()) {
-    alert("Masukkan prompt untuk generate block");
+    alert("Please enter a prompt to generate blocks");
     return;
   }
 
-  console.log("🤖 Starting AI block generation with prompt:", aiPrompt.value);
   aiLoading.block = true;
   try {
-    const systemPrompt = `You are an educational content generator. Generate a lesson content block based on the user's prompt.
+    const systemPrompt = `You are an educational content generator. Generate lesson content blocks... (your original system prompt)
+    
+    IMPORTANT: Return ONLY a valid JSON object, no markdown formatting, no backticks, no explanation.
 
-IMPORTANT: Return ONLY a valid JSON object, no markdown formatting, no backticks, no explanation.
+    Example expected output format (exact JSON array; this is an instructive example — return similar structure not the literal text):
+    [
+      {
+        "type":"text",
+        "title":"Space: A Glimpse into the Universe",
+        "content":"Space is the space beyond the atmosphere... (short summary)"
+      },
+      {
+        "type":"multiple_choice",
+        "title":"What is meant by space??",
+        "options":[
+          {"value":"Space outside Earth's atmosphere","is_correct":true},
+          {"value":"Planetary core","is_correct":false},
+          {"value":"Layers of air in the atmosphere","is_correct":false},
+          {"value":"Man-made satellite","is_correct":false},
+          {"value":"Ozone layer","is_correct":false}
+        ],
+        "explanation":"The correct answer is because space is space outside the Earth's atmosphere.."
+      },
+      {
+        "type":"essay",
+        "title":"Explain the importance of space exploration",
+        "placeholder":"Write your answer here...",
+        "max_length":500
+      },
+      {
+        "type":"essay",
+        "title":"How space technology affects everyday life?",
+        "placeholder":"Write your answer here...",
+        "max_length":400
+      }
+    ]
+    
+    Return ONLY the JSON, nothing else.`;
 
-JSON structure:
-{
-  "type": "text|image|video|multiple_choice|essay",
-  "title": "string (title of the block)",
-  "content": "string (for text blocks only)",
-  "options": [{"value": "string", "is_correct": boolean}, ...] (for multiple_choice only),
-  "placeholder": "string (for essay only)",
-  "max_length": number (for essay only),
-  "explanation": "string (optional)"
-}
-
-Examples:
-- For text: {"type": "text", "title": "Fotosintesis", "content": "Fotosintesis adalah..."}
-- For MCQ: {"type": "multiple_choice", "title": "Apa itu...", "options": [{"value": "A", "is_correct": true}, ...]}
-- For essay: {"type": "essay", "title": "Jelaskan", "placeholder": "Jawab di sini", "max_length": 500}
-
-Return ONLY the JSON, nothing else.`;
-
-    const text = await callGrok("block", {
+    const text = await callAi("block", {
       messages: [
         { type: "system", content: systemPrompt },
         { type: "user", content: aiPrompt.value },
       ],
     });
 
-    console.log("🤖 AI response received:", text);
-
     if (!text) {
-      alert("AI generation failed: no response");
       return;
     }
 
-    let blockData: any;
-    try {
-      let output = text.trim();
-      console.log("🤖 Before cleaning:", output.substring(0, 100));
-      // Remove markdown code block if present
-      if (output.startsWith("```json")) {
-        output = output.replace(/^```json\n?/, "").replace(/\n?```$/, "");
-      } else if (output.startsWith("```")) {
-        output = output.replace(/^```\n?/, "").replace(/\n?```$/, "");
+    function extractJsonObjects(raw: string): any[] {
+      const results: any[] = [];
+
+      if (!raw || typeof raw !== "string") return results;
+      let s = raw.trim();
+
+      try {
+        const parsed = JSON.parse(s);
+        return [parsed];
+      } catch (e) {
+        // TODO: ignore
       }
-      output = output.trim();
-      console.log("🤖 After cleaning:", output.substring(0, 100));
-      blockData = JSON.parse(output);
-      console.log("✅ JSON parsed successfully:", blockData);
-    } catch (e) {
-      console.error("❌ Failed to parse AI response:", text);
-      console.error("Parse error:", e);
-      alert("Failed to parse AI response: " + (e as any).message);
+
+      try {
+        const wrapper = JSON.parse(s.replace(/\r/g, ""));
+        if (wrapper && typeof wrapper.output === "string") {
+          s = wrapper.output;
+        } else if (wrapper && typeof wrapper.output === "object") {
+          results.push(wrapper.output);
+          return results;
+        }
+      } catch (e) {
+        // TODO: ignore
+      }
+
+      const codeFenceRegex = /```(?:json)?\s*([\s\S]*?)```/g;
+      let m: any;
+      while ((m = codeFenceRegex.exec(s)) !== null) {
+        const candidate = m[1].trim();
+        try {
+          results.push(JSON.parse(candidate));
+        } catch (e) {
+          // TODO: ignore
+        }
+      }
+      if (results.length) return results;
+
+      const objRegex = /(\{[\s\S]*?\})(?=\s*\{|\s*$)/g;
+      while ((m = objRegex.exec(s)) !== null) {
+        const candidate = m[1];
+        try {
+          results.push(JSON.parse(candidate));
+        } catch (e) {
+          // TODO: ignore
+        }
+      }
+      if (results.length) return results;
+
+      const arrMatch: any = s.match(/(\[[\s\S]*\])/);
+      if (arrMatch) {
+        try {
+          const parsedArr = JSON.parse(arrMatch[1]);
+          return [parsedArr];
+        } catch (e) {
+          // TODO: ignore
+        }
+      }
+
+      const firstBrace = s.indexOf("{");
+      const lastBrace = s.lastIndexOf("}");
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        const candidate = s.slice(firstBrace, lastBrace + 1);
+        try {
+          results.push(JSON.parse(candidate));
+        } catch (e) {
+          // TODO: ignore
+        }
+      }
+
+      return results;
+    }
+
+    const extracted = extractJsonObjects(text);
+    if (!extracted.length) {
+      console.error("❌ No JSON blocks were extracted from AI response:", text);
       return;
     }
 
-    // Validate and create block
-    if (!blockData.type) blockData.type = "text";
-    if (!blockData.title) blockData.title = "Generated Block";
+    const blockObjects: any[] = [];
 
-    const newBlock: any = {
-      type: blockData.type,
-      title: blockData.title,
-      __id: "new_" + ++newBlockCounter.value,
-    };
+    function normalizeModuleFormat(obj: any): any[] {
+      const outBlocks: any[] = [];
 
-    switch (blockData.type) {
-      case "text":
-        newBlock.content = blockData.content || "";
-        break;
-      case "image":
-        newBlock.url = blockData.url || "";
-        newBlock.alt = blockData.alt || "";
-        break;
-      case "video":
-        newBlock.url = blockData.url || "";
-        break;
-      case "multiple_choice":
-        newBlock.options = blockData.options || [
-          { value: "Option 1", is_correct: false },
-          { value: "Option 2", is_correct: false },
-        ];
-        newBlock.explanation = blockData.explanation || "";
-        break;
-      case "essay":
-        newBlock.placeholder = blockData.placeholder || "";
-        newBlock.max_length = blockData.max_length || 500;
-        newBlock.explanation = blockData.explanation || "";
-        break;
+      if (
+        obj.title ||
+        obj.module_content ||
+        obj.moduleDescription ||
+        obj.content
+      ) {
+        const title = obj.title || obj.moduleTitle || "Generated Module";
+        const content =
+          obj.module_content || obj.content || obj.moduleDescription || "";
+        outBlocks.push({
+          type: "text",
+          title,
+          content,
+        });
+      }
+
+      const assessment = obj.assessment || obj.assessments || obj.quiz || null;
+      if (assessment) {
+        const mcs =
+          assessment.multiple_choice ||
+          assessment.mcq ||
+          assessment.multipleChoice;
+        if (Array.isArray(mcs)) {
+          for (const q of mcs) {
+            const title = q.question || q.title || "Multiple Choice Questions";
+            const optionsSrc = Array.isArray(q.options) ? q.options : [];
+            const options = optionsSrc.map((opt: any) => {
+              const value =
+                typeof opt === "string" ? opt : opt.value ?? opt.text ?? "";
+              const answerVal = q.answer ?? q.correct ?? q.key ?? null;
+              const is_correct =
+                answerVal != null &&
+                String(value).trim() === String(answerVal).trim();
+              return { value, is_correct };
+            });
+
+            if (
+              !options.some((o: any) => o.is_correct) &&
+              typeof q.answer === "string"
+            ) {
+              for (const o of options) {
+                if (String(o.value).trim() === String(q.answer).trim()) {
+                  o.is_correct = true;
+                }
+              }
+            }
+
+            outBlocks.push({
+              type: "multiple_choice",
+              title,
+              options,
+              explanation: q.explanation || q.explain || "",
+            });
+          }
+        }
+
+        const essays =
+          assessment.essay || assessment.essays || assessment.open_ended;
+        if (Array.isArray(essays)) {
+          for (const e of essays) {
+            const title = e.question || e.title || "Essay";
+            const max_words =
+              e.max_words ?? e.maxWords ?? e.max_words_allowed ?? e.max_length;
+            const max_length =
+              typeof max_words === "number"
+                ? Math.max(100, Math.floor(max_words * 7))
+                : e.max_length ?? 500;
+            outBlocks.push({
+              type: "essay",
+              title,
+              placeholder: e.placeholder ?? "Write your answer here...",
+              max_length,
+            });
+          }
+        }
+      }
+
+      return outBlocks;
     }
 
-    state.content_json.push(newBlock);
-    console.log("✅ Block added to state:", newBlock);
-    console.log("📊 Total blocks now:", state.content_json.length);
+    for (const item of extracted) {
+      if (Array.isArray(item)) {
+        for (const el of item) blockObjects.push(el);
+      } else if (item && typeof item === "object") {
+        if (item.output && typeof item.output === "object") {
+          const outObj = item.output;
+          if (
+            outObj.module_content ||
+            (outObj.assessment &&
+              (outObj.assessment.multiple_choice || outObj.assessment.essay))
+          ) {
+            const blocksFromModule = normalizeModuleFormat(outObj);
+            for (const b of blocksFromModule) blockObjects.push(b);
+          } else if (Array.isArray(outObj)) {
+            for (const b of outObj) blockObjects.push(b);
+          } else if (
+            outObj.type &&
+            (outObj.title ||
+              outObj.content ||
+              outObj.options ||
+              outObj.placeholder)
+          ) {
+            blockObjects.push(outObj);
+          } else {
+            const maybe = normalizeModuleFormat(outObj);
+            if (maybe.length) {
+              for (const b of maybe) blockObjects.push(b);
+            } else {
+              blockObjects.push(outObj);
+            }
+          }
+        } else if (
+          item.module_content ||
+          (item.assessment &&
+            (item.assessment.multiple_choice || item.assessment.essay))
+        ) {
+          const blocksFromModule = normalizeModuleFormat(item);
+          for (const b of blocksFromModule) blockObjects.push(b);
+        } else if (
+          item.type &&
+          (item.title || item.content || item.options || item.placeholder)
+        ) {
+          blockObjects.push(item);
+        } else {
+          let found = false;
+          for (const v of Object.values(item)) {
+            if (Array.isArray(v)) {
+              for (const el of v) {
+                if (el && typeof el === "object" && el.type) {
+                  blockObjects.push(el);
+                  found = true;
+                }
+              }
+            } else if (v && typeof v === "object" && (v as any).type) {
+              blockObjects.push(v);
+              found = true;
+            }
+          }
+          if (!found) {
+            blockObjects.push(item);
+          }
+        }
+      }
+    }
+
+    if (!blockObjects.length) {
+      console.error(
+        "❌ No valid block objects found after normalization:",
+        extracted
+      );
+      return;
+    }
+
+    const addedBlocks: any[] = [];
+    for (const blockDataRaw of blockObjects) {
+      const blockData = blockDataRaw || {};
+      if (!blockData.type) blockData.type = "text";
+      if (!blockData.title) {
+        if (blockData.module_title) blockData.title = blockData.module_title;
+        else blockData.title = "Generated Block";
+      }
+
+      const newBlock: any = {
+        type: blockData.type,
+        title: blockData.title,
+        __id: "new_" + ++newBlockCounter.value,
+      };
+
+      switch (blockData.type) {
+        case "text":
+          newBlock.content =
+            blockData.content ?? blockData.module_content ?? "";
+          break;
+        case "image":
+          newBlock.url = blockData.url || blockData.src || "";
+          newBlock.alt = blockData.alt || "";
+          break;
+        case "video":
+          newBlock.url = blockData.url || "";
+          break;
+        case "multiple_choice":
+          newBlock.options = Array.isArray(blockData.options)
+            ? blockData.options.map((o: any) => ({
+                value: o.value ?? o.text ?? o,
+                is_correct: !!o.is_correct,
+              }))
+            : Array.isArray(blockData.optionsRaw)
+            ? blockData.optionsRaw.map((opt: any) => ({
+                value: opt,
+                is_correct: false,
+              }))
+            : [];
+          if (
+            newBlock.options &&
+            newBlock.options.length &&
+            !newBlock.options.some((o: any) => o.is_correct) &&
+            blockData.answer
+          ) {
+            for (const o of newBlock.options) {
+              if (String(o.value).trim() === String(blockData.answer).trim()) {
+                o.is_correct = true;
+              }
+            }
+          }
+          newBlock.explanation =
+            blockData.explanation || blockData.explain || "";
+          break;
+        case "essay":
+          newBlock.placeholder = blockData.placeholder || "";
+          newBlock.max_length =
+            blockData.max_length || blockData.maxWords || blockData.max_words
+              ? blockData.max_length ??
+                (blockData.max_words
+                  ? Math.max(100, Math.floor(blockData.max_words * 7))
+                  : 500)
+              : 500;
+          newBlock.explanation = blockData.explanation || "";
+          break;
+        default:
+          newBlock.content = blockData.content ?? JSON.stringify(blockData);
+      }
+
+      state.content_json.push(newBlock);
+      addedBlocks.push(newBlock);
+    }
+
     aiPrompt.value = "";
-    alert(
-      "✅ Block generated successfully! Added " +
-        blockData.type +
-        " block: " +
-        blockData.title
-    );
   } catch (err) {
     console.error("❌ AI generate block error", err);
-    alert("Error generating block: " + (err as any).message);
   } finally {
     aiLoading.block = false;
   }
