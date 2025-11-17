@@ -2,9 +2,12 @@ module.exports = {
   apps: [
     {
       name: "mentora-frontend",
-      port: "3009",
+      script: ".output/server/index.mjs",
       exec_mode: "fork",
-      script: "./.output/server/index.mjs",
+      env: {
+        PORT: 3009,
+        NODE_ENV: "production",
+      },
     },
   ],
 };
