@@ -3,8 +3,7 @@ module.exports = {
     {
       name: "mentora-frontend",
       port: "3009",
-      exec_mode: "cluster",
-      instances: "max",
+      exec_mode: "fork",
       script: "./.output/server/index.mjs",
     },
   ],
