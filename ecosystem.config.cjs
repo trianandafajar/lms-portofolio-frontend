@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "Mentora LMS Frontend",
+      name: "mentora-frontend",
       port: "3009",
       exec_mode: "cluster",
       instances: "max",
