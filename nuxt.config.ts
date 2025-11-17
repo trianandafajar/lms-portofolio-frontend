@@ -6,11 +6,8 @@ export default defineNuxtConfig({
     "@nuxt/ui",
     "@nuxtjs/color-mode",
     "pinia-plugin-persistedstate/nuxt",
-    "nuxt-tiptap-editor",
   ],
   css: ["~/assets/css/main.css"],
-
-  devServer: {},
 
   app: {
     head: {
@@ -18,10 +15,6 @@ export default defineNuxtConfig({
       meta: [{ name: "description", content: "ims Portofolio" }],
       link: [{ rel: "preload", as: "style", href: "/assets/css/main.css" }],
     },
-  },
-
-  tiptap: {
-    prefix: "Tiptap", //prefix for Tiptap imports, composables not included
   },
 
   pinia: {
