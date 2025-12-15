@@ -73,9 +73,10 @@ definePageMeta({
 
 const loading = ref(false)
 const rememberMe = ref(false)
+
 const form = ref<AuthLogin>({
-  email: '',
-  password: ''
+  email: 'admin@example.com',
+  password: 'password'
 })
 
 const handleLogin = async () => {

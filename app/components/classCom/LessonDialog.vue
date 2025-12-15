@@ -185,7 +185,7 @@
                     <input
                       type="file"
                       accept="image/*"
-                      @change="(e) => handleFileUpload(e, idx, 'image')"
+                      @change="handleFileUpload($event, idx, 'image')"
                       class="block w-full border border-gray-300 rounded-lg p-2 cursor-pointer text-sm"
                     />
                     <UInput
@@ -212,7 +212,7 @@
                     <input
                       type="file"
                       accept="video/*"
-                      @change="(e) => handleFileUpload(e, idx, 'video')"
+                      @change="handleFileUpload($event, idx, 'video')"
                       class="block w-full border border-gray-300 rounded-lg p-2 cursor-pointer text-sm"
                     />
                     <video
