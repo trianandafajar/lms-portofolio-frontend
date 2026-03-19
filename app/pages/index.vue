@@ -21,7 +21,7 @@
 
           <div class="flex items-center gap-3 py-3">
             <div
-              class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 text-white flex items-center justify-center font-medium">
+              class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-pink-500 text-white flex items-center justify-center font-medium">
               {{ classList.creator.profile?.display_name?.[0] || classList.title[0] }}
             </div>
             <div class="flex flex-col">
@@ -44,5 +44,7 @@
 </template>
 
 <script setup lang="ts">
+import { useLmsClassStore } from '~/stores/lmsclass';
+
 const LmsClassStore = useLmsClassStore()
 </script>

@@ -13,7 +13,7 @@
             <UCard v-for="plan in subscriptionStore.getPlans" :key="plan.id"
                 class="transition-all duration-200 hover:shadow-lg" 
                 :class="{
-                    'border-2 border-indigo-500': isActive(plan.id)
+                    'border-2 border-green-500': isActive(plan.id)
                 }">
                 <template #header>
                     <div class="flex justify-between items-center">
@@ -27,7 +27,7 @@
                 </template>
 
                 <div class="py-4">
-                    <p class="text-2xl font-bold text-indigo-600">
+                    <p class="text-2xl font-bold text-green-600">
                         Rp {{ plan.price.toLocaleString() }}
                     </p>
                 </div>
@@ -44,6 +44,8 @@
 </template>
 
 <script setup lang="ts">
+import { useSubscriptionStore } from '~/stores/subscription'
+
 const subscriptionStore = useSubscriptionStore()
 
 onMounted(async () => {

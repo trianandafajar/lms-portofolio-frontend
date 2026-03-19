@@ -4,7 +4,7 @@
             class="grid grid-cols-3 gap-5 bg-white rounded-md border border-gray-200 p-4 mt-2">
             <li v-for="member in members" :key="member.id" class="flex flex-row items-center gap-3">
                 <div
-                    class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 text-white flex items-center justify-center font-medium">
+                    class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-pink-500 text-white flex items-center justify-center font-medium">
                     A</div>
                 <div class="flex flex-col">
                     <b>{{ member.user.profile?.display_name }}</b>

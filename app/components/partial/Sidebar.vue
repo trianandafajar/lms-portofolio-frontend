@@ -130,6 +130,9 @@
 </template>
 
 <script setup lang="ts">
+import { useLmsClassStore } from '~/stores/lmsclass'
+import { useSidebarStore } from '~/stores/sidebar'
+
 const sidebar = useSidebarStore()
 const LmsClassStore = useLmsClassStore()
 const route = useRoute()
@@ -145,7 +148,7 @@ const footerNav = [
 ]
 
 const avatarColors = [
-  'from-indigo-500 to-indigo-600',
+  'from-green-500 to-green-600',
   'from-pink-500 to-pink-600',
   'from-green-500 to-green-600',
   'from-yellow-400 to-yellow-500',

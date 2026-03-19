@@ -183,7 +183,7 @@
 
       <div v-else class="p-4 bg-white rounded-lg shadow">
         <h2 class="text-xl font-bold mb-4">📊 Answer Results</h2>
-        <p class="text-green-700 font-semibold">Correct: {{ score.correct }}</p>
+        <p class="text-green-500 font-semibold">Correct: {{ score.correct }}</p>
         <p class="text-red-600 font-semibold">Wrong: {{ score.wrong }}</p>
 
         <div class="mt-6 flex gap-2">

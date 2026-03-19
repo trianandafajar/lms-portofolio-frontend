@@ -87,7 +87,7 @@
       <UPopover placement="bottom-end" arrow>
         <UTooltip text="My Account">
           <UButton
-            class="cursor-pointer w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 text-white flex items-center justify-center font-medium focus:outline-none">
+            class="cursor-pointer w-9 h-9 rounded-full bg-gradient-to-br from-green-500 to-pink-500 text-white flex items-center justify-center font-medium focus:outline-none">
             {{ auth?.user?.profile?.display_name?.charAt(0)?.toUpperCase() || '' }}
           </UButton>
         </UTooltip>
@@ -96,7 +96,7 @@
           <div class="w-64 p-3">
             <div class="flex items-center gap-3 p-3">
               <div
-                class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 text-white flex items-center justify-center font-medium">
+                class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-pink-500 text-white flex items-center justify-center font-medium">
                 {{ auth?.user?.profile?.display_name?.charAt(0)?.toUpperCase() || 'A' }}
               </div>
               <div class="flex flex-col">
@@ -122,6 +122,9 @@
 <script setup lang="ts">
 import * as v from 'valibot'
 import type { FormSubmitEvent } from '@nuxt/ui'
+import { useSidebarStore } from '~/stores/sidebar'
+import { useAuthStore } from '~/stores/auth'
+import { useLmsClassStore } from '~/stores/lmsclass'
 
 const sidebar = useSidebarStore()
 const auth = useAuthStore()
