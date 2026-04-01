@@ -13,10 +13,10 @@
         (sidebar.collapsed && !sidebar.hovered) ? 'justify-center' : 'justify-between'
       ]"
     >
-      <NuxtLink to="/" class="font-semibold text-slate-800 text-lg" v-if="!sidebar.collapsed || sidebar.hovered">
+      <NuxtLink to="/home" class="font-semibold text-slate-800 text-lg" v-if="!sidebar.collapsed || sidebar.hovered">
         Mentora
       </NuxtLink>
-      <NuxtLink to="/" v-else class="font-semibold text-slate-800 text-lg">Mentora</NuxtLink> 
+      <NuxtLink to="/home" v-else class="font-semibold text-slate-800 text-lg">Mentora</NuxtLink> 
     </div>
 
     <!-- Main nav -->
@@ -138,7 +138,7 @@ const LmsClassStore = useLmsClassStore()
 const route = useRoute()
 
 const mainNav = [
-  { label: 'Homepage', icon: 'heroicons-home', to: '/' },
+  { label: 'Homepage', icon: 'heroicons-home', to: '/home' },
   // { label: 'Calendar', icon: 'heroicons-calendar', to: '/calendar' },
 ]
 
@@ -174,8 +174,8 @@ watch(() => route.fullPath, () => {
 })
 
 function isNavActive(to: string) {
-  if (to === '/') {
-    return route.path === '/'
+  if (to === '/home') {
+    return route.path === '/home'
   }
   return route.path === to || route.path.startsWith(to + '/')
 }
