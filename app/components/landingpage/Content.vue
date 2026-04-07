@@ -3,8 +3,9 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="grid md:grid-cols-2 items-center gap-12 lg:gap-24">
                 <div class="order-2 md:order-1">
-                    <img src="/image/image_banner2.svg"
-                        class="rounded-3xl" alt="System Infrastructure" />
+                    <img src="/images/image_banner2.png" class="rounded-3xl shadow-xl w-full"
+                        alt="Diagram illustrating integrated learning infrastructure" width="600" height="400"
+                        loading="lazy" decoding="async" />
                 </div>
 
                 <div class="order-1 md:order-2">
@@ -19,32 +20,34 @@
 
                     <div class="mt-8">
                         <ul class="space-y-4">
-                            <li class="flex items-start gap-3 font-medium text-gray-700">
-                                <div class="mt-1 p-1 bg-teal-100 rounded-full text-green-500">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <li class="flex items-start gap-4 font-medium text-gray-700">
+                                <div class="mt-1 p-1 bg-teal-100 rounded-full text-green-500 shrink-0">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"
+                                        title="checkmark">
                                         <path fill-rule="evenodd"
                                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                             clip-rule="evenodd"></path>
                                     </svg>
                                 </div>
                                 <div>
-                                    <span class="block text-gray-900 font-bold">Automated Data Pipelines</span>
-                                    <span class="text-sm text-gray-600 font-normal">Real-time synchronization of student
-                                        grades, progress logs, and AI-generated assessment results.</span>
+                                    <h3 class="text-gray-900 font-bold block">Automated Data Pipelines</h3>
+                                    <p class="text-sm text-gray-600 font-normal">Real-time synchronization of student
+                                        grades, progress logs, and AI-generated assessment results.</p>
                                 </div>
                             </li>
-                            <li class="flex items-start gap-3 font-medium text-gray-700">
-                                <div class="mt-1 p-1 bg-teal-100 rounded-full text-green-500">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <li class="flex items-start gap-4 font-medium text-gray-700">
+                                <div class="mt-1 p-1 bg-teal-100 rounded-full text-green-500 shrink-0">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"
+                                        title="checkmark">
                                         <path fill-rule="evenodd"
                                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                             clip-rule="evenodd"></path>
                                     </svg>
                                 </div>
                                 <div>
-                                    <span class="block text-gray-900 font-bold">AI Processing Engine</span>
-                                    <span class="text-sm text-gray-600 font-normal">Our backend uses LLM integration to
-                                        transform raw curriculum data into structured exam patterns instantly.</span>
+                                    <h3 class="text-gray-900 font-bold block">AI Processing Engine</h3>
+                                    <p class="text-sm text-gray-600 font-normal">Our backend uses LLM integration to
+                                        transform raw curriculum data into structured exam patterns instantly.</p>
                                 </div>
                             </li>
                         </ul>

@@ -3,30 +3,29 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-16 items-center justify-between">
                 <div class="md:flex md:items-center md:gap-6">
-                    <a class="block text-green-500 flex items-center gap-10" href="#">
+                    <NuxtLink class="block text-green-500 flex items-center gap-10" to="/">
                         <span class="sr-only">Home</span>
                         <span class="text-2xl py-1.5 font-extrabold text-gray-900 leading-[1.1]">Mentora</span>
-                    </a>
+                    </NuxtLink>
                 </div>
 
                 <div class="flex items-center gap-4">
                     <div class="sm:flex sm:gap-4">
                         <NuxtLink to="/auth/login"
-                            class="rounded-md bg-green-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm"
-                            href="#">
+                            class="rounded-md bg-green-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm">
                             Login
                         </NuxtLink>
 
                         <div class="hidden sm:flex">
                             <NuxtLink to="/auth/register"
-                                class="rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-green-500" href="#">
+                                class="rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-green-500">
                                 Register
                             </NuxtLink>
                         </div>
                     </div>
 
                     <div class="block md:hidden">
-                        <button class="rounded-sm bg-gray-100 p-2 text-gray-600 transition hover:text-gray-600/75">
+                        <button class="rounded-sm bg-gray-100 p-2 text-gray-600 transition hover:text-gray-600/75" aria-label="Toggle Menu">
                             <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
