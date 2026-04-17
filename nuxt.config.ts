@@ -11,9 +11,14 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: "Ims Portofolio",
-      meta: [{ name: "description", content: "ims Portofolio" }],
-      link: [{ rel: "preload", as: "style", href: "/assets/css/main.css" }],
+      title: "Mentora LMS",
+      meta: [
+        { name: "description", content: "Mentora Learning Management System" },
+      ],
+      link: [
+        { rel: "icon", type: "image/png", href: "/images/small_icon.png" },
+        { rel: "preload", as: "style", href: "/assets/css/main.css" },
+      ],
     },
   },
 

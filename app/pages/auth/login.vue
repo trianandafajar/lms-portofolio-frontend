@@ -1,64 +1,58 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-    <UCard class="w-full max-w-md shadow-md border border-gray-200 dark:border-gray-800 rounded-xl p-8 space-y-6">
-      <!-- Logo & Title -->
-      <div class="text-center space-y-3 mb-10">
-        <h1 class="text-2xl font-bold">Sign in to LMS</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">
-          Use your account to continue
-        </p>
+  <div class="space-y-8">
+    <div class="space-y-2">
+      <h1 class="text-2xl font-bold text-slate-900">Sign in to Mentora</h1>
+      <p class="text-sm text-slate-500">Enter your credentials to access your account</p>
+    </div>
+
+    <UForm :state="form" @submit="handleLogin" class="space-y-5">
+      <UFormField label="Email" name="email" required>
+        <UInput
+          class="w-full"
+          v-model="form.email"
+          type="email"
+          size="lg"
+          placeholder="you@example.com"
+          autocomplete="email"
+        />
+      </UFormField>
+
+      <UFormField label="Password" name="password" required>
+        <UInput
+          class="w-full"
+          v-model="form.password"
+          type="password"
+          size="lg"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+        />
+      </UFormField>
+
+      <div class="flex items-center justify-between">
+        <UCheckbox v-model="rememberMe" label="Remember me" name="remember" />
+        <UButton variant="link" to="/auth/forgot-password" size="sm" class="text-slate-600">
+          Forgot password?
+        </UButton>
       </div>
 
-      <!-- Form -->
-      <UForm :state="form" @submit="handleLogin" class="space-y-5">
-        <UFormField  label="Email" name="email" required>
-          <UInput
-            class="w-full"
-            v-model="form.email"
-            type="email"
-            size="lg"
-            placeholder="you@example.com"
-            autocomplete="email"
-          />
-        </UFormField>
+      <UButton
+        type="submit"
+        block
+        :loading="loading"
+        :disabled="loading"
+        color="neutral"
+        class="h-11 text-base font-medium"
+      >
+        {{ loading ? 'Signing in...' : 'Sign In' }}
+      </UButton>
+    </UForm>
 
-        <UFormField label="Password" name="password" required>
-          <UInput
-            class="w-full"
-            v-model="form.password"
-            type="password"
-            size="lg"
-            placeholder="Enter your password"
-            autocomplete="current-password"
-          />
-        </UFormField>
-
-        <div class="flex items-center justify-between">
-          <UCheckbox v-model="rememberMe" label="Remember me" name="remember" />
-          <UButton variant="link" to="/auth/forgot-password" size="sm">
-            Forgot password?
-          </UButton>
-        </div>
-
-        <UButton
-          type="submit"
-          block
-          :loading="loading"
-          :disabled="loading"
-          class="h-11 text-base font-medium"
-        >
-          {{ loading ? 'Signing in...' : 'Sign In' }}
-        </UButton>
-      </UForm>
-
-      <!-- Register -->
-      <p class="text-center text-sm text-gray-500">
-        Don’t have an account?
-        <UButton variant="link" to="/auth/register" size="sm">
-          Sign up now
-        </UButton>
-      </p>
-    </UCard>
+    <p class="text-center text-sm text-slate-500">
+      Don't have an account?
+      <NuxtLink to="/auth/register" class="font-medium text-slate-900 hover:underline">
+        Sign up
+      </NuxtLink>
+    </p>
   </div>
 </template>
 

@@ -1,11 +1,11 @@
 <template>
-     <header :class="['bg-gray-50 fixed top-0 z-9999999 w-full ...', hidden ? '-translate-y-full' : 'translate-y-0']">
+    <header :class="['bg-gray-50 fixed top-0 z-9999999 w-full ...', hidden ? '-translate-y-full' : 'translate-y-0']">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-16 items-center justify-between">
                 <div class="md:flex md:items-center md:gap-6">
-                    <NuxtLink class="block text-green-500 flex items-center gap-10" to="/">
+                    <NuxtLink class="flex items-center" to="/">
                         <span class="sr-only">Home</span>
-                        <span class="text-2xl py-1.5 font-extrabold text-gray-900 leading-[1.1]">Mentora</span>
+                        <img src="/images/logo.png" alt="Mentora" class="h-9 w-auto object-contain" />
                     </NuxtLink>
                 </div>
 
@@ -25,7 +25,8 @@
                     </div>
 
                     <div class="block md:hidden">
-                        <button class="rounded-sm bg-gray-100 p-2 text-gray-600 transition hover:text-gray-600/75" aria-label="Toggle Menu">
+                        <button class="rounded-sm bg-gray-100 p-2 text-gray-600 transition hover:text-gray-600/75"
+                            aria-label="Toggle Menu">
                             <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>

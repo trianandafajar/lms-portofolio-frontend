@@ -15,69 +15,22 @@
         </UTooltip>
 
         <template #content>
-          <div class="w-32 p-3">
-            <nav class="flex flex-col">
-
-              <!-- Create class modal -->
-              <UModal v-model:open="modalCreate" title="Create New Class">
-                <UButton color="neutral" variant="ghost" class="justify-start cursor-pointer">
-                  Create class
-                </UButton>
-                <template #content>
-                  <UCard>
-                    <UForm :schema="schema" :state="state" class="space-y-4 w-full" @submit="handleSubmit">
-                      <UFormField label="Title" name="title" class="w-full">
-                        <UInput v-model="state.title" placeholder="Enter class title" class="w-full" />
-                      </UFormField>
-
-                      <UFormField label="Description" name="description" class="w-full">
-                        <UTextarea v-model="state.description" placeholder="Enter class description" :rows="3"
-                          class="w-full" />
-                      </UFormField>
-
-                      <div class="flex justify-end gap-2">
-                        <UButton @click.prevent="handleCancel" type="button" color="secondary" variant="soft">
-                          Cancel
-                        </UButton>
-                        <UButton type="submit" color="primary" :loading="LmsClassStore.loading">
-                          Create
-                        </UButton>
-                      </div>
-                    </UForm>
-                  </UCard>
-                </template>
-              </UModal>
-
-              <!-- Join class modal -->
-              <UModal v-model:open="modalJoin" title="Join Class">
-                <UButton color="neutral" variant="ghost" class="justify-start cursor-pointer">
-                  Join class
-                </UButton>
-                <template #content>
-                  <UCard>
-                    <UForm :schema="joinSchema" :state="joinClassState" class="space-y-4 w-full"
-                      @submit="handleJoinClass">
-                      <UFormField label="Class Code" name="code" class="w-full">
-                        <UInput v-model="joinClassState.code" placeholder="Enter class code" class="w-full" />
-                      </UFormField>
-
-                      <div v-if="LmsClassStore.error">
-                        {{ LmsClassStore.error }}
-                      </div>
-
-                      <div class="flex justify-end gap-2">
-                        <UButton @click.prevent="handleCancelJoin" type="button" color="secondary" variant="soft">
-                          Cancel
-                        </UButton>
-                        <UButton type="submit" color="primary" :loading="LmsClassStore.loading">
-                          Join
-                        </UButton>
-                      </div>
-                    </UForm>
-                  </UCard>
-                </template>
-              </UModal>
-
+          <div class="w-44 p-2">
+            <nav class="flex flex-col gap-0.5">
+              <button
+                @click="modalCreate = true"
+                class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-50 transition-colors text-left"
+              >
+                <UIcon name="heroicons-plus-circle" class="h-5 w-5 text-slate-400" />
+                Create class
+              </button>
+              <button
+                @click="modalJoin = true"
+                class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-50 transition-colors text-left"
+              >
+                <UIcon name="heroicons-arrow-right-on-rectangle" class="h-5 w-5 text-slate-400" />
+                Join class
+              </button>
             </nav>
           </div>
         </template>
@@ -106,8 +59,7 @@
             </div>
             <div class="my-2 border-t border-slate-100"></div>
             <nav class="flex flex-col">
-              <UButton color="neutral" variant="ghost" class="justify-start cursor-pointer">Profile</UButton>
-              <UButton color="neutral" variant="ghost" class="justify-start cursor-pointer">Settings</UButton>
+              <UButton color="neutral" variant="ghost" class="justify-start cursor-pointer" @click="navigateTo('/profile')">Profile</UButton>
               <UButton color="error" variant="ghost" class="justify-start cursor-pointer" @click.prevent="handleLogout">
                 Logout
               </UButton>
@@ -117,6 +69,68 @@
       </UPopover>
     </div>
   </header>
+
+  <!-- Create Class Modal -->
+  <UModal v-model:open="modalCreate" title="Create New Class" @close="handleCancel">
+    <template #content>
+      <div class="p-6 space-y-6">
+        <div>
+          <h3 class="text-lg font-semibold text-slate-900">Create New Class</h3>
+          <p class="text-sm text-slate-500 mt-1">Set up a new class for your students</p>
+        </div>
+
+        <UForm :schema="schema" :state="state" class="space-y-4" @submit="handleSubmit">
+          <UFormField label="Title" name="title">
+            <UInput v-model="state.title" placeholder="e.g. Mathematics 101" class="w-full" size="lg" />
+          </UFormField>
+
+          <UFormField label="Description" name="description">
+            <UTextarea v-model="state.description" placeholder="What will students learn in this class?" :rows="3" class="w-full" />
+          </UFormField>
+
+          <div class="flex justify-end gap-2 pt-2">
+            <UButton @click.prevent="handleCancel" type="button" variant="ghost" color="neutral">
+              Cancel
+            </UButton>
+            <UButton type="submit" color="neutral" :loading="LmsClassStore.loading">
+              Create Class
+            </UButton>
+          </div>
+        </UForm>
+      </div>
+    </template>
+  </UModal>
+
+  <!-- Join Class Modal -->
+  <UModal v-model:open="modalJoin" title="Join Class" @close="handleCancelJoin">
+    <template #content>
+      <div class="p-6 space-y-6">
+        <div>
+          <h3 class="text-lg font-semibold text-slate-900">Join a Class</h3>
+          <p class="text-sm text-slate-500 mt-1">Enter the code provided by your teacher</p>
+        </div>
+
+        <UForm :schema="joinSchema" :state="joinClassState" class="space-y-4" @submit="handleJoinClass">
+          <UFormField label="Class Code" name="code">
+            <UInput v-model="joinClassState.code" placeholder="e.g. ABC123" class="w-full font-mono" size="lg" />
+          </UFormField>
+
+          <div v-if="LmsClassStore.error" class="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
+            {{ LmsClassStore.error }}
+          </div>
+
+          <div class="flex justify-end gap-2 pt-2">
+            <UButton @click.prevent="handleCancelJoin" type="button" variant="ghost" color="neutral">
+              Cancel
+            </UButton>
+            <UButton type="submit" color="neutral" :loading="LmsClassStore.loading">
+              Join Class
+            </UButton>
+          </div>
+        </UForm>
+      </div>
+    </template>
+  </UModal>
 </template>
 
 <script setup lang="ts">
