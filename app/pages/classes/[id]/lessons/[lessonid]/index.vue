@@ -58,7 +58,7 @@
               :key="idx"
               @click="goToPage(idx)"
               :class="[
-                'w-2 h-2 rounded-full transition-all duration-200',
+                'w-2 h-2 rounded-full transition-all duration-200 cursor-pointer',
                 idx === currentIndex
                   ? 'bg-emerald-500 scale-125'
                   : idx < currentIndex
@@ -127,23 +127,26 @@
                   :key="optIdx"
                   @click="selectOption(option)"
                   :class="[
-                    'flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200',
+                    'flex items-center gap-4 p-4 rounded-xl border-2 transition-all duration-200',
+                    isReviewMode ? 'cursor-not-allowed' : 'cursor-pointer',
                     getOptionStyle(option)
                   ]"
                 >
                   <div :class="[
                     'w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold shrink-0 transition-all',
-                    isOptionSelected(option)
-                      ? results[currentIndex]?.submitted
-                        ? option.is_correct ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
-                        : 'bg-slate-900 text-white'
-                      : 'bg-slate-100 text-slate-600'
+                    isReviewMode
+                      ? option.is_correct 
+                        ? 'bg-emerald-500 text-white' 
+                        : isOptionSelected(option) ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-400'
+                      : isOptionSelected(option) 
+                        ? 'bg-emerald-500 text-white' 
+                        : 'bg-slate-100 text-slate-600'
                   ]">
                     {{ String.fromCharCode(65 + optIdx) }}
                   </div>
                   <span class="text-sm font-medium text-slate-700 flex-1">{{ option.value ?? option.label }}</span>
                   <UIcon
-                    v-if="results[currentIndex]?.submitted && isOptionSelected(option)"
+                    v-if="isReviewMode && (option.is_correct || isOptionSelected(option))"
                     :name="option.is_correct ? 'heroicons-check-circle' : 'heroicons-x-circle'"
                     :class="['h-5 w-5', option.is_correct ? 'text-emerald-500' : 'text-red-500']"
                   />
@@ -151,7 +154,7 @@
 
                 <!-- Explanation -->
                 <div
-                  v-if="currentBlock.explanation && results[currentIndex]?.submitted"
+                  v-if="currentBlock.explanation && isReviewMode"
                   class="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-xl"
                 >
                   <div class="flex items-start gap-2">
@@ -176,6 +179,7 @@
                 :placeholder="currentBlock.placeholder ?? 'Write your answer here...'"
                 class="min-h-[160px] w-full"
                 v-model="localEssay[currentIndex]"
+                :disabled="isReviewMode"
                 @blur="submitEssayDebounced(currentIndex, true)"
                 @input="submitEssayDebounced(currentIndex, false)"
               />
@@ -195,7 +199,7 @@
               </div>
 
               <div
-                v-if="currentBlock.explanation && results[currentIndex]?.submitted"
+                v-if="currentBlock.explanation && isReviewMode"
                 class="p-4 bg-blue-50 border border-blue-100 rounded-xl"
               >
                 <div class="flex items-start gap-2">
@@ -221,9 +225,13 @@
 
         <!-- Pagination Controls -->
         <div class="flex items-center justify-between mt-8">
-          <UButton variant="ghost" color="neutral" @click="resetAll" class="text-slate-500">
+          <UButton v-if="!isReviewMode" variant="ghost" color="neutral" @click="resetAll" class="text-slate-500 cursor-pointer">
             <UIcon name="heroicons-arrow-path" class="h-4 w-4 mr-1.5" />
             Reset
+          </UButton>
+          <UButton v-else variant="ghost" color="primary" @click="isSubmitted = true" class="cursor-pointer">
+            <UIcon name="heroicons-trophy" class="h-4 w-4 mr-1.5" />
+            View Score
           </UButton>
 
           <div class="flex items-center gap-2">
@@ -232,7 +240,7 @@
               color="neutral"
               :disabled="currentIndex === 0"
               @click="prevPage"
-              class="px-4"
+              class="px-4 cursor-pointer"
             >
               <UIcon name="heroicons-chevron-left" class="h-4 w-4 mr-1" />
               Prev
@@ -242,17 +250,17 @@
               v-if="currentIndex < totalPages - 1"
               color="neutral"
               @click="nextPage"
-              class="px-4"
+              class="px-4 cursor-pointer"
             >
               Next
               <UIcon name="heroicons-chevron-right" class="h-4 w-4 ml-1" />
             </UButton>
 
             <UButton
-              v-else
+              v-else-if="!isReviewMode"
               color="primary"
               @click="submitAll"
-              class="px-5"
+              class="px-5 cursor-pointer"
             >
               <UIcon name="heroicons-paper-airplane" class="h-4 w-4 mr-1.5" />
               Submit All
@@ -296,11 +304,11 @@
           </div>
 
           <div class="flex justify-center gap-3">
-            <UButton variant="outline" color="neutral" @click="resetAll">
+            <UButton variant="outline" color="neutral" @click="resetAll" class="cursor-pointer">
               <UIcon name="heroicons-arrow-path" class="h-4 w-4 mr-1.5" />
               Try Again
             </UButton>
-            <UButton color="primary" @click="goToFirstPage">
+            <UButton color="primary" @click="goToFirstPage" class="cursor-pointer">
               <UIcon name="heroicons-eye" class="h-4 w-4 mr-1.5" />
               Review Answers
             </UButton>
@@ -312,13 +320,18 @@
 </template>
 
 <script setup lang="ts">
+import { useAuthStore } from '~/stores/auth'
+
 const route = useRoute()
 const classId = computed(() => Number(route.params.id))
 const lessonId = computed(() => Number(route.params.lessonid))
 const lessonStore = useLessonStore()
+const authStore = useAuthStore()
+const userId = computed(() => authStore.user?.id || 'guest')
 
 const currentIndex = ref(0)
 const isSubmitted = ref(false)
+const isReviewMode = ref(false)
 const score = ref({ correct: 0, wrong: 0 })
 const results = ref<Record<number, any>>({})
 const localEssay = reactive<Record<number, string>>({})
@@ -360,6 +373,7 @@ const getBlockType = (block: any) => block?.type ?? 'unknown'
 const onMediaError = (idx: number) => setErrorFor(idx, 'Failed to load media (video/image).')
 
 function selectOption(option: any) {
+  if (isReviewMode.value) return
   const value = option.value ?? option.label
   answers[currentIndex.value] = value
   computeMCQResult(currentIndex.value, value)
@@ -372,13 +386,21 @@ function isOptionSelected(option: any) {
 
 function getOptionStyle(option: any) {
   const selected = isOptionSelected(option)
-  const submitted = results.value[currentIndex.value]?.submitted
 
-  if (!selected) return 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-  if (!submitted) return 'border-slate-900 bg-slate-50'
-  return option.is_correct
-    ? 'border-emerald-500 bg-emerald-50'
-    : 'border-red-400 bg-red-50'
+  if (!isReviewMode.value) {
+    return selected 
+      ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500/20' 
+      : 'border-slate-200 hover:border-emerald-200 hover:bg-slate-50'
+  }
+
+  // Review mode
+  if (option.is_correct) {
+    return 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-500/30'
+  }
+  if (selected && !option.is_correct) {
+    return 'border-red-500 bg-red-50 ring-2 ring-red-500/30'
+  }
+  return 'border-slate-200 opacity-50'
 }
 
 function getRadioItems(options: any[] | undefined) {
@@ -429,6 +451,7 @@ watch(answers, (newVal) => {
 }, { deep: true })
 
 function submitEssay(idx: number) {
+  if (isReviewMode.value) return
   try {
     clearErrorFor(idx)
     const block = lessonStore.lesson?.content_json?.[idx] as any
@@ -451,6 +474,7 @@ function submitEssay(idx: number) {
 }
 
 function submitEssayDebounced(idx: number, forceNow = false) {
+  if (isReviewMode.value) return
   if (forceNow) {
     const t = essayTimers.get(idx)
     if (t) window.clearTimeout(t)
@@ -471,8 +495,13 @@ function submitEssayDebounced(idx: number, forceNow = false) {
 async function saveResults() {
   const payload = {
     results: results.value,
+    score: score.value,
+    answers: answers,
+    localEssay: localEssay,
     savedAt: new Date().toISOString(),
   }
+  lessonStore.saveSubmission(userId.value, lessonId.value, payload)
+  isReviewMode.value = true
 }
 
 function goToPage(idx: number) {
@@ -524,14 +553,30 @@ function resetAll() {
   score.value.correct = 0
   score.value.wrong = 0
   isSubmitted.value = false
+  isReviewMode.value = false
+  lessonStore.saveSubmission(userId.value, lessonId.value, null)
   currentIndex.value = 0
 }
 
 onMounted(async () => {
   await lessonStore.getDetailLesson(lessonId.value)
-  lessonStore.lesson?.content_json?.forEach((b: ContentJson, i: number) => {
-    if (b.type === 'essay') localEssay[i] = localEssay[i] ?? ''
-  })
+  
+  const saved = lessonStore.getSubmission(userId.value, lessonId.value)
+  if (saved) {
+    isSubmitted.value = true
+    isReviewMode.value = true
+    
+    Object.assign(results.value, saved.results || {})
+    score.value.correct = saved.score?.correct || 0
+    score.value.wrong = saved.score?.wrong || 0
+    
+    Object.assign(answers, saved.answers || {})
+    Object.assign(localEssay, saved.localEssay || {})
+  } else {
+    lessonStore.lesson?.content_json?.forEach((b: any, i: number) => {
+      if (b.type === 'essay') localEssay[i] = localEssay[i] ?? ''
+    })
+  }
 })
 </script>
 

@@ -45,6 +45,36 @@
       >
         {{ loading ? 'Signing in...' : 'Sign In' }}
       </UButton>
+
+      <div class="relative py-2">
+        <div class="absolute inset-0 flex items-center">
+          <span class="w-full border-t border-slate-200" />
+        </div>
+        <div class="relative flex justify-center text-xs uppercase">
+          <span class="bg-white px-2 text-slate-500">Or continue with demo</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <UButton
+          variant="outline"
+          color="neutral"
+          @click="loginAsDemo('admin@example.com')"
+          :disabled="loading"
+          class="justify-center"
+        >
+          Demo Teacher
+        </UButton>
+        <UButton
+          variant="outline"
+          color="neutral"
+          @click="loginAsDemo('student@example.com')"
+          :disabled="loading"
+          class="justify-center"
+        >
+          Demo Student
+        </UButton>
+      </div>
     </UForm>
 
     <p class="text-center text-sm text-slate-500">
@@ -91,5 +121,11 @@ const handleLogin = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const loginAsDemo = (email: string) => {
+  form.value.email = email;
+  form.value.password = 'password';
+  handleLogin();
 }
 </script>
