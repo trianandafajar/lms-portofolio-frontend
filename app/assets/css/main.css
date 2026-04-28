@@ -9,3 +9,7 @@ html.light {
   background-color: white !important;
   color: black !important;
 }
+
+button, a, [role="button"] {
+  cursor: pointer !important;
+}

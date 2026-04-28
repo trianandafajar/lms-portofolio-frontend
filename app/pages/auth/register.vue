@@ -71,7 +71,7 @@
         <UButton
           variant="outline"
           color="neutral"
-          @click="registerAsDemo('admin@example.com')"
+          @click="registerAsDemo('teacher@example.com')"
           :disabled="loading"
           class="justify-center"
         >

@@ -59,7 +59,7 @@
         <UButton
           variant="outline"
           color="neutral"
-          @click="loginAsDemo('admin@example.com')"
+          @click="loginAsDemo('teacher@example.com')"
           :disabled="loading"
           class="justify-center"
         >

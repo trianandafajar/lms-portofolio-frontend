@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex flex-row mt-4">
+    <div class="flex flex-row mt-4" v-if="isTeacherOrAdmin">
       <ClassComLessonDialog :class-id="classId" />
     </div>
 
@@ -35,8 +35,12 @@
 </template>
 
 <script setup lang="ts">
+import { useAuthStore } from "~/stores/auth"
+
 const props = defineProps<{ classId: number }>()
 const lmsClassStore = useLmsClassStore()
+const authStore = useAuthStore()
 
 const lessons = computed(() => lmsClassStore.classDetail?.lessons || [])
+const isTeacherOrAdmin = computed(() => authStore.user?.roles?.includes('admin') || authStore.user?.roles?.includes('teacher'))
 </script>
