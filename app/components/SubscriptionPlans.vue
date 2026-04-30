@@ -8,10 +8,45 @@
         <p class="subscription-subtitle">
           Select the plan that fits your needs and start building your learning platform today.
         </p>
+        
+        <!-- Billing Toggle -->
+        <div class="billing-toggle">
+          <span :class="{ 'active': billingCycle === 'monthly' }">Monthly</span>
+          <div class="toggle-container" @click="billingCycle = billingCycle === 'monthly' ? 'yearly' : 'monthly'">
+            <div class="toggle-knob" :class="{ 'yearly': billingCycle === 'yearly' }"></div>
+          </div>
+          <span :class="{ 'active': billingCycle === 'yearly' }">
+            Yearly
+            <span class="discount-badge">Save 10%</span>
+          </span>
+        </div>
+        <!-- AI Usage info -->
+        <div v-if="subscriptionStore.getSubscription" class="ai-usage-info mt-4">
+          <p class="text-sm font-medium text-gray-600">
+            Current AI Usage: 
+            <span class="text-emerald-600 font-bold">
+              {{ subscriptionStore.getSubscription.ai_usage }}
+            </span>
+            / 
+            <span class="text-gray-900 font-bold">
+              {{ subscriptionStore.getSubscription.ai_limit === -1 ? 'Unlimited' : subscriptionStore.getSubscription.ai_limit }}
+            </span>
+          </p>
+          <div class="usage-bar-container mt-2">
+            <div 
+              class="usage-bar-fill" 
+              :style="{ 
+                width: subscriptionStore.getSubscription.ai_limit === -1 ? '100%' : Math.min((subscriptionStore.getSubscription.ai_usage / subscriptionStore.getSubscription.ai_limit) * 100, 100) + '%',
+                backgroundColor: (subscriptionStore.getSubscription.ai_limit !== -1 && subscriptionStore.getSubscription.ai_usage >= subscriptionStore.getSubscription.ai_limit) ? '#ef4444' : '#10b981'
+              }"
+            ></div>
+          </div>
+        </div>
       </div>
 
+
       <!-- Cards Grid -->
-      <div class="plans-grid">
+      <div class="plans-grid" :key="subscriptionStore.getSubscription?.id || 'none'">
         <!-- Starter -->
         <div class="plan-card" :class="{ 'plan-card--active': isActive('starter') }">
           <div v-if="isActive('starter')" class="plan-badge plan-badge--active">Current Plan</div>
@@ -26,7 +61,7 @@
           <div class="plan-price">
             <span class="plan-price__currency">$</span>
             <span class="plan-price__amount">{{ getPlanPrice('starter') }}</span>
-            <span class="plan-price__period">/month</span>
+            <span class="plan-price__period">/{{ billingCycle === 'monthly' ? 'month' : 'year' }}</span>
           </div>
 
           <ul class="plan-features">
@@ -59,7 +94,10 @@
           <!-- Action -->
           <div class="plan-action">
             <div v-if="isActive('starter')" class="plan-action__active">
-              <button disabled class="btn btn--disabled">Already Active</button>
+              <button disabled class="btn btn--disabled">Current Plan Active</button>
+            </div>
+            <div v-else-if="isHigherThan('starter')" class="plan-action__disabled">
+              <button disabled class="btn btn--disabled">Lower Plan Locked</button>
             </div>
             <div v-else class="plan-action__free">
               <button class="btn btn--starter" @click="selectFree('starter')">Get Started</button>
@@ -73,7 +111,7 @@
           <div v-if="isActive('medium')" class="plan-badge plan-badge--active">Current Plan</div>
           <div class="plan-card__header">
             <div class="plan-icon plan-icon--medium">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4.5c1.45-1.47 5-2 5-2"/><path d="M12 15v5s3.03-.55 4.5-2c1.47-1.45 2-5 2-5"/></svg>
             </div>
             <h3 class="plan-name">Medium</h3>
             <p class="plan-description">For growing teams and institutions</p>
@@ -82,7 +120,7 @@
           <div class="plan-price">
             <span class="plan-price__currency">$</span>
             <span class="plan-price__amount">{{ getPlanPrice('medium') }}</span>
-            <span class="plan-price__period">/month</span>
+            <span class="plan-price__period">/{{ billingCycle === 'monthly' ? 'month' : 'year' }}</span>
           </div>
 
           <ul class="plan-features">
@@ -115,7 +153,10 @@
           <!-- PayPal Button -->
           <div class="plan-action">
             <div v-if="isActive('medium')" class="plan-action__active">
-              <button disabled class="btn btn--disabled">Already Active</button>
+              <button disabled class="btn btn--disabled">Current Plan Active</button>
+            </div>
+            <div v-else-if="isHigherThan('medium')" class="plan-action__disabled">
+              <button disabled class="btn btn--disabled">Lower Plan Locked</button>
             </div>
             <div v-else id="paypal-button-medium" class="paypal-container">
               <button v-if="!paypalLoaded" class="btn btn--loading" disabled>
@@ -140,7 +181,7 @@
           <div class="plan-price">
             <span class="plan-price__currency">$</span>
             <span class="plan-price__amount">{{ getPlanPrice('enterprise') }}</span>
-            <span class="plan-price__period">/month</span>
+            <span class="plan-price__period">/{{ billingCycle === 'monthly' ? 'month' : 'year' }}</span>
           </div>
 
           <ul class="plan-features">
@@ -173,7 +214,7 @@
           <!-- PayPal Button -->
           <div class="plan-action">
             <div v-if="isActive('enterprise')" class="plan-action__active">
-              <button disabled class="btn btn--disabled">Already Active</button>
+              <button disabled class="btn btn--disabled">Current Plan Active</button>
             </div>
             <div v-else id="paypal-button-enterprise" class="paypal-container">
               <button v-if="!paypalLoaded" class="btn btn--loading" disabled>
@@ -197,22 +238,33 @@ const config = useRuntimeConfig()
 const paypalLoaded = ref(false)
 const toast = useToast()
 
+const billingCycle = ref<'monthly' | 'yearly'>('monthly')
 const pendingSubIds = ref<Record<string, number>>({})
 
 // Map plan slug to plan_id from backend
-const planIdMap: Record<string, number> = {
-  starter: 1,
-  medium: 2,
-  enterprise: 3,
-}
+const planIdMap = computed(() => {
+  if (billingCycle.value === 'monthly') {
+    return {
+      starter: 1,
+      medium: 2,
+      enterprise: 3,
+    }
+  }
+  return {
+    starter: 4,
+    medium: 5,
+    enterprise: 6,
+  }
+})
 
 const isActive = (planSlug: string) => {
-  const planId = planIdMap[planSlug]
-  return subscriptionStore.getSubscription?.plan_id === planId
+  const planId = (planIdMap.value as any)[planSlug]
+  const currentPlanId = subscriptionStore.getSubscription?.plan_id
+  return currentPlanId === planId
 }
 
 const getPlanPrice = (planSlug: string) => {
-  const planId = planIdMap[planSlug]
+  const planId = (planIdMap.value as any)[planSlug]
   if (!planId) return '0'
   const plan = subscriptionStore.getPlans.find((p) => p.id === planId)
   if (!plan) return '0'
@@ -221,7 +273,7 @@ const getPlanPrice = (planSlug: string) => {
 
 const selectFree = async (planSlug: string) => {
   try {
-    const planId = planIdMap[planSlug]
+    const planId = (planIdMap.value as any)[planSlug]
     if (!planId) return
     await subscriptionStore.subscribeTo(planId)
     toast.add({
@@ -241,9 +293,11 @@ const selectFree = async (planSlug: string) => {
 const loadPayPalScript = () => {
   return new Promise((resolve, reject) => {
     if ((window as any).paypal) {
+      paypalLoaded.value = true
       resolve((window as any).paypal)
       return
     }
+
 
     const script = document.createElement('script')
     const clientId = config.public.paypalClientId || 'test'
@@ -268,7 +322,7 @@ const renderPayPalButton = (containerId: string, planSlug: string) => {
   const container = document.getElementById(containerId)
   if (!container || container.querySelector('.paypal-buttons')) return
 
-  const planId = planIdMap[planSlug]
+  const planId = (planIdMap.value as any)[planSlug]
   if (!planId) return
 
   ;(window as any).paypal.Buttons({
@@ -353,39 +407,61 @@ const renderPayPalButton = (containerId: string, planSlug: string) => {
   }).render(`#${containerId}`)
 }
 
-const initPayPalButtons = () => {
-  if (!(window as any).paypal) return
+const isHigherThan = (planSlug: string) => {
+  const targetId = (planIdMap.value as any)[planSlug]
+  const currentId = subscriptionStore.getSubscription?.plan_id || 0
+  
+  // Check if current plan is active and not expired
+  const expiresAt = subscriptionStore.getSubscription?.expires_at
+  const isExpired = expiresAt ? new Date(expiresAt) < new Date() : true
+  
+  if (isExpired) return false
+  
+  return currentId > (targetId || 0)
+}
 
-  if (!isActive('medium')) {
+const initPayPalButtons = () => {
+  if (!(window as any).paypal) {
+    console.warn('PayPal SDK not loaded yet')
+    return
+  }
+
+  console.log('Initializing PayPal buttons...')
+  if (!isActive('medium') && !isHigherThan('medium')) {
     renderPayPalButton('paypal-button-medium', 'medium')
   }
-  if (!isActive('enterprise')) {
+  if (!isActive('enterprise') && !isHigherThan('enterprise')) {
     renderPayPalButton('paypal-button-enterprise', 'enterprise')
   }
 }
 
 onMounted(async () => {
-  await subscriptionStore.fetchPlans()
-  await subscriptionStore.fetchCurrentSubscription()
+  try {
+    await subscriptionStore.fetchPlans()
+    await subscriptionStore.fetchCurrentSubscription()
+  } catch (err) {
+    console.error('Failed to fetch initial subscription data:', err)
+  }
 
   try {
     await loadPayPalScript()
+    // Give time for DOM elements to be fully ready
     setTimeout(() => {
       initPayPalButtons()
-    }, 600)
+    }, 1000)
   } catch (e) {
-    console.error('PayPal init error:', e)
+    console.error('PayPal script load error:', e)
   }
 })
 
 watch(
-  () => subscriptionStore.getSubscription,
-  () => {
+  () => subscriptionStore.getSubscription?.id,
+  async () => {
     if (paypalLoaded.value) {
-      setTimeout(initPayPalButtons, 600)
+      await nextTick()
+      setTimeout(initPayPalButtons, 100)
     }
-  },
-  { deep: true }
+  }
 )
 </script>
 
@@ -429,8 +505,61 @@ watch(
   font-size: 1.05rem;
   color: #6b7280;
   max-width: 520px;
-  margin: 0.75rem auto 0;
+  margin: 0.75rem auto 1.5rem;
   line-height: 1.6;
+}
+
+/* Billing Toggle */
+.billing-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.billing-toggle span.active {
+  color: #1a1a2e;
+}
+
+.toggle-container {
+  width: 48px;
+  height: 24px;
+  background: #e2e8f0;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.toggle-knob {
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-knob.yearly {
+  transform: translateX(24px);
+  background: #10b981;
+}
+
+.discount-badge {
+  font-size: 0.7rem;
+  background: #f0fdf4;
+  color: #10b981;
+  padding: 0.15rem 0.5rem;
+  border-radius: 99px;
+  margin-left: 0.5rem;
+  font-weight: 600;
 }
 
 /* Grid */
@@ -688,4 +817,35 @@ watch(
   width: 100%;
   min-height: 45px;
 }
+
+.ai-usage-info {
+  max-width: 300px;
+  margin: 1.5rem auto 0;
+}
+
+.usage-bar-container {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.usage-bar-fill {
+  height: 100%;
+  transition: width 0.5s ease, background-color 0.3s ease;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.text-emerald-600 {
+  color: #059669;
+}
+
+.font-bold {
+  font-weight: 700;
+}
 </style>
+

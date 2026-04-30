@@ -580,6 +580,9 @@ const submitFinal = async () => {
   closeLessonModal();
 };
 
+const toast = useToast();
+const subscriptionStore = useSubscriptionStore();
+
 const callAi = async (
   type: string,
   payload: {
@@ -587,24 +590,57 @@ const callAi = async (
     messages?: Array<{ type: string; content: string }>;
   }
 ) => {
-  const res: any = await $fetch(`/api/ai?type=${encodeURIComponent(type)}`, {
-    method: "POST",
-    body: payload,
-  });
-  if (!res || !res.success) {
-    console.error("AI error", res);
+  try {
+    const res: any = await $fetch(`/api/ai?type=${encodeURIComponent(type)}`, {
+      method: "POST",
+      body: payload,
+    });
+    
+    if (!res || !res.success) {
+      if (res?.limitReached) {
+        toast.add({
+          title: 'Limit Reached',
+          description: res.error || 'You have reached your AI generation limit.',
+          color: 'error',
+          actions: [
+            { label: 'Upgrade Plan', onClick: () => { navigateTo('/subscriptions') } }
+          ]
+
+        });
+      } else {
+        toast.add({
+          title: 'AI Error',
+          description: res?.error || 'Failed to generate content.',
+          color: 'error'
+        });
+      }
+      console.error("AI error", res);
+      return "";
+    }
+
+    // Refresh subscription data to show updated usage
+    subscriptionStore.fetchCurrentSubscription();
+
+    let out = (res as any).output ?? "";
+    if (out && typeof out === "object") {
+      try {
+        out = JSON.stringify(out);
+      } catch (e) {
+        out = String(out);
+      }
+    }
+    return out;
+  } catch (err: any) {
+    console.error("Fetch AI error", err);
+    toast.add({
+      title: 'Request Failed',
+      description: 'Could not connect to AI service.',
+      color: 'error'
+    });
     return "";
   }
-  let out = (res as any).output ?? "";
-  if (out && typeof out === "object") {
-    try {
-      out = JSON.stringify(out);
-    } catch (e) {
-      out = String(out);
-    }
-  }
-  return out;
 };
+
 
 const aiGenerateBlock = async () => {
   if (!aiPrompt.value.trim()) {
