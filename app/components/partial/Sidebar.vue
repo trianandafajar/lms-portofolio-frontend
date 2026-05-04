@@ -94,10 +94,10 @@
             (sidebar.collapsed && !sidebar.hovered) ? 'justify-center px-0' : 'justify-start px-3',
             isNavActive(item.to)
               ? 'bg-green-400 text-white'
-              : 'hover:bg-slate-100'
+              : 'hover:bg-slate-50'
           ]">
-            <div class="flex items-center justify-center w-9 h-9 rounded-full transition group-hover:bg-green-400">
-              <UIcon :name="item.icon" :class="['h-5 w-5', isNavActive(item.to) ? 'text-white' : 'text-slate-600']" />
+            <div class="flex items-center justify-center w-9 h-9 rounded-full bg-slate-50">
+              <UIcon :name="item.icon" :class="['h-5 w-5', isNavActive(item.to) ? 'text-slate-700' : 'text-slate-600']" />
             </div>
             <span v-if="!sidebar.collapsed || sidebar.hovered"
               :class="['text-sm font-medium', isNavActive(item.to) ? 'text-white' : 'text-slate-700']">

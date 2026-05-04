@@ -1,12 +1,11 @@
 <template>
-  <div class="max-w-7xl mx-auto py-8 px-4">
+  <div class="space-y-6">
     <UAlert
       v-if="successMessage"
       color="success"
       variant="soft"
       :title="successMessage"
       icon="heroicons-check-circle"
-      class="mb-8"
       :close-button="{ onClick: () => successMessage = '' }"
     />
 

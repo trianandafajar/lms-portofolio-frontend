@@ -1,227 +1,218 @@
 <template>
-  <div class="subscription-section">
-    <div class="subscription-container">
-      <!-- Header -->
-      <div class="subscription-header">
-        <span class="subscription-label">SUBSCRIPTION</span>
-        <h2 class="subscription-title">Choose Your Plan</h2>
-        <p class="subscription-subtitle">
-          Select the plan that fits your needs and start building your learning platform today.
-        </p>
-        
-        <!-- Billing Toggle -->
-        <div class="billing-toggle">
-          <span :class="{ 'active': billingCycle === 'monthly' }">Monthly</span>
-          <div class="toggle-container" @click="billingCycle = billingCycle === 'monthly' ? 'yearly' : 'monthly'">
-            <div class="toggle-knob" :class="{ 'yearly': billingCycle === 'yearly' }"></div>
-          </div>
-          <span :class="{ 'active': billingCycle === 'yearly' }">
-            Yearly
-            <span class="discount-badge">Save 10%</span>
-          </span>
+  <div class="space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-emerald-50 items-center justify-center ring-1 ring-emerald-100">
+          <UIcon name="heroicons-credit-card" class="h-6 w-6 text-emerald-600" />
         </div>
-        <!-- AI Usage info -->
-        <div v-if="subscriptionStore.getSubscription" class="ai-usage-info mt-4">
-          <p class="text-sm font-medium text-gray-600">
-            Current AI Usage: 
-            <span class="text-emerald-600 font-bold">
-              {{ subscriptionStore.getSubscription.ai_usage }}
-            </span>
-            / 
-            <span class="text-gray-900 font-bold">
-              {{ subscriptionStore.getSubscription.ai_limit === -1 ? 'Unlimited' : subscriptionStore.getSubscription.ai_limit }}
-            </span>
+        <div>
+          <span class="inline-block text-[11px] font-semibold tracking-widest uppercase text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full mb-1">
+            Subscription
+          </span>
+          <h1 class="text-3xl font-bold tracking-tight text-slate-900">Choose Your Plan</h1>
+          <p class="text-sm text-slate-500 mt-1 max-w-xl">
+            Select the plan that fits your needs and start building your learning platform today.
           </p>
-          <div class="usage-bar-container mt-2">
-            <div 
-              class="usage-bar-fill" 
-              :style="{ 
-                width: subscriptionStore.getSubscription.ai_limit === -1 ? '100%' : Math.min((subscriptionStore.getSubscription.ai_usage / subscriptionStore.getSubscription.ai_limit) * 100, 100) + '%',
-                backgroundColor: (subscriptionStore.getSubscription.ai_limit !== -1 && subscriptionStore.getSubscription.ai_usage >= subscriptionStore.getSubscription.ai_limit) ? '#ef4444' : '#10b981'
-              }"
-            ></div>
+        </div>
+      </div>
+
+      <!-- Billing Toggle -->
+      <div class="inline-flex items-center gap-1 p-1 rounded-xl bg-white border border-slate-200 shadow-sm self-start sm:self-auto">
+        <button
+          type="button"
+          @click="billingCycle = 'monthly'"
+          :class="[
+            'px-4 py-1.5 rounded-lg text-sm font-medium transition',
+            billingCycle === 'monthly' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          ]"
+        >
+          Monthly
+        </button>
+        <button
+          type="button"
+          @click="billingCycle = 'yearly'"
+          :class="[
+            'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition',
+            billingCycle === 'yearly' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+          ]"
+        >
+          Yearly
+          <span :class="[
+            'text-[10px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider',
+            billingCycle === 'yearly' ? 'bg-emerald-400 text-emerald-950' : 'bg-emerald-100 text-emerald-700'
+          ]">
+            -10%
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- AI Usage info -->
+    <div v-if="subscriptionStore.getSubscription" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+      <div class="flex items-center justify-between gap-4 mb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center ring-1 ring-violet-100 shrink-0">
+            <UIcon name="heroicons-sparkles" class="h-4 w-4 text-violet-600" />
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-slate-900">AI Generation Usage</p>
+            <p class="text-xs text-slate-500">Resets monthly with your subscription</p>
+          </div>
+        </div>
+        <p class="text-sm font-semibold tabular-nums text-slate-700 whitespace-nowrap">
+          <span class="text-emerald-600">{{ subscriptionStore.getSubscription.ai_usage }}</span>
+          <span class="text-slate-400 mx-1">/</span>
+          <span>{{ subscriptionStore.getSubscription.ai_limit === -1 ? '∞' : subscriptionStore.getSubscription.ai_limit }}</span>
+        </p>
+      </div>
+      <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div
+          class="h-full rounded-full transition-all duration-500"
+          :style="{
+            width: subscriptionStore.getSubscription.ai_limit === -1 ? '100%' : Math.min((subscriptionStore.getSubscription.ai_usage / subscriptionStore.getSubscription.ai_limit) * 100, 100) + '%',
+            backgroundColor: (subscriptionStore.getSubscription.ai_limit !== -1 && subscriptionStore.getSubscription.ai_usage >= subscriptionStore.getSubscription.ai_limit) ? '#ef4444' : '#10b981'
+          }"
+        />
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5" :key="subscriptionStore.getSubscription?.id || 'none'">
+      <!-- Starter -->
+      <div :class="[
+        'relative bg-white rounded-2xl border p-6 flex flex-col transition shadow-sm hover:shadow-md',
+        isActive('starter') ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200 hover:border-slate-300'
+      ]">
+        <div v-if="isActive('starter')" class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-widest shadow-sm">
+          Current Plan
+        </div>
+
+        <div class="mb-5">
+          <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center ring-1 ring-slate-200 mb-4">
+            <UIcon name="heroicons-star" class="h-6 w-6 text-slate-600" />
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">Starter</h3>
+          <p class="text-sm text-slate-500 mt-0.5">Perfect for individual educators getting started</p>
+        </div>
+
+        <div class="flex items-baseline gap-1 pb-5 border-b border-slate-100">
+          <span class="text-base font-semibold text-slate-700">$</span>
+          <span class="text-4xl font-bold tracking-tight text-slate-900">{{ getPlanPrice('starter') }}</span>
+          <span class="text-sm text-slate-400 ml-0.5">/{{ billingCycle === 'monthly' ? 'mo' : 'yr' }}</span>
+        </div>
+
+        <ul class="space-y-3 mt-5 mb-6 flex-1">
+          <li v-for="f in starterFeatures" :key="f" class="flex items-start gap-2.5 text-sm text-slate-600">
+            <span class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center shrink-0 mt-0.5">
+              <UIcon name="heroicons-check" class="h-3 w-3 text-slate-600" />
+            </span>
+            {{ f }}
+          </li>
+        </ul>
+
+        <div class="mt-auto">
+          <button v-if="isActive('starter')" disabled class="w-full px-4 py-2.5 rounded-lg bg-slate-100 text-slate-400 text-sm font-medium cursor-not-allowed">
+            Current Plan Active
+          </button>
+          <button v-else-if="isHigherThan('starter')" disabled class="w-full px-4 py-2.5 rounded-lg bg-slate-100 text-slate-400 text-sm font-medium cursor-not-allowed">
+            Lower Plan Locked
+          </button>
+          <button v-else @click="selectFree('starter')" class="w-full px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium transition cursor-pointer">
+            Get Started
+          </button>
+        </div>
+      </div>
+
+      <!-- Medium (Featured) -->
+      <div :class="[
+        'relative bg-gradient-to-b from-emerald-50/60 to-white rounded-2xl border-2 p-6 flex flex-col transition shadow-md hover:shadow-lg',
+        isActive('medium') ? 'border-emerald-500 ring-2 ring-emerald-500/30' : 'border-emerald-400'
+      ]">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-widest shadow-sm">
+          {{ isActive('medium') ? 'Current Plan' : 'Most Popular' }}
+        </div>
+
+        <div class="mb-5">
+          <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center ring-1 ring-emerald-200 mb-4">
+            <UIcon name="heroicons-rocket-launch" class="h-6 w-6 text-emerald-700" />
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">Medium</h3>
+          <p class="text-sm text-slate-500 mt-0.5">For growing teams and institutions</p>
+        </div>
+
+        <div class="flex items-baseline gap-1 pb-5 border-b border-emerald-200/60">
+          <span class="text-base font-semibold text-slate-700">$</span>
+          <span class="text-4xl font-bold tracking-tight text-slate-900">{{ getPlanPrice('medium') }}</span>
+          <span class="text-sm text-slate-400 ml-0.5">/{{ billingCycle === 'monthly' ? 'mo' : 'yr' }}</span>
+        </div>
+
+        <ul class="space-y-3 mt-5 mb-6 flex-1">
+          <li v-for="f in mediumFeatures" :key="f" class="flex items-start gap-2.5 text-sm text-slate-700">
+            <span class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 mt-0.5">
+              <UIcon name="heroicons-check" class="h-3 w-3 text-emerald-700" />
+            </span>
+            {{ f }}
+          </li>
+        </ul>
+
+        <div class="mt-auto">
+          <button v-if="isActive('medium')" disabled class="w-full px-4 py-2.5 rounded-lg bg-emerald-100 text-emerald-700 text-sm font-semibold cursor-not-allowed">
+            Current Plan Active
+          </button>
+          <button v-else-if="isHigherThan('medium')" disabled class="w-full px-4 py-2.5 rounded-lg bg-slate-100 text-slate-400 text-sm font-medium cursor-not-allowed">
+            Lower Plan Locked
+          </button>
+          <div v-else id="paypal-button-medium" class="w-full min-h-[45px]">
+            <button v-if="!paypalLoaded" disabled class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-500/20 text-emerald-700 text-sm font-medium cursor-wait">
+              <span class="w-4 h-4 border-2 border-emerald-300 border-t-emerald-700 rounded-full animate-spin" />
+              Loading PayPal...
+            </button>
           </div>
         </div>
       </div>
 
-
-      <!-- Cards Grid -->
-      <div class="plans-grid" :key="subscriptionStore.getSubscription?.id || 'none'">
-        <!-- Starter -->
-        <div class="plan-card" :class="{ 'plan-card--active': isActive('starter') }">
-          <div v-if="isActive('starter')" class="plan-badge plan-badge--active">Current Plan</div>
-          <div class="plan-card__header">
-            <div class="plan-icon plan-icon--starter">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            </div>
-            <h3 class="plan-name">Starter</h3>
-            <p class="plan-description">Perfect for individual educators getting started</p>
-          </div>
-
-          <div class="plan-price">
-            <span class="plan-price__currency">$</span>
-            <span class="plan-price__amount">{{ getPlanPrice('starter') }}</span>
-            <span class="plan-price__period">/{{ billingCycle === 'monthly' ? 'month' : 'year' }}</span>
-          </div>
-
-          <ul class="plan-features">
-            <li class="plan-feature">
-              <span class="plan-feature__icon plan-feature__icon--starter">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-              <span>1 Class creation</span>
-            </li>
-            <li class="plan-feature">
-              <span class="plan-feature__icon plan-feature__icon--starter">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-              <span>Max 10 Students per class</span>
-            </li>
-            <li class="plan-feature">
-              <span class="plan-feature__icon plan-feature__icon--starter">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-              <span>Max 5 Lessons per class</span>
-            </li>
-            <li class="plan-feature">
-              <span class="plan-feature__icon plan-feature__icon--starter">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-              <span>5 AI Generate usages / month</span>
-            </li>
-          </ul>
-
-          <!-- Action -->
-          <div class="plan-action">
-            <div v-if="isActive('starter')" class="plan-action__active">
-              <button disabled class="btn btn--disabled">Current Plan Active</button>
-            </div>
-            <div v-else-if="isHigherThan('starter')" class="plan-action__disabled">
-              <button disabled class="btn btn--disabled">Lower Plan Locked</button>
-            </div>
-            <div v-else class="plan-action__free">
-              <button class="btn btn--starter" @click="selectFree('starter')">Get Started</button>
-            </div>
-          </div>
+      <!-- Enterprise -->
+      <div :class="[
+        'relative bg-white rounded-2xl border p-6 flex flex-col transition shadow-sm hover:shadow-md',
+        isActive('enterprise') ? 'border-violet-500 ring-2 ring-violet-500/20' : 'border-slate-200 hover:border-slate-300'
+      ]">
+        <div v-if="isActive('enterprise')" class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-violet-500 text-white text-[10px] font-bold uppercase tracking-widest shadow-sm">
+          Current Plan
         </div>
 
-        <!-- Medium -->
-        <div class="plan-card plan-card--featured" :class="{ 'plan-card--active': isActive('medium') }">
-          <div class="plan-badge plan-badge--popular">Most Popular</div>
-          <div v-if="isActive('medium')" class="plan-badge plan-badge--active">Current Plan</div>
-          <div class="plan-card__header">
-            <div class="plan-icon plan-icon--medium">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4.5c1.45-1.47 5-2 5-2"/><path d="M12 15v5s3.03-.55 4.5-2c1.47-1.45 2-5 2-5"/></svg>
-            </div>
-            <h3 class="plan-name">Medium</h3>
-            <p class="plan-description">For growing teams and institutions</p>
+        <div class="mb-5">
+          <div class="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center ring-1 ring-violet-100 mb-4">
+            <UIcon name="heroicons-cube-transparent" class="h-6 w-6 text-violet-600" />
           </div>
-
-          <div class="plan-price">
-            <span class="plan-price__currency">$</span>
-            <span class="plan-price__amount">{{ getPlanPrice('medium') }}</span>
-            <span class="plan-price__period">/{{ billingCycle === 'monthly' ? 'month' : 'year' }}</span>
-          </div>
-
-          <ul class="plan-features">
-            <li class="plan-feature">
-              <span class="plan-feature__icon plan-feature__icon--medium">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-              <span>Up to 10 Classes creation</span>
-            </li>
-            <li class="plan-feature">
-              <span class="plan-feature__icon plan-feature__icon--medium">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-              <span>Max 50 Students per class</span>
-            </li>
-            <li class="plan-feature">
-              <span class="plan-feature__icon plan-feature__icon--medium">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-              <span>Max 20 Lessons per class</span>
-            </li>
-            <li class="plan-feature">
-              <span class="plan-feature__icon plan-feature__icon--medium">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-              <span>50 AI Generate usages / month</span>
-            </li>
-          </ul>
-
-          <!-- PayPal Button -->
-          <div class="plan-action">
-            <div v-if="isActive('medium')" class="plan-action__active">
-              <button disabled class="btn btn--disabled">Current Plan Active</button>
-            </div>
-            <div v-else-if="isHigherThan('medium')" class="plan-action__disabled">
-              <button disabled class="btn btn--disabled">Lower Plan Locked</button>
-            </div>
-            <div v-else id="paypal-button-medium" class="paypal-container">
-              <button v-if="!paypalLoaded" class="btn btn--loading" disabled>
-                <span class="btn-spinner"></span>
-                Loading PayPal...
-              </button>
-            </div>
-          </div>
+          <h3 class="text-lg font-bold text-slate-900">Enterprise</h3>
+          <p class="text-sm text-slate-500 mt-0.5">Unlimited power for large organizations</p>
         </div>
 
-        <!-- Enterprise -->
-        <div class="plan-card" :class="{ 'plan-card--active': isActive('enterprise') }">
-          <div v-if="isActive('enterprise')" class="plan-badge plan-badge--active">Current Plan</div>
-          <div class="plan-card__header">
-            <div class="plan-icon plan-icon--enterprise">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-            </div>
-            <h3 class="plan-name">Enterprise</h3>
-            <p class="plan-description">Unlimited power for large organizations</p>
-          </div>
+        <div class="flex items-baseline gap-1 pb-5 border-b border-slate-100">
+          <span class="text-base font-semibold text-slate-700">$</span>
+          <span class="text-4xl font-bold tracking-tight text-slate-900">{{ getPlanPrice('enterprise') }}</span>
+          <span class="text-sm text-slate-400 ml-0.5">/{{ billingCycle === 'monthly' ? 'mo' : 'yr' }}</span>
+        </div>
 
-          <div class="plan-price">
-            <span class="plan-price__currency">$</span>
-            <span class="plan-price__amount">{{ getPlanPrice('enterprise') }}</span>
-            <span class="plan-price__period">/{{ billingCycle === 'monthly' ? 'month' : 'year' }}</span>
-          </div>
+        <ul class="space-y-3 mt-5 mb-6 flex-1">
+          <li v-for="f in enterpriseFeatures" :key="f" class="flex items-start gap-2.5 text-sm text-slate-700">
+            <span class="w-5 h-5 rounded-full bg-violet-50 flex items-center justify-center shrink-0 mt-0.5">
+              <UIcon name="heroicons-check" class="h-3 w-3 text-violet-600" />
+            </span>
+            {{ f }}
+          </li>
+        </ul>
 
-          <ul class="plan-features">
-            <li class="plan-feature">
-              <span class="plan-feature__icon plan-feature__icon--enterprise">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-              <span>Unlimited Classes creation</span>
-            </li>
-            <li class="plan-feature">
-              <span class="plan-feature__icon plan-feature__icon--enterprise">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-              <span>Unlimited Students</span>
-            </li>
-            <li class="plan-feature">
-              <span class="plan-feature__icon plan-feature__icon--enterprise">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-              <span>Unlimited Lessons per class</span>
-            </li>
-            <li class="plan-feature">
-              <span class="plan-feature__icon plan-feature__icon--enterprise">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-              <span>Unlimited AI Generate</span>
-            </li>
-          </ul>
-
-          <!-- PayPal Button -->
-          <div class="plan-action">
-            <div v-if="isActive('enterprise')" class="plan-action__active">
-              <button disabled class="btn btn--disabled">Current Plan Active</button>
-            </div>
-            <div v-else id="paypal-button-enterprise" class="paypal-container">
-              <button v-if="!paypalLoaded" class="btn btn--loading" disabled>
-                <span class="btn-spinner"></span>
-                Loading PayPal...
-              </button>
-            </div>
+        <div class="mt-auto">
+          <button v-if="isActive('enterprise')" disabled class="w-full px-4 py-2.5 rounded-lg bg-violet-100 text-violet-700 text-sm font-semibold cursor-not-allowed">
+            Current Plan Active
+          </button>
+          <div v-else id="paypal-button-enterprise" class="w-full min-h-[45px]">
+            <button v-if="!paypalLoaded" disabled class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-violet-100 text-violet-700 text-sm font-medium cursor-wait">
+              <span class="w-4 h-4 border-2 border-violet-200 border-t-violet-700 rounded-full animate-spin" />
+              Loading PayPal...
+            </button>
           </div>
         </div>
       </div>
@@ -241,20 +232,30 @@ const toast = useToast()
 const billingCycle = ref<'monthly' | 'yearly'>('monthly')
 const pendingSubIds = ref<Record<string, number>>({})
 
-// Map plan slug to plan_id from backend
+const starterFeatures = [
+  '1 Class creation',
+  'Max 10 Students per class',
+  'Max 5 Lessons per class',
+  '5 AI Generate usages / month',
+]
+const mediumFeatures = [
+  'Up to 10 Classes creation',
+  'Max 50 Students per class',
+  'Max 20 Lessons per class',
+  '50 AI Generate usages / month',
+]
+const enterpriseFeatures = [
+  'Unlimited Classes creation',
+  'Unlimited Students',
+  'Unlimited Lessons per class',
+  'Unlimited AI Generate',
+]
+
 const planIdMap = computed(() => {
   if (billingCycle.value === 'monthly') {
-    return {
-      starter: 1,
-      medium: 2,
-      enterprise: 3,
-    }
+    return { starter: 1, medium: 2, enterprise: 3 }
   }
-  return {
-    starter: 4,
-    medium: 5,
-    enterprise: 6,
-  }
+  return { starter: 4, medium: 5, enterprise: 6 }
 })
 
 const isActive = (planSlug: string) => {
@@ -297,7 +298,6 @@ const loadPayPalScript = () => {
       resolve((window as any).paypal)
       return
     }
-
 
     const script = document.createElement('script')
     const clientId = config.public.paypalClientId || 'test'
@@ -410,13 +410,12 @@ const renderPayPalButton = (containerId: string, planSlug: string) => {
 const isHigherThan = (planSlug: string) => {
   const targetId = (planIdMap.value as any)[planSlug]
   const currentId = subscriptionStore.getSubscription?.plan_id || 0
-  
-  // Check if current plan is active and not expired
+
   const expiresAt = subscriptionStore.getSubscription?.expires_at
   const isExpired = expiresAt ? new Date(expiresAt) < new Date() : true
-  
+
   if (isExpired) return false
-  
+
   return currentId > (targetId || 0)
 }
 
@@ -426,7 +425,6 @@ const initPayPalButtons = () => {
     return
   }
 
-  console.log('Initializing PayPal buttons...')
   if (!isActive('medium') && !isHigherThan('medium')) {
     renderPayPalButton('paypal-button-medium', 'medium')
   }
@@ -445,7 +443,6 @@ onMounted(async () => {
 
   try {
     await loadPayPalScript()
-    // Give time for DOM elements to be fully ready
     setTimeout(() => {
       initPayPalButtons()
     }, 1000)
@@ -464,388 +461,3 @@ watch(
   }
 )
 </script>
-
-<style scoped>
-.subscription-section {
-  padding: 3rem 1rem;
-}
-
-.subscription-container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* Header */
-.subscription-header {
-  text-align: center;
-  margin-bottom: 3.5rem;
-}
-
-.subscription-label {
-  display: inline-block;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.08);
-  padding: 0.35rem 1rem;
-  margin-bottom: 1rem;
-}
-
-.subscription-title {
-  font-size: 2rem;
-  font-weight: 600;
-  color: #1a1a2e;
-  margin: 0.5rem 0;
-  line-height: 1.2;
-}
-
-.subscription-subtitle {
-  font-size: 1.05rem;
-  color: #6b7280;
-  max-width: 520px;
-  margin: 0.75rem auto 1.5rem;
-  line-height: 1.6;
-}
-
-/* Billing Toggle */
-.billing-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #64748b;
-}
-
-.billing-toggle span.active {
-  color: #1a1a2e;
-}
-
-.toggle-container {
-  width: 48px;
-  height: 24px;
-  background: #e2e8f0;
-  border-radius: 12px;
-  position: relative;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.toggle-knob {
-  width: 20px;
-  height: 20px;
-  background: #ffffff;
-  border-radius: 50%;
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  transition: transform 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.toggle-knob.yearly {
-  transform: translateX(24px);
-  background: #10b981;
-}
-
-.discount-badge {
-  font-size: 0.7rem;
-  background: #f0fdf4;
-  color: #10b981;
-  padding: 0.15rem 0.5rem;
-  border-radius: 99px;
-  margin-left: 0.5rem;
-  font-weight: 600;
-}
-
-/* Grid */
-.plans-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  align-items: stretch;
-}
-
-@media (max-width: 900px) {
-  .plans-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-}
-
-/* Card Base */
-.plan-card {
-  position: relative;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  padding: 2.5rem 2rem 2rem;
-  display: flex;
-  flex-direction: column;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
-  border-radius: 0;
-}
-
-.plan-card:hover {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  border-color: #cbd5e1;
-}
-
-.plan-card--featured {
-  border: 2px solid #10b981;
-  background: linear-gradient(180deg, #f0fdf8 0%, #ffffff 100%);
-  z-index: 1;
-  transform: scale(1.03);
-  box-shadow: 0 12px 40px rgba(16, 185, 129, 0.12);
-}
-
-.plan-card--featured:hover {
-  box-shadow: 0 16px 50px rgba(16, 185, 129, 0.18);
-  transform: scale(1.04);
-}
-
-.plan-card--active {
-  border-color: #10b981;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
-}
-
-/* Badge */
-.plan-badge {
-  position: absolute;
-  top: -1px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%);
-  padding: 0.3rem 1.2rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.plan-badge--popular {
-  background: #10b981;
-  color: #ffffff;
-}
-
-.plan-badge--active {
-  background: #10b981;
-  color: #ffffff;
-}
-
-/* Icon */
-.plan-icon {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-}
-
-.plan-icon--starter {
-  background: #f0fdf4;
-  color: #22c55e;
-}
-
-.plan-icon--medium {
-  background: #ecfdf5;
-  color: #10b981;
-}
-
-.plan-icon--enterprise {
-  background: #ecfdf5;
-  color: #059669;
-}
-
-/* Header */
-.plan-card__header {
-  margin-bottom: 1.5rem;
-}
-
-.plan-name {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1a1a2e;
-  margin: 0 0 0.35rem;
-}
-
-.plan-description {
-  font-size: 0.875rem;
-  color: #94a3b8;
-  line-height: 1.5;
-  margin: 0;
-}
-
-/* Price */
-.plan-price {
-  display: flex;
-  align-items: baseline;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.plan-price__currency {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1a1a2e;
-  margin-right: 2px;
-}
-
-.plan-price__amount {
-  font-size: 2.5rem;
-  font-weight: 600;
-  color: #1a1a2e;
-  line-height: 1;
-}
-
-.plan-price__period {
-  font-size: 0.95rem;
-  color: #94a3b8;
-  margin-left: 4px;
-  font-weight: 500;
-}
-
-/* Features */
-.plan-features {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 2rem;
-  flex: 1;
-}
-
-.plan-feature {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0;
-  font-size: 0.9rem;
-  color: #475569;
-}
-
-.plan-feature__icon {
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.plan-feature__icon--starter {
-  background: #f0fdf4;
-  color: #22c55e;
-}
-
-.plan-feature__icon--medium {
-  background: #ecfdf5;
-  color: #10b981;
-}
-
-.plan-feature__icon--enterprise {
-  background: #ecfdf5;
-  color: #059669;
-}
-
-/* Action */
-.plan-action {
-  margin-top: auto;
-  padding-top: 1.5rem;
-  border-top: 1px solid #f1f5f9;
-}
-
-/* Buttons */
-.btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 0.85rem 1.5rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: 0;
-}
-
-.btn--starter {
-  background: #f1f5f9;
-  color: #1a1a2e;
-  border: 1px solid #e2e8f0;
-}
-
-.btn--starter:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
-}
-
-.btn--disabled {
-  background: #f8fafc;
-  color: #94a3b8;
-  border: 1px solid #e2e8f0;
-  cursor: not-allowed;
-}
-
-.btn--loading {
-  background: #f1f5f9;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
-  cursor: wait;
-  gap: 0.5rem;
-}
-
-.btn-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid #cbd5e1;
-  border-top-color: #10b981;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* PayPal container */
-.paypal-container {
-  width: 100%;
-  min-height: 45px;
-}
-
-.ai-usage-info {
-  max-width: 300px;
-  margin: 1.5rem auto 0;
-}
-
-.usage-bar-container {
-  width: 100%;
-  height: 8px;
-  background: #e2e8f0;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.usage-bar-fill {
-  height: 100%;
-  transition: width 0.5s ease, background-color 0.3s ease;
-}
-
-.mt-4 {
-  margin-top: 1rem;
-}
-
-.text-emerald-600 {
-  color: #059669;
-}
-
-.font-bold {
-  font-weight: 700;
-}
-</style>
-
