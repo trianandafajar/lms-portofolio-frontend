@@ -44,7 +44,11 @@ export const useLmsClassStore = defineStore('lmsclass', {
         }
         return res
       } catch (err: any) {
-        this.error = err?.response?.data?.message || err.message || "Failed to create class"
+        if (err?.status === 403) {
+          this.error = err?.data?.message || err?.data?.error || "You've reached your subscription's class limit. Upgrade your plan to create more classes."
+        } else {
+          this.error = err?.data?.message || err?.data?.error || "Failed to create class"
+        }
         throw err
       } finally {
         this.loading = false

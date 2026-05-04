@@ -88,6 +88,21 @@
             <UTextarea v-model="state.description" placeholder="What will students learn in this class?" :rows="3" class="w-full" />
           </UFormField>
 
+          <div v-if="createError" class="flex items-start gap-2 text-sm text-red-700 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+            <UIcon name="heroicons-exclamation-circle" class="h-5 w-5 shrink-0 mt-0.5" />
+            <div class="flex-1">
+              <p>{{ createError }}</p>
+              <button
+                v-if="createLimitReached"
+                type="button"
+                class="mt-1 text-red-700 underline underline-offset-2 hover:text-red-800"
+                @click="goToSubscription"
+              >
+                View subscription plans
+              </button>
+            </div>
+          </div>
+
           <div class="flex justify-end gap-2 pt-2">
             <UButton @click.prevent="handleCancel" type="button" variant="ghost" color="neutral">
               Cancel
@@ -160,6 +175,9 @@ type JoinClassSchema = v.InferOutput<typeof joinSchema>
 const modalCreate = ref(false)
 const modalJoin = ref(false)
 
+const createError = ref<string | null>(null)
+const createLimitReached = ref(false)
+
 const state = reactive<CreateLmsClass>({
   title: '',
   description: '',
@@ -172,6 +190,8 @@ const joinClassState = reactive({
 const handleCancel = () => {
   state.title = ''
   state.description = ''
+  createError.value = null
+  createLimitReached.value = false
   modalCreate.value = false
 }
 
@@ -180,13 +200,23 @@ const handleCancelJoin = () => {
   modalJoin.value = false
 }
 
+const goToSubscription = () => {
+  modalCreate.value = false
+  navigateTo('/subscription')
+}
+
 const handleSubmit = async (event: FormSubmitEvent<Schema>) => {
+  createError.value = null
+  createLimitReached.value = false
   try {
     await LmsClassStore.createClass(event.data)
     modalCreate.value = false
+    state.title = ''
+    state.description = ''
     toast.add({ title: 'Class created successfully', color: 'success' })
   } catch (error: any) {
-    toast.add({ title: LmsClassStore.error || 'Failed to create class', color: 'error' })
+    createLimitReached.value = error?.status === 403
+    createError.value = LmsClassStore.error || 'Failed to create class'
   }
 }
 
