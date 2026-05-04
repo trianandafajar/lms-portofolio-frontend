@@ -133,7 +133,7 @@ const handleRegister = async () => {
   try {
     loading.value = true
     await authStore.register(form.value)
-    await router.push('/home')
+    await router.push('/classes')
   } catch (error: any) {
     useToast().add({
       title: 'Error',

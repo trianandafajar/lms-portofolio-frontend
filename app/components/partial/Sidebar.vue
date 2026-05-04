@@ -7,63 +7,46 @@
       'flex items-center px-4 py-3 transition-all',
       (sidebar.collapsed && !sidebar.hovered) ? 'justify-center' : 'justify-between'
     ]">
-      <NuxtLink to="/home" v-if="!sidebar.collapsed || sidebar.hovered" class="block">
+      <NuxtLink to="/classes" v-if="!sidebar.collapsed || sidebar.hovered" class="block">
         <img src="/images/logo.png" alt="Mentora Logo" class="h-10 w-auto object-contain" />
       </NuxtLink>
 
-      <NuxtLink to="/home" v-else class="flex items-center justify-center">
+      <NuxtLink to="/classes" v-else class="flex items-center justify-center">
         <img src="/images/small_icon.png" alt="Mentora Icon" class="h-10 w-10 object-contain" />
       </NuxtLink>
     </div>
 
-    <!-- Main nav -->
-    <nav class="px-4 py-2">
-      <ul class="space-y-1">
-        <li v-for="item in mainNav" :key="item.label">
-          <NuxtLink :to="item.to" :class="[
-            'group flex items-center gap-3 p-2 rounded-lg transition-all duration-150 w-full',
-            (sidebar.collapsed && !sidebar.hovered) ? 'justify-center px-0' : 'justify-start px-3',
-            isNavActive(item.to)
-              ? 'bg-green-400 text-white'
-              : 'hover:bg-slate-100'
-          ]">
-            <div :class="[
-              'flex items-center justify-center w-9 h-9 rounded-full transition',
-              isNavActive(item.to)
-                ? ''
-                : 'group-hover:bg-slate-100 group-hover:scale-105'
-            ]">
-              <UIcon :name="item.icon" :class="['h-5 w-5', isNavActive(item.to) ? 'text-white' : 'text-slate-600']" />
-            </div>
-
-            <span v-if="!sidebar.collapsed || sidebar.hovered"
-              :class="['text-sm font-medium', isNavActive(item.to) ? 'text-white' : 'text-slate-700']">
-              {{ item.label }}
-            </span>
-          </NuxtLink>
-        </li>
-      </ul>
-    </nav>
-
-    <div class="mx-3 border-t border-slate-100 my-2"></div>
-
-    <div class="px-4 flex-1 flex flex-col overflow-hidden">
-      <button @click="sidebar.toggleClassList" :class="[
-        'w-full flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 transition',
-        (sidebar.collapsed && !sidebar.hovered) ? 'justify-center px-0' : 'justify-between px-3'
+    <div class="px-4 pt-2 flex-1 flex flex-col overflow-hidden">
+      <div :class="[
+        'flex items-center gap-1 rounded-lg transition',
+        (sidebar.collapsed && !sidebar.hovered) ? 'justify-center' : '',
+        isNavActive('/classes') ? 'bg-green-400' : 'hover:bg-slate-50'
       ]">
-        <div class="flex items-center gap-3">
+        <NuxtLink to="/classes" :class="[
+          'group flex items-center gap-3 p-2 flex-1 rounded-lg transition',
+          (sidebar.collapsed && !sidebar.hovered) ? 'justify-center px-0' : 'justify-start px-3'
+        ]">
           <div class="flex items-center justify-center w-9 h-9 rounded-full bg-slate-50">
-            <UIcon name="heroicons-academic-cap" class="h-5 w-5 text-slate-600" />
+            <UIcon name="heroicons-academic-cap" :class="['h-5 w-5', isNavActive('/classes') ? 'text-slate-700' : 'text-slate-600']" />
           </div>
-          <span v-if="!sidebar.collapsed || sidebar.hovered" class="text-sm font-medium text-slate-700">My
-            Classes</span>
-        </div>
+          <span v-if="!sidebar.collapsed || sidebar.hovered"
+            :class="['text-sm font-medium', isNavActive('/classes') ? 'text-white' : 'text-slate-700']">
+            My Classes
+          </span>
+        </NuxtLink>
 
-        <UIcon v-if="!sidebar.collapsed || sidebar.hovered"
-          :name="sidebar.classListOpen ? 'heroicons-chevron-up' : 'heroicons-chevron-down'"
-          class="h-4 w-4 text-slate-400" />
-      </button>
+        <button v-if="!sidebar.collapsed || sidebar.hovered"
+          @click="sidebar.toggleClassList"
+          :class="[
+            'p-2 mr-1 rounded-md transition',
+            isNavActive('/classes') ? 'hover:bg-green-500' : 'hover:bg-slate-100'
+          ]"
+          :aria-label="sidebar.classListOpen ? 'Collapse class list' : 'Expand class list'">
+          <UIcon
+            :name="sidebar.classListOpen ? 'heroicons-chevron-up' : 'heroicons-chevron-down'"
+            :class="['h-4 w-4', isNavActive('/classes') ? 'text-white' : 'text-slate-400']" />
+        </button>
+      </div>
 
       <transition name="slide-fade">
         <div v-if="sidebar.classListOpen && (!sidebar.collapsed || sidebar.hovered)"
@@ -135,10 +118,6 @@ const sidebar = useSidebarStore()
 const LmsClassStore = useLmsClassStore()
 const route = useRoute()
 
-const mainNav = [
-  { label: 'Homepage', icon: 'heroicons-home', to: '/home' },
-]
-
 const footerNav = [
   { label: 'Subscription', icon: 'heroicons-credit-card', to: '/subscription' },
 ]
@@ -170,8 +149,8 @@ watch(() => route.fullPath, () => {
 })
 
 function isNavActive(to: string) {
-  if (to === '/home') {
-    return route.path === '/home'
+  if (to === '/classes') {
+    return route.path === '/classes'
   }
   return route.path === to || route.path.startsWith(to + '/')
 }

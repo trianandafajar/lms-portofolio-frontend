@@ -14,8 +14,8 @@ export default defineNuxtRouteMiddleware((to, from) => {
     return navigateTo('/')
   }
 
-  // Redirect authenticated users to home if they access auth or landing routes
+  // Redirect authenticated users to classes list if they access auth or landing routes
   if (token.value && (isAuthRoute || isLandingRoute)) {
-    return navigateTo('/home')
+    return navigateTo('/classes')
   }
-})
+})

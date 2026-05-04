@@ -111,7 +111,7 @@ const handleLogin = async () => {
     loading.value = true
     await authStore.login(form.value)
     await lmsClassStore.getMyClass()
-    await router.push('/home')
+    await router.push('/classes')
   } catch (error: any) {
     useToast().add({
       title: 'Error',
