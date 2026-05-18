@@ -42,6 +42,7 @@ export default defineNuxtConfig({
     public: {
       apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL,
       paypalClientId: process.env.NUXT_PUBLIC_PAYPAL_CLIENT_ID,
+      stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     },
   },
 

@@ -294,7 +294,7 @@
                       <label class="flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 cursor-pointer shrink-0" :class="opt.is_correct ? 'bg-emerald-50 border-emerald-300' : 'bg-white'">
                         <input type="checkbox" v-model="opt.is_correct" class="accent-emerald-600" />
                       </label>
-                      <UInput v-model="opt.value" :placeholder="`Option ${oidx + 1}`" class="flex-1" />
+                      <UInput v-model="opt.value" :placeholder="`Option ${Number(oidx) + 1}`" class="flex-1" />
                       <UButton size="sm" variant="ghost" color="error" icon="heroicons-trash" @click="removeDraftOption(oidx)" />
                     </div>
                     <UButton color="neutral" variant="outline" size="sm" icon="heroicons-plus" @click="addDraftOption">
