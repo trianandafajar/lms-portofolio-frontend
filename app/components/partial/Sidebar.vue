@@ -113,14 +113,22 @@
 <script setup lang="ts">
 import { useLmsClassStore } from '~/stores/lmsclass'
 import { useSidebarStore } from '~/stores/sidebar'
+import { useAuthStore } from '~/stores/auth'
 
 const sidebar = useSidebarStore()
 const LmsClassStore = useLmsClassStore()
+const auth = useAuthStore()
 const route = useRoute()
 
-const footerNav = [
-  { label: 'Subscription', icon: 'heroicons-credit-card', to: '/subscription' },
-]
+const footerNav = computed(() => {
+  const isTeacher = auth.user?.roles?.includes('teacher')
+  if (isTeacher) {
+    return [
+      { label: 'Subscription', icon: 'heroicons-credit-card', to: '/subscription' },
+    ]
+  }
+  return []
+})
 
 const avatarColors = [
   'bg-emerald-500',

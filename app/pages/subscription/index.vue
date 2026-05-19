@@ -11,12 +11,21 @@
 </template>
 
 <script setup lang="ts">
+import { useAuthStore } from '~/stores/auth'
+
 const route = useRoute()
 const router = useRouter()
+const auth = useAuthStore()
 const successMessage = ref('')
 const errorMessage = ref('')
 
 onMounted(async () => {
+  // Restrict to teachers
+  if (!auth.user?.roles?.includes('teacher')) {
+    await router.replace('/classes')
+    return
+  }
+
   const status = route.query.status
   const subId = route.query.sub_id
 

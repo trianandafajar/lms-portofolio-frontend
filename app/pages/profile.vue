@@ -51,12 +51,6 @@
           </div>
         </div>
 
-        <!-- Bio preview -->
-        <div v-if="auth.user?.profile?.bio" class="mt-6 pt-5 border-t border-slate-100">
-          <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
-            {{ auth.user.profile.bio }}
-          </p>
-        </div>
       </div>
     </div>
 
@@ -157,6 +151,7 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
 import { userService } from '~/services/userService'
+import { api } from '~/utils/api'
 
 const auth = useAuthStore()
 const toast = useToast()
@@ -189,9 +184,12 @@ const resetForm = () => {
 const handleUpdateProfile = async () => {
   try {
     saving.value = true
-    await userService.update({
-      id: auth.user!.id,
-      name: form.display_name,
+    if (!auth.user?.profile?.id) {
+      throw new Error('Profile not found')
+    }
+    await api.put(`/user-profiles/${auth.user.profile.id}`, {
+      display_name: form.display_name,
+      bio: form.bio
     })
     await auth.fetchCurrentUser()
     toast.add({ title: 'Profile updated successfully', color: 'success' })

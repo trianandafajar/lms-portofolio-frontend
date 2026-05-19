@@ -37,8 +37,8 @@ export default defineEventHandler(async (event) => {
   const token = getCookie(event, 'token');
   if (token) {
     try {
-      const checkRes: any = await $fetch(`${API_BASE_URL}/subscriptions/record-ai-usage`, {
-        method: 'POST',
+      const checkRes: any = await $fetch(`${API_BASE_URL}/subscriptions/check-ai-limit`, {
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -198,6 +198,20 @@ Return ONLY the JSON array and nothing else.`,
       }
     }
 
+    // Record AI usage only after a successful generation
+    if (token) {
+      try {
+        await $fetch(`${API_BASE_URL}/subscriptions/record-ai-usage`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+      } catch (err: any) {
+        console.error("Error recording AI usage after successful generation:", err);
+      }
+    }
+
     return {
       success: true,
       type,
@@ -213,3 +227,4 @@ Return ONLY the JSON array and nothing else.`,
     };
   }
 });
+
