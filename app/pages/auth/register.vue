@@ -165,7 +165,12 @@ const handleRegister = async () => {
   try {
     loading.value = true
     await authStore.register(form.value)
-    await router.push('/classes')
+    useToast().add({
+      title: 'Success',
+      description: 'Account created successfully! Please sign in to continue.',
+      color: 'success'
+    })
+    await router.push('/auth/login')
   } catch (error: any) {
     useToast().add({
       title: 'Error',
