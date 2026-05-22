@@ -1,11 +1,11 @@
 <template>
     <header :class="['bg-gray-50 fixed top-0 z-9999999 w-full ...', hidden ? '-translate-y-full' : 'translate-y-0']">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="flex h-16 items-center justify-between">
+            <div class="flex h-20 items-center justify-between">
                 <div class="md:flex md:items-center md:gap-6">
                     <NuxtLink class="flex items-center" to="/">
                         <span class="sr-only">Home</span>
-                        <img src="/images/logo.png" alt="Mentora" class="h-9 w-auto object-contain" />
+                        <img src="/images/logo.png" alt="Mentora" class="h-16 w-auto object-contain ml-10" />
                     </NuxtLink>
                 </div>
 

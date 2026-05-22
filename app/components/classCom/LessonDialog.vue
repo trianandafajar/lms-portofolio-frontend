@@ -5,6 +5,7 @@
       size="md"
       icon="heroicons-plus"
       class="cursor-pointer"
+      data-walkthrough="class-detail-add-lesson"
       @click="openLessonModal"
     >
       Add Lesson

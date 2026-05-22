@@ -13,7 +13,7 @@
     </div>
 
     <!-- Profile Hero Card -->
-    <div class="relative bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div data-walkthrough="profile-hero" class="relative bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <!-- Gradient banner -->
       <div class="h-24 bg-gradient-to-br from-emerald-500 to-emerald-600 relative">
         <div
@@ -56,7 +56,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Edit Profile Form (2 cols) -->
-      <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div data-walkthrough="profile-edit-form" class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-6 py-5 border-b border-slate-100 flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center ring-1 ring-sky-100 shrink-0">
             <UIcon name="heroicons-pencil-square" class="h-5 w-5 text-sky-600" />
@@ -84,7 +84,7 @@
             <UButton variant="ghost" color="neutral" type="button" @click="resetForm">
               Reset
             </UButton>
-            <UButton type="submit" color="primary" icon="heroicons-check" :loading="saving"
+            <UButton data-walkthrough="profile-save-button" type="submit" color="primary" icon="heroicons-check" :loading="saving"
               :disabled="saving || !hasChanges">
               Save Changes
             </UButton>
@@ -93,7 +93,7 @@
       </div>
 
       <!-- Account Info -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div data-walkthrough="profile-account-info" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-6 py-5 border-b border-slate-100 flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center ring-1 ring-slate-200 shrink-0">
             <UIcon name="heroicons-information-circle" class="h-5 w-5 text-slate-600" />

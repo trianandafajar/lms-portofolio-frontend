@@ -28,7 +28,7 @@
     <!-- Main Content -->
     <div v-else class="space-y-6">
       <!-- Breadcrumb -->
-      <nav class="flex items-center gap-2 text-sm">
+      <nav data-walkthrough="lesson-breadcrumb" class="flex items-center gap-2 text-sm">
         <NuxtLink to="/classes" class="text-slate-500 hover:text-slate-700 transition-colors">My Classes</NuxtLink>
         <UIcon name="heroicons-chevron-right" class="h-3.5 w-3.5 text-slate-400" />
         <NuxtLink :to="`/classes/${classId}`" class="text-slate-500 hover:text-slate-700 transition-colors truncate max-w-[200px]">
@@ -39,7 +39,7 @@
       </nav>
 
       <!-- Lesson Hero -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <div data-walkthrough="lesson-hero" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
         <div class="flex items-start gap-4">
           <div class="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center ring-1 ring-emerald-100 shrink-0">
             <UIcon name="heroicons-book-open" class="h-6 w-6 text-emerald-600" />
@@ -65,7 +65,7 @@
       </div>
       <div v-if="!isSubmitted">
         <!-- Progress Bar -->
-        <div class="bg-white rounded-t-2xl border-t border-x border-slate-200 shadow-sm p-5">
+        <div data-walkthrough="lesson-progress" class="bg-white rounded-t-2xl border-t border-x border-slate-200 shadow-sm p-5">
           <div class="flex items-center justify-between text-sm mb-3">
             <span class="font-semibold text-slate-700">Section {{ currentIndex + 1 }} of {{ totalPages }}</span>
             <span class="inline-flex items-center gap-1.5 text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full font-semibold">
@@ -98,7 +98,7 @@
         </div>
 
         <!-- Content Block -->
-        <div v-if="currentBlock" class="bg-white border-x border-slate-200 shadow-sm overflow-hidden">
+        <div v-if="currentBlock" data-walkthrough="lesson-content-block" class="bg-white border-x border-slate-200 shadow-sm overflow-hidden">
           <!-- Block type indicator -->
           <div class="px-8 py-4 border-b border-slate-100 flex items-center gap-3">
             <div :class="['w-10 h-10 rounded-xl flex items-center justify-center', blockTypeStyle.bg]">
@@ -255,7 +255,7 @@
         </div>
 
         <!-- Pagination Controls -->
-        <div class="flex items-center justify-between bg-white rounded-b-2xl border-x border-b border-slate-200 px-5 py-3">
+        <div data-walkthrough="lesson-pagination" class="flex items-center justify-between bg-white rounded-b-2xl border-x border-b border-slate-200 px-5 py-3">
           <UButton v-if="!isReviewMode" variant="ghost" color="neutral" icon="heroicons-arrow-path" @click="resetAll">
             Reset
           </UButton>

@@ -8,16 +8,16 @@
       (sidebar.collapsed && !sidebar.hovered) ? 'justify-center' : 'justify-between'
     ]">
       <NuxtLink to="/classes" v-if="!sidebar.collapsed || sidebar.hovered" class="block">
-        <img src="/images/logo.png" alt="Mentora Logo" class="h-10 w-auto object-contain" />
+        <img src="/images/logo.png" alt="Mentora Logo" class="h-14 w-auto object-contain" />
       </NuxtLink>
 
       <NuxtLink to="/classes" v-else class="flex items-center justify-center">
-        <img src="/images/small_icon.png" alt="Mentora Icon" class="h-10 w-10 object-contain" />
+        <img src="/images/small_icon.png" alt="Mentora Icon" class="h-12 w-12 object-contain" />
       </NuxtLink>
     </div>
 
     <div class="px-4 pt-2 flex-1 flex flex-col overflow-hidden">
-      <div :class="[
+      <div data-walkthrough="sidebar-my-classes" :class="[
         'flex items-center gap-1 rounded-lg transition',
         (sidebar.collapsed && !sidebar.hovered) ? 'justify-center' : '',
         isNavActive('/classes') ? 'bg-green-400' : 'hover:bg-slate-50'
@@ -52,8 +52,8 @@
         <div v-if="sidebar.classListOpen && (!sidebar.collapsed || sidebar.hovered)"
           class="flex-1 overflow-hidden mt-2">
           <div class="h-full overflow-y-auto">
-            <div class="space-y-1 py-1">
-              <NuxtLink v-for="cls in classesWithColor" :key="cls.id" :to="`/classes/${cls.id}`" :class="[
+            <div data-walkthrough="sidebar-class-list" class="space-y-1 py-1">
+              <NuxtLink v-for="(cls, clsIdx) in classesWithColor" :key="cls.id" :to="`/classes/${cls.id}`" :data-walkthrough="clsIdx === 0 ? 'sidebar-class-card-first' : undefined" :class="[
                 'group flex items-center gap-3 p-3 rounded-xl transition-all duration-200',
                 isClassActive(cls.id)
                   ? 'bg-slate-100 border border-slate-200'

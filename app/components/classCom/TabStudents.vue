@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="members && members.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
+    <div v-if="members && members.length > 0" data-walkthrough="class-detail-students-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
       <div
         v-for="member in members"
         :key="member.id"

@@ -4,7 +4,7 @@
       <ClassComLessonDialog :class-id="classId" />
     </div>
 
-    <div v-if="lessons && lessons.length > 0" class="mt-3 space-y-2">
+    <div v-if="lessons && lessons.length > 0" data-walkthrough="class-detail-lessons-list" class="mt-3 space-y-2">
       <NuxtLink
         v-for="item in lessons"
         :key="item.id"

@@ -5,16 +5,12 @@
     <div
       class="hidden lg:flex lg:w-1/2
       bg-gradient-to-br from-emerald-400 to-emerald-500
-      text-white flex-col justify-between p-12"
+      text-white flex-col justify-between p-12 relative"
     >
 
       <!-- Logo -->
-      <nuxt-link to="/">
-        <img
-          src="/images/logo.png"
-          alt="Mentora Logo"
-          class="h-12 w-auto object-contain"
-        />
+      <nuxt-link to="/" class="self-start">
+        <span class="text-3xl font-extrabold text-white">Mentora</span>
       </nuxt-link>
 
       <!-- Hero Text -->
