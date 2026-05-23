@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-8">
-    <div class="space-y-2">
+    <div data-walkthrough="register-header" class="space-y-2">
       <h1 class="text-2xl font-bold text-slate-900">Create your Mentora account</h1>
       <p class="text-sm text-slate-500">Start your learning journey today</p>
     </div>
@@ -8,6 +8,7 @@
     <UForm :state="form" @submit="handleRegister" class="space-y-5">
       <UFormField label="Full Name" name="display_name" required>
         <UInput
+          data-walkthrough="register-name"
           class="w-full"
           v-model="form.display_name"
           type="text"
@@ -53,6 +54,7 @@
       <UFormField label="Register As" name="role" required>
         <select
           v-model="form.role"
+          data-walkthrough="register-role"
           class="w-full h-11 px-3.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm font-medium ring-offset-white focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 shadow-sm transition"
         >
           <option value="student">Student (Learning & Joining classes)</option>
@@ -69,6 +71,7 @@
       </div>
 
       <UButton
+        data-walkthrough="register-submit"
         type="submit"
         block
         :loading="loading"
@@ -88,7 +91,7 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
+      <div data-walkthrough="register-demo-buttons" class="grid grid-cols-2 gap-3">
         <UButton
           variant="outline"
           color="neutral"

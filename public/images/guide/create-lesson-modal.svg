@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400" fill="none">
+  <rect width="700" height="400" fill="#f8fafc"/>
+  <rect x="50" y="15" width="600" height="370" rx="16" fill="white" stroke="#e2e8f0"/>
+  <rect x="80" y="40" width="40" height="40" rx="12" fill="#ecfdf5"/>
+  <text x="100" y="65" text-anchor="middle" fill="#10b981" font-size="16">📖</text>
+  <text x="135" y="55" fill="#1e293b" font-size="16" font-weight="bold">Create New Lesson</text>
+  <text x="135" y="73" fill="#64748b" font-size="10">Fill in lesson details, then add content blocks</text>
+  <rect x="80" y="95" width="80" height="28" rx="6" fill="white" stroke="#10b981"/>
+  <text x="120" y="113" text-anchor="middle" fill="#10b981" font-size="10" font-weight="600">Details</text>
+  <rect x="168" y="95" width="110" height="28" rx="6" fill="#f1f5f9"/>
+  <text x="223" y="113" text-anchor="middle" fill="#64748b" font-size="10">Content Blocks</text>
+  <text x="80" y="150" fill="#374151" font-size="11" font-weight="500">Lesson Title</text>
+  <rect x="80" y="160" width="540" height="36" rx="8" fill="#f9fafb" stroke="#e2e8f0"/>
+  <text x="95" y="183" fill="#9ca3af" font-size="11">e.g. Introduction to Algebra</text>
+  <text x="80" y="220" fill="#374151" font-size="11" font-weight="500">Description</text>
+  <rect x="80" y="230" width="540" height="55" rx="8" fill="#f9fafb" stroke="#e2e8f0"/>
+  <text x="95" y="253" fill="#9ca3af" font-size="11">What will students learn in this lesson?</text>
+  <text x="80" y="310" fill="#374151" font-size="11" font-weight="500">Short Content (optional)</text>
+  <rect x="80" y="320" width="540" height="36" rx="8" fill="#f9fafb" stroke="#e2e8f0"/>
+  <text x="95" y="343" fill="#9ca3af" font-size="11">Optional preview text...</text>
+</svg>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" fill="none">
+  <rect width="700" height="380" fill="#f8fafc"/>
+  <rect x="30" y="20" width="640" height="340" rx="12" fill="white" stroke="#e2e8f0"/>
+  <rect x="50" y="40" width="30" height="30" rx="8" fill="#ede9fe"/>
+  <text x="65" y="60" text-anchor="middle" fill="#7c3aed" font-size="12">?</text>
+  <text x="90" y="53" fill="#7c3aed" font-size="9" font-weight="600">QUIZ</text>
+  <text x="90" y="65" fill="#94a3b8" font-size="9">Block 3 of 5</text>
+  <text x="50" y="100" fill="#1e293b" font-size="14" font-weight="bold">What is the value of x in: 2x + 6 = 14?</text>
+  <rect x="50" y="120" width="600" height="48" rx="12" fill="white" stroke="#e2e8f0"/>
+  <circle cx="80" cy="144" r="16" fill="#f1f5f9"/>
+  <text x="80" y="149" text-anchor="middle" fill="#475569" font-size="11" font-weight="600">A</text>
+  <text x="110" y="149" fill="#475569" font-size="12">x = 2</text>
+  <rect x="50" y="178" width="600" height="48" rx="12" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+  <circle cx="80" cy="202" r="16" fill="#10b981"/>
+  <text x="80" y="207" text-anchor="middle" fill="white" font-size="11" font-weight="600">B</text>
+  <text x="110" y="207" fill="#1e293b" font-size="12" font-weight="500">x = 4</text>
+  <rect x="50" y="236" width="600" height="48" rx="12" fill="white" stroke="#e2e8f0"/>
+  <circle cx="80" cy="260" r="16" fill="#f1f5f9"/>
+  <text x="80" y="265" text-anchor="middle" fill="#475569" font-size="11" font-weight="600">C</text>
+  <text x="110" y="265" fill="#475569" font-size="12">x = 6</text>
+  <rect x="50" y="294" width="600" height="48" rx="12" fill="white" stroke="#e2e8f0"/>
+  <circle cx="80" cy="318" r="16" fill="#f1f5f9"/>
+  <text x="80" y="323" text-anchor="middle" fill="#475569" font-size="11" font-weight="600">D</text>
+  <text x="110" y="323" fill="#475569" font-size="12">x = 8</text>
+</svg>

@@ -10,7 +10,7 @@
 
       <!-- Logo -->
       <nuxt-link to="/" class="self-start">
-        <span class="text-3xl font-extrabold text-white">Mentora</span>
+        <img src="/images/logo.png" alt="Mentora" class="h-8 w-auto object-contain brightness-0 invert" />
       </nuxt-link>
 
       <!-- Hero Text -->
@@ -41,7 +41,7 @@
           <img
             src="/images/logo.png"
             alt="Mentora Logo"
-            class="h-10 w-auto object-contain mx-auto"
+            class="h-8 w-auto object-contain mx-auto"
           />
         </div>
 

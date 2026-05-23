@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 350" fill="none">
+  <rect width="600" height="350" fill="#f8fafc"/>
+  <rect x="80" y="20" width="440" height="310" rx="16" fill="white" stroke="#e2e8f0"/>
+  <rect x="110" y="45" width="40" height="40" rx="12" fill="#ecfdf5"/>
+  <text x="130" y="70" text-anchor="middle" fill="#10b981" font-size="16">🎓</text>
+  <text x="165" y="60" fill="#1e293b" font-size="16" font-weight="bold">Create New Class</text>
+  <text x="165" y="78" fill="#64748b" font-size="11">Set up a new class for your students</text>
+  <text x="110" y="115" fill="#374151" font-size="11" font-weight="500">Class Title</text>
+  <rect x="110" y="125" width="380" height="38" rx="8" fill="#f9fafb" stroke="#e2e8f0"/>
+  <text x="125" y="149" fill="#9ca3af" font-size="12">e.g. Mathematics 101</text>
+  <text x="110" y="185" fill="#374151" font-size="11" font-weight="500">Description</text>
+  <rect x="110" y="195" width="380" height="70" rx="8" fill="#f9fafb" stroke="#e2e8f0"/>
+  <text x="125" y="220" fill="#9ca3af" font-size="12">What will students learn in this class?</text>
+  <rect x="110" y="285" width="180" height="30" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="200" y="305" text-anchor="middle" fill="#64748b" font-size="11">Cancel</text>
+  <rect x="310" y="285" width="180" height="30" rx="8" fill="#10b981"/>
+  <text x="400" y="305" text-anchor="middle" fill="white" font-size="11" font-weight="600">Create Class</text>
+</svg>

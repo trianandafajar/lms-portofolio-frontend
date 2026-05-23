@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-8">
-    <div class="space-y-2">
+    <div data-walkthrough="login-header" class="space-y-2">
       <h1 class="text-2xl font-bold text-slate-900">Sign in to Mentora</h1>
       <p class="text-sm text-slate-500">Enter your credentials to access your account</p>
     </div>
@@ -8,6 +8,7 @@
     <UForm :state="form" @submit="handleLogin" class="space-y-5">
       <UFormField label="Email" name="email" required>
         <UInput
+          data-walkthrough="login-email"
           class="w-full"
           v-model="form.email"
           type="email"
@@ -19,6 +20,7 @@
 
       <UFormField label="Password" name="password" required>
         <UInput
+          data-walkthrough="login-password"
           class="w-full"
           v-model="form.password"
           type="password"
@@ -36,6 +38,7 @@
       </div>
 
       <UButton
+        data-walkthrough="login-submit"
         type="submit"
         block
         :loading="loading"
@@ -55,7 +58,7 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
+      <div data-walkthrough="login-demo-buttons" class="grid grid-cols-2 gap-3">
         <UButton
           variant="outline"
           color="neutral"

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute z-[10001] w-80 bg-white rounded-xl shadow-lg border border-slate-200 p-5"
+    class="fixed z-[10001] w-80 bg-white rounded-xl shadow-lg border border-slate-200 p-5 transition-all duration-300 ease-out"
     :style="{
       top: `${position.top}px`,
       left: `${position.left}px`,
@@ -42,8 +42,12 @@
       </button>
       <span v-else />
 
+      <!-- Show "Click the button" hint when action is click -->
+      <span v-if="isClickAction" class="text-xs text-emerald-600 font-medium animate-pulse">
+        👆 Click the highlighted element
+      </span>
       <button
-        v-if="!isLastStep"
+        v-else-if="!isLastStep"
         type="button"
         class="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition cursor-pointer"
         @click="$emit('next')"
@@ -65,17 +69,16 @@
 <script setup lang="ts">
 import type { TooltipPosition } from '~/types/walkthrough'
 
-interface Props {
+const props = defineProps<{
   title: string
   description: string
   currentStep: number
   totalSteps: number
   isFirstStep: boolean
   isLastStep: boolean
+  isClickAction: boolean
   position: TooltipPosition
-}
-
-defineProps<Props>()
+}>()
 
 defineEmits<{
   next: []

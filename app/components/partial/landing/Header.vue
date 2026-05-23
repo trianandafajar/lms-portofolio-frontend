@@ -1,23 +1,25 @@
 <template>
-    <header :class="['bg-gray-50 fixed top-0 z-9999999 w-full ...', hidden ? '-translate-y-full' : 'translate-y-0']">
+    <header :class="['bg-gray-50 fixed top-0 z-[999] w-full ...', hidden ? '-translate-y-full' : 'translate-y-0']">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-20 items-center justify-between">
                 <div class="md:flex md:items-center md:gap-6">
                     <NuxtLink class="flex items-center" to="/">
                         <span class="sr-only">Home</span>
-                        <img src="/images/logo.png" alt="Mentora" class="h-16 w-auto object-contain ml-10" />
+                        <img src="/images/logo.png" alt="Mentora" class="h-10 w-auto object-contain" />
                     </NuxtLink>
                 </div>
 
                 <div class="flex items-center gap-4">
                     <div class="sm:flex sm:gap-4">
                         <NuxtLink to="/auth/login"
+                            data-walkthrough="landing-login-button"
                             class="rounded-md bg-green-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm">
                             Login
                         </NuxtLink>
 
                         <div class="hidden sm:flex">
                             <NuxtLink to="/auth/register"
+                                data-walkthrough="landing-register-button"
                                 class="rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-green-500">
                                 Register
                             </NuxtLink>

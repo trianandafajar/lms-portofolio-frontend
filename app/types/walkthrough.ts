@@ -23,6 +23,13 @@ export interface WalkthroughStep {
    * @maxLength 200 characters
    */
   description: string
+
+  /**
+   * Optional action required to advance this step.
+   * - 'click': The user must click the highlighted element to proceed.
+   *   The Next button is hidden and the element becomes clickable through the overlay.
+   */
+  action?: 'click'
 }
 
 /**

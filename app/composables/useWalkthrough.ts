@@ -105,12 +105,17 @@ function calculateCurrentTooltipPosition(element: Element): TooltipPosition {
 
 /**
  * Scroll an element into view with smooth behavior.
+ * Returns a promise that resolves after scroll settles.
  */
-function scrollElementIntoView(element: Element): void {
-  element.scrollIntoView({
-    behavior: 'smooth',
-    block: 'center',
-    inline: 'nearest',
+function scrollElementIntoView(element: Element): Promise<void> {
+  return new Promise((resolve) => {
+    element.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'nearest',
+    })
+    // Wait for smooth scroll to settle
+    setTimeout(resolve, 350)
   })
 }
 
@@ -196,51 +201,32 @@ export function useWalkthrough(): UseWalkthroughReturn {
     // Check if route is already completed/skipped (check both actual path and config key)
     if (store.isRouteCompleted(routePath) || store.isRouteCompleted(configKey)) return
 
-    // Wait for the first target element to appear (up to 3s timeout)
+    // Wait for the first target element to appear (up to 5s timeout)
     const firstStep = sequence.steps[0]
     if (!firstStep) return
 
-    const firstElement = await waitForElement(firstStep.target, ELEMENT_WAIT_TIMEOUT)
+    const firstElement = await waitForElement(firstStep.target, 5000)
     if (!firstElement) {
       // First target not found within timeout - don't start walkthrough
       return
     }
 
-    // Filter steps to only those with existing DOM targets
-    const stepsWithTargets = sequence.steps.filter((step) => {
-      return document.querySelector(step.target) !== null
-    })
-
-    // Edge case: all targets missing → auto-complete route
-    if (stepsWithTargets.length === 0) {
-      store.markRouteCompleted(routePath)
-      return
-    }
-
-    // Begin the walkthrough sequence
-    validSteps.value = stepsWithTargets
+    // Use ALL steps from config (don't pre-filter)
+    // Missing targets will be skipped at navigation time
+    validSteps.value = sequence.steps
     currentRoutePath.value = routePath
     currentStep.value = 0
-    totalSteps.value = stepsWithTargets.length
+    totalSteps.value = sequence.steps.length
     isActive.value = true
 
     // Scroll first element into view and update positions
-    const firstValidStep = stepsWithTargets[0]
-    if (firstValidStep) {
-      const element = document.querySelector(firstValidStep.target)
-      if (element) {
-        scrollElementIntoView(element)
-        // Small delay to allow scroll to settle before calculating positions
-        await new Promise((resolve) => setTimeout(resolve, 50))
-      }
-    }
-
+    await scrollElementIntoView(firstElement)
     updatePositions()
   }
 
   /**
    * Advance to the next step in the walkthrough.
-   * Skips steps with missing targets.
+   * Waits briefly for target elements that may still be loading.
    * If at the last step, completes the walkthrough.
    */
   function nextStep(): void {
@@ -252,54 +238,72 @@ export function useWalkthrough(): UseWalkthroughReturn {
       return
     }
 
-    // Find the next valid step (skip missing targets)
-    let nextIndex = currentStep.value + 1
-    while (nextIndex < validSteps.value.length) {
-      const step = validSteps.value[nextIndex]
-      if (!step) {
-        nextIndex++
-        continue
-      }
-      const element = document.querySelector(step.target)
-      if (element) {
-        currentStep.value = nextIndex
-        scrollElementIntoView(element)
-        // Allow scroll to settle
-        setTimeout(() => updatePositions(), 50)
-        return
-      }
-      nextIndex++
+    // Move to next step index
+    const nextIndex = currentStep.value + 1
+    const step = validSteps.value[nextIndex]
+    if (!step) {
+      completeWalkthrough()
+      return
     }
 
-    // No more valid steps found - complete the walkthrough
-    completeWalkthrough()
+    currentStep.value = nextIndex
+
+    // Try to find element, with a short retry
+    const tryShowStep = () => {
+      const element = document.querySelector(step.target)
+      if (element) {
+        scrollElementIntoView(element).then(() => {
+          updatePositions()
+        })
+      } else {
+        // Wait up to 1s for the element to appear
+        const startTime = Date.now()
+        const interval = setInterval(() => {
+          const el = document.querySelector(step.target)
+          if (el) {
+            clearInterval(interval)
+            scrollElementIntoView(el).then(() => {
+              updatePositions()
+            })
+          } else if (Date.now() - startTime >= 1000) {
+            clearInterval(interval)
+            // Skip this step, try next
+            if (currentStep.value < totalSteps.value - 1) {
+              nextStep()
+            } else {
+              completeWalkthrough()
+            }
+          }
+        }, 100)
+      }
+    }
+
+    tryShowStep()
   }
 
   /**
    * Go back to the previous step in the walkthrough.
-   * Skips steps with missing targets.
    */
   function previousStep(): void {
     if (!isActive.value) return
     if (currentStep.value <= 0) return
 
-    // Find the previous valid step (skip missing targets)
-    let prevIndex = currentStep.value - 1
-    while (prevIndex >= 0) {
-      const step = validSteps.value[prevIndex]
-      if (!step) {
-        prevIndex--
-        continue
+    const prevIndex = currentStep.value - 1
+    const step = validSteps.value[prevIndex]
+    if (!step) return
+
+    currentStep.value = prevIndex
+
+    const element = document.querySelector(step.target)
+    if (element) {
+      scrollElementIntoView(element).then(() => {
+        updatePositions()
+      })
+    } else {
+      // If element not found, try going back further
+      if (prevIndex > 0) {
+        previousStep()
       }
-      const element = document.querySelector(step.target)
-      if (element) {
-        currentStep.value = prevIndex
-        scrollElementIntoView(element)
-        // Allow scroll to settle
-        setTimeout(() => updatePositions(), 50)
-        return
-      }
-      prevIndex--
     }
   }
 

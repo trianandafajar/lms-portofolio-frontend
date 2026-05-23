@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" fill="none">
+  <rect width="800" height="400" fill="#f8fafc"/>
+  <text x="40" y="40" fill="#1e293b" font-size="20" font-weight="bold">My Classes</text>
+  <text x="40" y="60" fill="#64748b" font-size="12">3 classes · Manage and create your classes</text>
+  <rect x="680" y="22" width="100" height="36" rx="8" fill="#10b981"/>
+  <text x="730" y="45" text-anchor="middle" fill="white" font-size="11" font-weight="600">Create Class</text>
+  <rect x="30" y="80" width="235" height="290" rx="16" fill="white" stroke="#e2e8f0"/>
+  <rect x="30" y="80" width="235" height="70" rx="16" fill="#10b981"/>
+  <text x="220" y="105" fill="white" font-size="9" opacity="0.8">ABC123</text>
+  <text x="60" y="180" fill="#1e293b" font-size="14" font-weight="600">Mathematics 101</text>
+  <text x="60" y="200" fill="#64748b" font-size="11">Learn algebra and geometry</text>
+  <circle cx="60" cy="235" r="12" fill="#10b981"/>
+  <text x="60" y="240" text-anchor="middle" fill="white" font-size="9" font-weight="600">S</text>
+  <text x="80" y="232" fill="#1e293b" font-size="10" font-weight="500">Mr. Smith</text>
+  <text x="80" y="244" fill="#94a3b8" font-size="9">Teacher</text>
+  <text x="60" y="280" fill="#64748b" font-size="10">12 students</text>
+  <rect x="50" y="300" width="195" height="32" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="147" y="321" text-anchor="middle" fill="#475569" font-size="11" font-weight="500">Manage Class</text>
+  <rect x="285" y="80" width="235" height="290" rx="16" fill="white" stroke="#e2e8f0"/>
+  <rect x="285" y="80" width="235" height="70" rx="16" fill="#8b5cf6"/>
+  <text x="475" y="105" fill="white" font-size="9" opacity="0.8">XYZ789</text>
+  <text x="315" y="180" fill="#1e293b" font-size="14" font-weight="600">Physics Advanced</text>
+  <text x="315" y="200" fill="#64748b" font-size="11">Quantum mechanics basics</text>
+  <circle cx="315" cy="235" r="12" fill="#8b5cf6"/>
+  <text x="315" y="240" text-anchor="middle" fill="white" font-size="9" font-weight="600">J</text>
+  <text x="335" y="232" fill="#1e293b" font-size="10" font-weight="500">Dr. Johnson</text>
+  <text x="335" y="244" fill="#94a3b8" font-size="9">Teacher</text>
+  <text x="315" y="280" fill="#64748b" font-size="10">8 students</text>
+  <rect x="305" y="300" width="195" height="32" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="402" y="321" text-anchor="middle" fill="#475569" font-size="11" font-weight="500">Manage Class</text>
+  <rect x="540" y="80" width="235" height="290" rx="16" fill="white" stroke="#e2e8f0"/>
+  <rect x="540" y="80" width="235" height="70" rx="16" fill="#f59e0b"/>
+  <text x="730" y="105" fill="white" font-size="9" opacity="0.8">DEF456</text>
+  <text x="570" y="180" fill="#1e293b" font-size="14" font-weight="600">English Literature</text>
+  <text x="570" y="200" fill="#64748b" font-size="11">Shakespeare and poetry</text>
+  <circle cx="570" cy="235" r="12" fill="#f59e0b"/>
+  <text x="570" y="240" text-anchor="middle" fill="white" font-size="9" font-weight="600">D</text>
+  <text x="590" y="232" fill="#1e293b" font-size="10" font-weight="500">Ms. Davis</text>
+  <text x="590" y="244" fill="#94a3b8" font-size="9">Teacher</text>
+  <text x="570" y="280" fill="#64748b" font-size="10">15 students</text>
+  <rect x="560" y="300" width="195" height="32" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="657" y="321" text-anchor="middle" fill="#475569" font-size="11" font-weight="500">Manage Class</text>
+</svg>

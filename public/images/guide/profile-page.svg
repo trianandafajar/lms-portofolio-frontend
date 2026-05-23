@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350" fill="none">
+  <rect width="800" height="350" fill="#f8fafc"/>
+  <rect x="20" y="20" width="760" height="120" rx="16" fill="white" stroke="#e2e8f0"/>
+  <rect x="20" y="20" width="760" height="50" rx="16" fill="#10b981"/>
+  <rect x="50" y="45" width="56" height="56" rx="14" fill="#10b981" stroke="white" stroke-width="3"/>
+  <text x="78" y="80" text-anchor="middle" fill="white" font-size="22" font-weight="bold">J</text>
+  <text x="50" y="120" fill="#1e293b" font-size="16" font-weight="bold">John Doe</text>
+  <rect x="140" y="107" width="55" height="18" rx="9" fill="#ede9fe"/>
+  <text x="167" y="119" text-anchor="middle" fill="#7c3aed" font-size="8" font-weight="600">TEACHER</text>
+  <rect x="200" y="107" width="45" height="18" rx="9" fill="#ecfdf5"/>
+  <text x="222" y="119" text-anchor="middle" fill="#10b981" font-size="8" font-weight="600">ACTIVE</text>
+  <rect x="20" y="155" width="500" height="175" rx="16" fill="white" stroke="#e2e8f0"/>
+  <rect x="40" y="175" width="30" height="30" rx="8" fill="#e0f2fe"/>
+  <text x="55" y="195" text-anchor="middle" fill="#0284c7" font-size="12">✏️</text>
+  <text x="80" y="188" fill="#1e293b" font-size="13" font-weight="600">Edit Profile</text>
+  <text x="80" y="203" fill="#64748b" font-size="9">Update how others see you</text>
+  <text x="40" y="235" fill="#374151" font-size="10" font-weight="500">Display Name</text>
+  <rect x="40" y="245" width="460" height="32" rx="6" fill="#f9fafb" stroke="#e2e8f0"/>
+  <text x="55" y="266" fill="#1e293b" font-size="11">John Doe</text>
+  <text x="40" y="295" fill="#374151" font-size="10" font-weight="500">Bio</text>
+  <rect x="40" y="305" width="460" height="20" rx="6" fill="#f9fafb" stroke="#e2e8f0"/>
+  <text x="55" y="319" fill="#94a3b8" font-size="10">Tell others about yourself...</text>
+  <rect x="540" y="155" width="240" height="175" rx="16" fill="white" stroke="#e2e8f0"/>
+  <rect x="560" y="175" width="30" height="30" rx="8" fill="#f1f5f9"/>
+  <text x="575" y="195" text-anchor="middle" fill="#64748b" font-size="12">ℹ️</text>
+  <text x="600" y="188" fill="#1e293b" font-size="13" font-weight="600">Account</text>
+  <text x="600" y="203" fill="#64748b" font-size="9">Read-only details</text>
+  <text x="560" y="232" fill="#94a3b8" font-size="8" font-weight="600">EMAIL</text>
+  <text x="560" y="246" fill="#1e293b" font-size="10">john@example.com</text>
+  <text x="560" y="272" fill="#94a3b8" font-size="8" font-weight="600">STATUS</text>
+  <rect x="560" y="278" width="40" height="14" rx="7" fill="#ecfdf5"/>
+  <text x="580" y="289" text-anchor="middle" fill="#10b981" font-size="8" font-weight="600">Active</text>
+  <text x="560" y="312" fill="#94a3b8" font-size="8" font-weight="600">MEMBER SINCE</text>
+  <text x="560" y="326" fill="#1e293b" font-size="10">January 15, 2026</text>
+</svg>

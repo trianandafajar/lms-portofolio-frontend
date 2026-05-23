@@ -29,11 +29,11 @@ export default defineNuxtPlugin({
         return
       }
 
-      // Wait for DOM ready: nextTick + setTimeout to allow rendering
+      // Wait for DOM ready: nextTick + setTimeout to allow rendering and data loading
       nextTick(() => {
         setTimeout(() => {
           walkthrough.startWalkthrough(to.path)
-        }, 300)
+        }, 1000)
       })
     })
   },

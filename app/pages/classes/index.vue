@@ -81,7 +81,7 @@
         v-for="(classList, classIdx) in LmsClassStore.clases"
         :key="classList.id"
         :to="'/classes/' + classList.id"
-        :data-walkthrough="classIdx === 0 ? 'classes-card-first' : undefined"
+        :data-walkthrough="classIdx === 0 ? 'classes-card-first' : 'classes-card'"
         class="group relative bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 hover:border-slate-300 transition-all duration-200 flex flex-col"
       >
         <!-- Banner -->
