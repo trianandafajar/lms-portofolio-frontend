@@ -6,11 +6,90 @@ import type {
 /**
  * Walkthrough configuration defining step sequences for each route.
  * Each sequence targets UI elements via [data-walkthrough="..."] selectors.
- *
- * Note: The landing page (`/`) intentionally has no walkthrough — Mentora's
- * marketing content is self-explanatory and an introduction would be redundant.
  */
 export const walkthroughConfig: WalkthroughConfig = {
+  '/': {
+    route: '/',
+    steps: [
+      {
+        target: '[data-walkthrough="landing-login-button"]',
+        title: 'Login to Mentora',
+        description:
+          'Click this button to sign in to your account and start learning.',
+        action: 'click',
+      },
+    ],
+  },
+  '/auth/login': {
+    route: '/auth/login',
+    steps: [
+      {
+        target: '[data-walkthrough="login-header"]',
+        title: 'Welcome Back',
+        description:
+          'This is the login page. Enter your credentials to access your Mentora account.',
+      },
+      {
+        target: '[data-walkthrough="login-email"]',
+        title: 'Email Address',
+        description:
+          'Enter the email address you used when registering your account.',
+      },
+      {
+        target: '[data-walkthrough="login-password"]',
+        title: 'Password',
+        description:
+          'Enter your password. Click "Forgot password?" if you need to reset it.',
+      },
+      {
+        target: '[data-walkthrough="login-submit"]',
+        title: 'Sign In',
+        description:
+          'Click this button to log in with your credentials.',
+      },
+      {
+        target: '[data-walkthrough="login-demo-buttons"]',
+        title: 'Demo Accounts',
+        description:
+          'Use these buttons to instantly log in as a demo teacher or student without credentials.',
+      },
+    ],
+  },
+  '/auth/register': {
+    route: '/auth/register',
+    steps: [
+      {
+        target: '[data-walkthrough="register-header"]',
+        title: 'Create Your Account',
+        description:
+          'Fill in this form to create a new Mentora account as a student or teacher.',
+      },
+      {
+        target: '[data-walkthrough="register-name"]',
+        title: 'Your Display Name',
+        description:
+          'Enter your full name. This will be visible to other users on the platform.',
+      },
+      {
+        target: '[data-walkthrough="register-role"]',
+        title: 'Choose Your Role',
+        description:
+          'Select Student to join classes, or Teacher to create and manage your own classes.',
+      },
+      {
+        target: '[data-walkthrough="register-submit"]',
+        title: 'Create Account',
+        description:
+          'Once all fields are filled and terms accepted, click here to create your account.',
+      },
+      {
+        target: '[data-walkthrough="register-demo-buttons"]',
+        title: 'Demo Accounts',
+        description:
+          'Use these buttons to quickly register with pre-filled demo credentials for testing.',
+      },
+    ],
+  },
   '/classes': {
     route: '/classes',
     steps: [
@@ -30,29 +109,29 @@ export const walkthroughConfig: WalkthroughConfig = {
         target: '[data-walkthrough="classes-grid"]',
         title: 'Class Cards Grid',
         description:
-          'A responsive 4-column grid of class cards. Each card shows banner, title, teacher, and student count.',
+          'All your classes are displayed here in a responsive grid. Each card shows the class banner, title, teacher, and student count.',
       },
       {
         target: '[data-walkthrough="classes-card-first"]',
         title: 'Individual Class Card',
         description:
-          'Each card has a colored banner, code badge, title, description, teacher info, and an action button.',
+          'Click any card to open the class. Each card has a colored banner, code badge, title, description, and teacher info.',
       },
       {
         target: '[data-walkthrough="sidebar-my-classes"]',
         title: 'Sidebar: My Classes',
         description:
-          'The sidebar shows your enrolled classes. Expand it to quickly navigate between classes.',
+          'The sidebar shows your enrolled classes. Click the chevron to expand and quickly navigate between classes.',
       },
       {
         target: '[data-walkthrough="sidebar-class-list"]',
-        title: 'Sidebar Class Cards',
+        title: 'Sidebar Class List',
         description:
           'Each item here is a class you belong to. Click any to jump directly to that class detail page.',
       },
       {
         target: '[data-walkthrough="sidebar-class-card-first"]',
-        title: 'My Class Card',
+        title: 'Sidebar Class Card',
         description:
           'Each card shows a colored avatar, class title, and teacher name. The active class has a green dot.',
       },
