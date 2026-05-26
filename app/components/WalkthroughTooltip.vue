@@ -53,10 +53,8 @@
       </button>
       <span v-else />
 
-      <!-- Show "Click the button" hint when action is click -->
-      <span v-if="isClickAction" class="text-xs text-emerald-600 font-medium animate-pulse">
-        👆 Click element
-      </span>
+      <!-- Click action: no next button needed, user clicks the element -->
+      <span v-if="isClickAction" />
       <button
         v-else-if="!isLastStep"
         type="button"
