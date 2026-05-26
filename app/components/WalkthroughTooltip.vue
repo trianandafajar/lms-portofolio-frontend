@@ -1,6 +1,7 @@
 <template>
   <div
-    class="fixed z-[10001] w-80 bg-white rounded-xl shadow-lg border border-slate-200 p-5 transition-all duration-300 ease-out"
+    class="walkthrough-tooltip"
+    :class="[`walkthrough-tooltip--${position.placement}`]"
     :style="{
       top: `${position.top}px`,
       left: `${position.left}px`,
@@ -16,26 +17,36 @@
     </button>
 
     <!-- Title -->
-    <h3 class="text-base font-semibold text-slate-900 pr-10">
+    <h3 class="text-sm sm:text-base font-semibold text-slate-900 pr-10">
       {{ title }}
     </h3>
 
     <!-- Description -->
-    <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+    <p class="text-xs sm:text-sm text-slate-500 mt-1.5 sm:mt-2 leading-relaxed">
       {{ description }}
     </p>
 
     <!-- Step indicator -->
-    <p class="text-xs text-slate-400 mt-3">
-      {{ currentStep }} of {{ totalSteps }}
-    </p>
+    <div class="flex items-center gap-1.5 mt-2.5 sm:mt-3">
+      <template v-for="i in totalSteps" :key="i">
+        <span
+          class="inline-block rounded-full transition-all duration-300"
+          :class="i <= currentStep
+            ? 'w-2 h-2 bg-emerald-500'
+            : 'w-1.5 h-1.5 bg-slate-300'"
+        />
+      </template>
+      <span class="text-xs text-slate-400 ml-1.5">
+        {{ currentStep }}/{{ totalSteps }}
+      </span>
+    </div>
 
     <!-- Navigation buttons -->
-    <div class="flex items-center justify-between mt-4 pt-3 border-t border-slate-100">
+    <div class="flex items-center justify-between mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-slate-100">
       <button
         v-if="!isFirstStep"
         type="button"
-        class="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer"
+        class="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer"
         @click="$emit('previous')"
       >
         Previous
@@ -44,12 +55,12 @@
 
       <!-- Show "Click the button" hint when action is click -->
       <span v-if="isClickAction" class="text-xs text-emerald-600 font-medium animate-pulse">
-        👆 Click the highlighted element
+        👆 Click element
       </span>
       <button
         v-else-if="!isLastStep"
         type="button"
-        class="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition cursor-pointer"
+        class="px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs sm:text-sm font-medium transition cursor-pointer"
         @click="$emit('next')"
       >
         Next
@@ -57,7 +68,7 @@
       <button
         v-else
         type="button"
-        class="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition cursor-pointer"
+        class="px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs sm:text-sm font-medium transition cursor-pointer"
         @click="$emit('finish')"
       >
         Finish
@@ -87,3 +98,55 @@ defineEmits<{
   finish: []
 }>()
 </script>
+
+<style scoped>
+.walkthrough-tooltip {
+  position: fixed;
+  z-index: 10001;
+  width: min(320px, calc(100vw - 32px));
+  background: white;
+  border-radius: 12px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  padding: 16px;
+  transition: top 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s ease,
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: tooltip-enter 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@media (min-width: 640px) {
+  .walkthrough-tooltip {
+    width: 320px;
+    padding: 20px;
+  }
+}
+
+/* Directional entry animations */
+.walkthrough-tooltip--bottom {
+  transform-origin: top center;
+}
+.walkthrough-tooltip--top {
+  transform-origin: bottom center;
+}
+.walkthrough-tooltip--left {
+  transform-origin: right center;
+}
+.walkthrough-tooltip--right {
+  transform-origin: left center;
+}
+
+@keyframes tooltip-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+</style>

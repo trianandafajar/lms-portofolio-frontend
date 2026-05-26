@@ -1,14 +1,14 @@
 <template>
   <div>
     <!-- Page Header -->
-    <div data-walkthrough="classes-header" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-      <div class="flex items-center gap-4">
-        <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-emerald-50 items-center justify-center ring-1 ring-emerald-100">
-          <UIcon name="heroicons-academic-cap" class="h-6 w-6 text-emerald-600" />
+    <div data-walkthrough="classes-header" class="flex items-start sm:items-center justify-between gap-3 sm:gap-4 mb-8">
+      <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+        <div class="flex w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-50 items-center justify-center ring-1 ring-emerald-100 shrink-0">
+          <UIcon name="heroicons-academic-cap" class="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600" />
         </div>
-        <div>
-          <h1 class="text-3xl font-bold tracking-tight text-slate-900">My Classes</h1>
-          <p class="text-sm text-slate-500 mt-0.5">
+        <div class="min-w-0">
+          <h1 class="text-xl sm:text-3xl font-bold tracking-tight text-slate-900">My Classes</h1>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5 truncate">
             <span class="font-medium text-slate-700">{{ LmsClassStore.clases?.length || 0 }}</span>
             {{ (LmsClassStore.clases?.length || 0) === 1 ? 'class' : 'classes' }} ·
             <span>{{ isTeacherOrAdmin ? 'Manage and create your classes' : 'Continue your learning journey' }}</span>
@@ -25,7 +25,8 @@
           class="shadow-sm hover:shadow-md transition-shadow"
           @click="modalJoin = true"
         >
-          Join Class
+          <span class="hidden sm:inline">Join Class</span>
+          <span class="sm:hidden">Join</span>
         </UButton>
         <UButton
           v-if="isTeacherOrAdmin"
@@ -36,7 +37,8 @@
           class="shadow-sm hover:shadow-md transition-shadow"
           @click="modalCreate = true"
         >
-          Create Class
+          <span class="hidden sm:inline">Create Class</span>
+          <span class="sm:hidden">Create</span>
         </UButton>
       </div>
     </div>

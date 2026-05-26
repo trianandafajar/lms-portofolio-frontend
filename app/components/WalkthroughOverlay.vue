@@ -5,8 +5,13 @@
  * Renders a full-screen overlay with an SVG-based spotlight mask that creates
  * a cutout around the currently highlighted element. Integrates with the
  * useWalkthrough composable for state management.
+ *
+ * Features:
+ * - Smooth animated highlight transitions
+ * - Responsive positioning on all screen sizes
+ * - Recalculates on resize/scroll
  */
-import { onMounted, onBeforeUnmount, computed } from 'vue'
+import { onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import { useWalkthrough } from '~/composables/useWalkthrough'
 import { calculateTooltipPosition } from '~/utils/tooltipPositioning'
 
@@ -26,8 +31,53 @@ const {
 /** Whether the current step requires the user to click the highlighted element */
 const isClickAction = computed(() => currentStepConfig.value?.action === 'click')
 
-/** Debounce timer for resize handler */
+/** Responsive tooltip size based on viewport width */
+const responsiveTooltipSize = computed(() => {
+  if (typeof window === 'undefined') return { width: 320, height: 180 }
+  const vw = window.innerWidth
+  if (vw < 400) return { width: Math.min(vw - 32, 280), height: 200 }
+  if (vw < 640) return { width: Math.min(vw - 32, 300), height: 190 }
+  return { width: 320, height: 180 }
+})
+
+/** Debounce timer for resize/scroll handler */
 let resizeTimer: ReturnType<typeof setTimeout> | null = null
+
+/**
+ * Recalculate highlight and tooltip positions based on current DOM state.
+ */
+function recalculatePositions(): void {
+  if (!isActive.value || !currentStepConfig.value) return
+
+  const element = document.querySelector(currentStepConfig.value.target)
+  if (!element) return
+
+  const rect = element.getBoundingClientRect()
+  const padding = 8
+  const borderRadius = 8
+
+  highlightRect.value = {
+    x: rect.left - padding,
+    y: rect.top - padding,
+    width: rect.width + padding * 2,
+    height: rect.height + padding * 2,
+    borderRadius,
+    padding,
+  }
+
+  const targetRect = {
+    x: rect.left - padding,
+    y: rect.top - padding,
+    width: rect.width + padding * 2,
+    height: rect.height + padding * 2,
+  }
+  const viewportSize = {
+    width: window.innerWidth,
+    height: window.innerHeight,
+  }
+
+  tooltipPosition.value = calculateTooltipPosition(targetRect, responsiveTooltipSize.value, viewportSize)
+}
 
 /**
  * Handle window resize: recalculate overlay and tooltip positions.
@@ -41,39 +91,16 @@ function handleResize(): void {
   }
 
   resizeTimer = setTimeout(() => {
-    // Re-read the current step's target element rect and recalculate positions
-    if (currentStepConfig.value) {
-      const element = document.querySelector(currentStepConfig.value.target)
-      if (element) {
-        const rect = element.getBoundingClientRect()
-        const padding = highlightRect.value?.padding ?? 8
-        const borderRadius = highlightRect.value?.borderRadius ?? 4
+    recalculatePositions()
+  }, 80)
+}
 
-        highlightRect.value = {
-          x: rect.left - padding,
-          y: rect.top - padding,
-          width: rect.width + padding * 2,
-          height: rect.height + padding * 2,
-          borderRadius,
-          padding,
-        }
-
-        // Recalculate tooltip position
-        const targetRect = {
-          x: rect.left - padding,
-          y: rect.top - padding,
-          width: rect.width + padding * 2,
-          height: rect.height + padding * 2,
-        }
-        const viewportSize = {
-          width: window.innerWidth,
-          height: window.innerHeight,
-        }
-        const tooltipSize = { width: 320, height: 180 }
-        tooltipPosition.value = calculateTooltipPosition(targetRect, tooltipSize, viewportSize)
-      }
-    }
-  }, 100)
+/**
+ * Handle scroll events: recalculate positions immediately for smooth tracking.
+ */
+function handleScroll(): void {
+  if (!isActive.value) return
+  recalculatePositions()
 }
 
 /**
@@ -127,16 +154,44 @@ function handleHighlightClick(event: MouseEvent): void {
 
 onMounted(() => {
   window.addEventListener('resize', handleResize)
+  window.addEventListener('scroll', handleScroll, true)
   window.addEventListener('keydown', handleKeydown, true)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
+  window.removeEventListener('scroll', handleScroll, true)
   window.removeEventListener('keydown', handleKeydown, true)
   if (resizeTimer) {
     clearTimeout(resizeTimer)
   }
 })
+
+// Lock/unlock body scroll when walkthrough is active
+watch(isActive, (active) => {
+  if (active) {
+    document.body.style.overflow = 'hidden'
+    // Also lock scroll on inner containers (e.g., main content area)
+    document.querySelectorAll('[style*="overflow"], .overflow-y-auto, .overflow-auto').forEach((el) => {
+      const htmlEl = el as HTMLElement
+      htmlEl.dataset.walkthroughOverflow = htmlEl.style.overflow || getComputedStyle(htmlEl).overflowY
+      htmlEl.style.overflow = 'hidden'
+    })
+  } else {
+    document.body.style.overflow = ''
+    // Restore scroll on inner containers
+    document.querySelectorAll('[data-walkthrough-overflow]').forEach((el) => {
+      const htmlEl = el as HTMLElement
+      const original = htmlEl.dataset.walkthroughOverflow
+      if (original && original !== 'hidden') {
+        htmlEl.style.overflow = original
+      } else {
+        htmlEl.style.overflow = ''
+      }
+      delete htmlEl.dataset.walkthroughOverflow
+    })
+  }
+}, { immediate: true })
 </script>
 
 <template>
@@ -144,6 +199,7 @@ onBeforeUnmount(() => {
     <div
       v-if="isActive"
       class="walkthrough-overlay"
+      data-walkthrough-overlay
       @click.stop.prevent="handleOverlayClick"
       @pointerdown.stop.prevent
       @pointerup.stop.prevent
@@ -182,7 +238,7 @@ onBeforeUnmount(() => {
           y="0"
           width="100%"
           height="100%"
-          fill="rgba(0, 0, 0, 0.6)"
+          fill="rgba(0, 0, 0, 0.55)"
           mask="url(#walkthrough-spotlight-mask)"
         />
       </svg>
@@ -239,37 +295,69 @@ onBeforeUnmount(() => {
 }
 
 .walkthrough-cutout {
-  transition: x 0.3s ease, y 0.3s ease, width 0.3s ease, height 0.3s ease;
+  transition: x 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              y 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .walkthrough-highlight-ring {
   position: fixed;
   pointer-events: none;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.6), 0 0 12px 4px rgba(16, 185, 129, 0.2);
-  transition: top 0.3s ease, left 0.3s ease, width 0.3s ease, height 0.3s ease;
+  box-shadow:
+    0 0 0 3px rgba(16, 185, 129, 0.7),
+    0 0 0 6px rgba(16, 185, 129, 0.2),
+    0 0 20px 4px rgba(16, 185, 129, 0.15);
+  transition: top 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s ease;
   z-index: 10000;
+  animation: highlight-breathe 2s ease-in-out infinite;
 }
 
 .walkthrough-highlight-ring--clickable {
   pointer-events: auto;
   cursor: pointer;
-  animation: pulse-ring 1.5s ease-in-out infinite;
+  animation: highlight-pulse 1.5s ease-in-out infinite;
 }
 
-@keyframes pulse-ring {
+@keyframes highlight-breathe {
   0%, 100% {
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.6), 0 0 12px 4px rgba(16, 185, 129, 0.2);
+    box-shadow:
+      0 0 0 3px rgba(16, 185, 129, 0.7),
+      0 0 0 6px rgba(16, 185, 129, 0.2),
+      0 0 20px 4px rgba(16, 185, 129, 0.15);
   }
   50% {
-    box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.8), 0 0 20px 8px rgba(16, 185, 129, 0.3);
+    box-shadow:
+      0 0 0 3px rgba(16, 185, 129, 0.5),
+      0 0 0 8px rgba(16, 185, 129, 0.15),
+      0 0 24px 6px rgba(16, 185, 129, 0.1);
+  }
+}
+
+@keyframes highlight-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 3px rgba(16, 185, 129, 0.8),
+      0 0 0 6px rgba(16, 185, 129, 0.3),
+      0 0 20px 4px rgba(16, 185, 129, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 0 5px rgba(16, 185, 129, 0.9),
+      0 0 0 10px rgba(16, 185, 129, 0.25),
+      0 0 30px 8px rgba(16, 185, 129, 0.2);
   }
 }
 
 .walkthrough-fade-enter-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .walkthrough-fade-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.25s ease-out;
 }
 .walkthrough-fade-enter-from,
 .walkthrough-fade-leave-to {

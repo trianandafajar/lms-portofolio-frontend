@@ -33,7 +33,7 @@
     </div>
 
     <!-- Panel Kanan -->
-    <div class="flex-1 flex items-center justify-center px-6 py-12">
+    <div class="flex-1 flex items-center justify-center px-6 py-12 relative">
       <div class="w-full max-w-md">
 
         <!-- Logo Mobile -->

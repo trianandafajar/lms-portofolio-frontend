@@ -29,11 +29,15 @@ export default defineNuxtPlugin({
         return
       }
 
-      // Wait for DOM ready: nextTick + setTimeout to allow rendering and data loading
+      // Wait for DOM ready with multiple attempts
+      // Use a longer delay for auth pages since they render inside a layout
+      const isAuthRoute = to.path.startsWith('/auth')
+      const initialDelay = isAuthRoute ? 1500 : 1000
+
       nextTick(() => {
         setTimeout(() => {
           walkthrough.startWalkthrough(to.path)
-        }, 1000)
+        }, initialDelay)
       })
     })
   },

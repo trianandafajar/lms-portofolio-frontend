@@ -2,6 +2,7 @@ import { ref, computed, type Ref, type ComputedRef } from 'vue'
 import type { WalkthroughStep, TooltipPosition, HighlightRect } from '~/types/walkthrough'
 import { walkthroughConfig } from '~/config/walkthroughConfig'
 import { useTutorialStore } from '~/stores/tutorial'
+import { useSidebarStore } from '~/stores/sidebar'
 import { calculateTooltipPosition } from '~/utils/tooltipPositioning'
 
 /**
@@ -34,16 +35,46 @@ const validSteps = ref<WalkthroughStep[]>([])
 /** Default padding around highlighted element */
 const HIGHLIGHT_PADDING = 8
 /** Default border radius for highlight cutout */
-const HIGHLIGHT_BORDER_RADIUS = 4
+const HIGHLIGHT_BORDER_RADIUS = 8
 /** Timeout for waiting for first target element (ms) */
-const ELEMENT_WAIT_TIMEOUT = 3000
+const ELEMENT_WAIT_TIMEOUT = 5000
 /** Polling interval when waiting for element (ms) */
 const ELEMENT_POLL_INTERVAL = 100
-/** Default tooltip size estimate for positioning */
-const TOOLTIP_SIZE = { width: 320, height: 180 }
+
+/**
+ * Check if a step targets a sidebar element.
+ */
+function isSidebarStep(step: WalkthroughStep): boolean {
+  return step.target.includes('data-walkthrough="sidebar-')
+}
+
+/**
+ * Check if the viewport is mobile-sized (< lg breakpoint).
+ */
+function isMobileViewport(): boolean {
+  if (typeof window === 'undefined') return false
+  return window.innerWidth < 1024
+}
+
+/**
+ * Track whether the sidebar was opened by the walkthrough so we can close it after.
+ */
+const sidebarOpenedByWalkthrough = ref(false)
+
+/**
+ * Get responsive tooltip size based on current viewport width.
+ */
+function getResponsiveTooltipSize(): { width: number; height: number } {
+  if (typeof window === 'undefined') return { width: 320, height: 180 }
+  const vw = window.innerWidth
+  if (vw < 400) return { width: Math.min(vw - 32, 280), height: 200 }
+  if (vw < 640) return { width: Math.min(vw - 32, 300), height: 190 }
+  return { width: 320, height: 180 }
+}
 
 /**
  * Wait for a DOM element matching the selector to appear, up to a timeout.
+ * Uses both polling and MutationObserver for faster detection.
  * Returns the element if found, or null if timeout is reached.
  */
 function waitForElement(selector: string, timeout: number = ELEMENT_WAIT_TIMEOUT): Promise<Element | null> {
@@ -54,13 +85,40 @@ function waitForElement(selector: string, timeout: number = ELEMENT_WAIT_TIMEOUT
       return
     }
 
+    let resolved = false
     const startTime = Date.now()
+
+    // Use MutationObserver for faster detection
+    const observer = new MutationObserver(() => {
+      const el = document.querySelector(selector)
+      if (el && !resolved) {
+        resolved = true
+        observer.disconnect()
+        clearInterval(interval)
+        resolve(el)
+      }
+    })
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    })
+
+    // Also poll as fallback (MutationObserver might miss attribute changes)
     const interval = setInterval(() => {
+      if (resolved) {
+        clearInterval(interval)
+        return
+      }
       const el = document.querySelector(selector)
       if (el) {
+        resolved = true
+        observer.disconnect()
         clearInterval(interval)
         resolve(el)
       } else if (Date.now() - startTime >= timeout) {
+        resolved = true
+        observer.disconnect()
         clearInterval(interval)
         resolve(null)
       }
@@ -100,7 +158,7 @@ function calculateCurrentTooltipPosition(element: Element): TooltipPosition {
     height: window.innerHeight,
   }
 
-  return calculateTooltipPosition(targetRect, TOOLTIP_SIZE, viewportSize)
+  return calculateTooltipPosition(targetRect, getResponsiveTooltipSize(), viewportSize)
 }
 
 /**
@@ -136,9 +194,48 @@ function updatePositions(): boolean {
 }
 
 /**
+ * Ensure sidebar is visible for sidebar steps on mobile.
+ * Opens the sidebar if needed and waits for the animation to complete.
+ * Returns a promise that resolves when the sidebar is ready.
+ */
+async function ensureSidebarForStep(step: WalkthroughStep): Promise<void> {
+  if (!isSidebarStep(step) || !isMobileViewport()) {
+    // If moving away from sidebar steps, close sidebar if we opened it
+    if (sidebarOpenedByWalkthrough.value && !isSidebarStep(step) && isMobileViewport()) {
+      const sidebar = useSidebarStore()
+      sidebar.closeMobile()
+      sidebarOpenedByWalkthrough.value = false
+      // Wait for close animation
+      await new Promise(resolve => setTimeout(resolve, 350))
+    }
+    return
+  }
+
+  const sidebar = useSidebarStore()
+  if (!sidebar.mobileOpen) {
+    sidebar.mobileOpen = true
+    sidebarOpenedByWalkthrough.value = true
+    // Wait for sidebar slide-in animation to complete
+    await new Promise(resolve => setTimeout(resolve, 400))
+  }
+}
+
+/**
+ * Close sidebar if it was opened by walkthrough (cleanup on dismiss).
+ */
+function closeSidebarIfOpenedByWalkthrough(): void {
+  if (sidebarOpenedByWalkthrough.value && isMobileViewport()) {
+    const sidebar = useSidebarStore()
+    sidebar.closeMobile()
+    sidebarOpenedByWalkthrough.value = false
+  }
+}
+
+/**
  * Dismiss the walkthrough overlay and reset visual state.
  */
 function dismissOverlay(): void {
+  closeSidebarIfOpenedByWalkthrough()
   isActive.value = false
   currentStep.value = 0
   totalSteps.value = 0
@@ -219,6 +316,9 @@ export function useWalkthrough(): UseWalkthroughReturn {
     totalSteps.value = sequence.steps.length
     isActive.value = true
 
+    // If first step targets sidebar on mobile, open it first
+    await ensureSidebarForStep(firstStep)
+
     // Scroll first element into view and update positions
     await scrollElementIntoView(firstElement)
     updatePositions()
@@ -248,13 +348,14 @@ export function useWalkthrough(): UseWalkthroughReturn {
 
     currentStep.value = nextIndex
 
-    // Try to find element, with a short retry
-    const tryShowStep = () => {
+    // Ensure sidebar is open/closed as needed, then show step
+    const showStep = async () => {
+      await ensureSidebarForStep(step)
+
       const element = document.querySelector(step.target)
       if (element) {
-        scrollElementIntoView(element).then(() => {
-          updatePositions()
-        })
+        await scrollElementIntoView(element)
+        updatePositions()
       } else {
         // Wait up to 1s for the element to appear
         const startTime = Date.now()
@@ -278,7 +379,7 @@ export function useWalkthrough(): UseWalkthroughReturn {
       }
     }
 
-    tryShowStep()
+    showStep()
   }
 
   /**
@@ -294,17 +395,22 @@ export function useWalkthrough(): UseWalkthroughReturn {
 
     currentStep.value = prevIndex
 
-    const element = document.querySelector(step.target)
-    if (element) {
-      scrollElementIntoView(element).then(() => {
+    const showPrevStep = async () => {
+      await ensureSidebarForStep(step)
+
+      const element = document.querySelector(step.target)
+      if (element) {
+        await scrollElementIntoView(element)
         updatePositions()
-      })
-    } else {
-      // If element not found, try going back further
-      if (prevIndex > 0) {
-        previousStep()
+      } else {
+        // If element not found, try going back further
+        if (prevIndex > 0) {
+          previousStep()
+        }
       }
     }
+
+    showPrevStep()
   }
 
   /**

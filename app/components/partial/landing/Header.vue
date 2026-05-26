@@ -10,30 +10,18 @@
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <div class="sm:flex sm:gap-4">
+                    <div class="flex gap-2 sm:gap-4">
                         <NuxtLink to="/auth/login"
                             data-walkthrough="landing-login-button"
-                            class="rounded-md bg-green-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm">
+                            class="rounded-md bg-green-600 px-4 sm:px-5 py-2 sm:py-2.5 text-sm font-medium text-white shadow-sm">
                             Login
                         </NuxtLink>
 
-                        <div class="hidden sm:flex">
-                            <NuxtLink to="/auth/register"
-                                data-walkthrough="landing-register-button"
-                                class="rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-green-500">
-                                Register
-                            </NuxtLink>
-                        </div>
-                    </div>
-
-                    <div class="block md:hidden">
-                        <button class="rounded-sm bg-gray-100 p-2 text-gray-600 transition hover:text-gray-600/75"
-                            aria-label="Toggle Menu">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
-                            </svg>
-                        </button>
+                        <NuxtLink to="/auth/register"
+                            data-walkthrough="landing-register-button"
+                            class="rounded-md bg-gray-100 px-4 sm:px-5 py-2 sm:py-2.5 text-sm font-medium text-green-500">
+                            Register
+                        </NuxtLink>
                     </div>
                 </div>
             </div>
@@ -49,6 +37,13 @@ const handleScroll = () => {
     const current = window.scrollY;
 
     if (Math.abs(current - lastScroll.value) < 10) return;
+
+    // Don't hide header if walkthrough is active
+    const walkthroughActive = document.querySelector('[data-walkthrough-overlay]');
+    if (walkthroughActive) {
+        hidden.value = false;
+        return;
+    }
 
     hidden.value = current > lastScroll.value && current > 100;
 

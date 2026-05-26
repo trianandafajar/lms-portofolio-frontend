@@ -4,7 +4,7 @@
     <div v-if="lmsClassStore.detailLoading" class="space-y-6 animate-pulse">
       <USkeleton class="h-4 w-64 rounded" />
       <USkeleton class="h-44 w-full rounded-2xl" />
-      <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <USkeleton v-for="n in 3" :key="n" class="h-24 rounded-xl" />
       </div>
       <USkeleton class="h-10 w-full rounded-xl" />

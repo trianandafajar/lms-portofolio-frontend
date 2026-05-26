@@ -1,41 +1,46 @@
 <template>
   <aside @mouseenter="sidebar.hovered = true" @mouseleave="sidebar.hovered = false" :class="[
     'flex flex-col bg-white transition-all duration-300 ease-in-out h-screen shadow-sm',
-    (sidebar.collapsed && !sidebar.hovered) ? 'w-24' : 'w-72'
+    isCompact ? 'w-24' : 'w-72'
   ]">
     <div :class="[
       'flex items-center px-4 py-3 transition-all',
-      (sidebar.collapsed && !sidebar.hovered) ? 'justify-center' : 'justify-between'
+      isCompact ? 'justify-center' : 'justify-between'
     ]">
-      <NuxtLink to="/classes" v-if="!sidebar.collapsed || sidebar.hovered" class="block">
+      <NuxtLink to="/classes" v-if="!isCompact" class="block">
         <img src="/images/logo.png" alt="Mentora Logo" class="h-14 w-auto object-contain" />
       </NuxtLink>
 
       <NuxtLink to="/classes" v-else class="flex items-center justify-center">
         <img src="/images/small_icon.png" alt="Mentora Icon" class="h-12 w-12 object-contain" />
       </NuxtLink>
+
+      <!-- Mobile close button -->
+      <button @click="handleMobileClose" class="p-1 rounded hover:bg-slate-100 lg:hidden">
+        <UIcon name="heroicons-x-mark" class="h-5 w-5 text-slate-500" />
+      </button>
     </div>
 
     <div class="px-4 pt-2 flex-1 flex flex-col overflow-hidden">
       <div data-walkthrough="sidebar-my-classes" :class="[
         'flex items-center gap-1 rounded-lg transition',
-        (sidebar.collapsed && !sidebar.hovered) ? 'justify-center' : '',
+        isCompact ? 'justify-center' : '',
         isNavActive('/classes') ? 'bg-green-400' : 'hover:bg-slate-50'
       ]">
         <NuxtLink to="/classes" :class="[
           'group flex items-center gap-3 p-2 flex-1 rounded-lg transition',
-          (sidebar.collapsed && !sidebar.hovered) ? 'justify-center px-0' : 'justify-start px-3'
+          isCompact ? 'justify-center px-0' : 'justify-start px-3'
         ]">
           <div class="flex items-center justify-center w-9 h-9 rounded-full bg-slate-50">
             <UIcon name="heroicons-academic-cap" :class="['h-5 w-5', isNavActive('/classes') ? 'text-slate-700' : 'text-slate-600']" />
           </div>
-          <span v-if="!sidebar.collapsed || sidebar.hovered"
+          <span v-if="!isCompact"
             :class="['text-sm font-medium', isNavActive('/classes') ? 'text-white' : 'text-slate-700']">
             My Classes
           </span>
         </NuxtLink>
 
-        <button v-if="!sidebar.collapsed || sidebar.hovered"
+        <button v-if="!isCompact"
           @click="sidebar.toggleClassList"
           :class="[
             'p-2 mr-1 rounded-md transition',
@@ -49,7 +54,7 @@
       </div>
 
       <transition name="slide-fade">
-        <div v-if="sidebar.classListOpen && (!sidebar.collapsed || sidebar.hovered)"
+        <div v-if="sidebar.classListOpen && !isCompact"
           class="flex-1 overflow-hidden mt-2">
           <div class="h-full overflow-y-auto">
             <div data-walkthrough="sidebar-class-list" class="space-y-1 py-1">
@@ -91,7 +96,7 @@
         <li v-for="item in footerNav" :key="item.label">
           <NuxtLink :to="item.to" :class="[
             'group flex items-center gap-3 p-2 rounded-lg transition-all duration-150 w-full',
-            (sidebar.collapsed && !sidebar.hovered) ? 'justify-center px-0' : 'justify-start px-3',
+            isCompact ? 'justify-center px-0' : 'justify-start px-3',
             isNavActive(item.to)
               ? 'bg-green-400 text-white'
               : 'hover:bg-slate-50'
@@ -99,7 +104,7 @@
             <div class="flex items-center justify-center w-9 h-9 rounded-full bg-slate-50">
               <UIcon :name="item.icon" :class="['h-5 w-5', isNavActive(item.to) ? 'text-slate-700' : 'text-slate-600']" />
             </div>
-            <span v-if="!sidebar.collapsed || sidebar.hovered"
+            <span v-if="!isCompact"
               :class="['text-sm font-medium', isNavActive(item.to) ? 'text-white' : 'text-slate-700']">
               {{ item.label }}
             </span>
@@ -119,6 +124,23 @@ const sidebar = useSidebarStore()
 const LmsClassStore = useLmsClassStore()
 const auth = useAuthStore()
 const route = useRoute()
+
+// Track if we're on mobile (< lg breakpoint = 1024px)
+const isMobile = ref(false)
+
+onMounted(() => {
+  const mql = window.matchMedia('(max-width: 1023px)')
+  isMobile.value = mql.matches
+  mql.addEventListener('change', (e) => {
+    isMobile.value = e.matches
+  })
+})
+
+// On mobile, sidebar is never "compact" — always shows full content
+const isCompact = computed(() => {
+  if (isMobile.value) return false
+  return sidebar.collapsed && !sidebar.hovered
+})
 
 const footerNav = computed(() => {
   const isTeacher = auth.user?.roles?.includes('teacher')
@@ -154,7 +176,19 @@ const classesWithColor = computed(() => {
 
 watch(() => route.fullPath, () => {
   sidebar.setHovered(false)
+  // Don't close sidebar if walkthrough is controlling it
+  const walkthroughActive = document.querySelector('[data-walkthrough-overlay]')
+  if (!walkthroughActive) {
+    sidebar.closeMobile()
+  }
 })
+
+// Don't close sidebar if walkthrough is controlling it
+function handleMobileClose() {
+  const walkthroughActive = document.querySelector('[data-walkthrough-overlay]')
+  if (walkthroughActive) return
+  sidebar.closeMobile()
+}
 
 function isNavActive(to: string) {
   if (to === '/classes') {

@@ -1,7 +1,12 @@
 <template>
-  <header class="flex items-center justify-between px-6 py-3 bg-white shadow-sm">
+  <header class="flex items-center justify-between px-4 sm:px-6 py-3 bg-white shadow-sm">
     <div class="flex items-center gap-4">
-      <button @click="sidebar.toggleCollapse" class="p-1 rounded hover:bg-slate-100">
+      <!-- Mobile: toggle sidebar open/close -->
+      <button @click="sidebar.toggleMobile" class="p-1 rounded hover:bg-slate-100 lg:hidden">
+        <UIcon name="heroicons-bars-3" class="h-6 w-6 text-slate-700" />
+      </button>
+      <!-- Desktop: toggle collapse -->
+      <button @click="sidebar.toggleCollapse" class="p-1 rounded hover:bg-slate-100 hidden lg:block">
         <UIcon name="heroicons-bars-3" class="h-6 w-6 text-slate-700" />
       </button>
     </div>

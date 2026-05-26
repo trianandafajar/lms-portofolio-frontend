@@ -100,7 +100,7 @@
         <!-- Content Block -->
         <div v-if="currentBlock" data-walkthrough="lesson-content-block" class="bg-white border-x border-slate-200 shadow-sm overflow-hidden">
           <!-- Block type indicator -->
-          <div class="px-8 py-4 border-b border-slate-100 flex items-center gap-3">
+          <div class="px-4 sm:px-8 py-4 border-b border-slate-100 flex items-center gap-3">
             <div :class="['w-10 h-10 rounded-xl flex items-center justify-center', blockTypeStyle.bg]">
               <UIcon :name="blockTypeStyle.icon" :class="['h-5 w-5', blockTypeStyle.text]" />
             </div>
@@ -110,7 +110,7 @@
             </div>
           </div>
 
-          <div class="p-8">
+          <div class="p-4 sm:p-8">
             <h3 class="font-bold text-xl text-slate-900 mb-5">
               {{ currentBlock.title ?? `Section ${currentIndex + 1}` }}
             </h3>
@@ -255,7 +255,7 @@
         </div>
 
         <!-- Pagination Controls -->
-        <div data-walkthrough="lesson-pagination" class="flex items-center justify-between bg-white rounded-b-2xl border-x border-b border-slate-200 px-5 py-3">
+        <div data-walkthrough="lesson-pagination" class="flex items-center justify-between bg-white rounded-b-2xl border-x border-b border-slate-200 px-3 sm:px-5 py-3">
           <UButton v-if="!isReviewMode" variant="ghost" color="neutral" icon="heroicons-arrow-path" @click="resetAll">
             Reset
           </UButton>
@@ -310,7 +310,7 @@
           </div>
 
           <div class="p-8">
-            <div class="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
               <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center">
                 <p class="text-3xl font-bold text-emerald-600">{{ score.correct }}</p>
                 <p class="text-xs text-emerald-700 mt-1 font-semibold uppercase tracking-wider">Correct</p>
