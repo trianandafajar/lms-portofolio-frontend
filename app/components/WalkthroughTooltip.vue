@@ -3,8 +3,9 @@
     class="walkthrough-tooltip"
     :class="[`walkthrough-tooltip--${position.placement}`]"
     :style="{
-      top: `${position.top}px`,
-      left: `${position.left}px`,
+      top: `${clampedTop}px`,
+      left: `${clampedLeft}px`,
+      maxWidth: `calc(100vw - 16px)`,
     }"
   >
     <!-- Skip button positioned at top-right -->
@@ -27,7 +28,7 @@
     </p>
 
     <!-- Step indicator -->
-    <div class="flex items-center gap-1.5 mt-2.5 sm:mt-3">
+    <div class="flex items-center gap-1 sm:gap-1.5 mt-2.5 sm:mt-3 flex-wrap">
       <template v-for="i in totalSteps" :key="i">
         <span
           class="inline-block rounded-full transition-all duration-300"
@@ -76,6 +77,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { TooltipPosition } from '~/types/walkthrough'
 
 const props = defineProps<{
@@ -95,20 +97,36 @@ defineEmits<{
   skip: []
   finish: []
 }>()
+
+/** Clamp tooltip position so it never overflows the viewport */
+const clampedLeft = computed(() => {
+  if (typeof window === 'undefined') return props.position.left
+  const maxLeft = window.innerWidth - 328 // 320px width + 8px safety margin
+  return Math.max(8, Math.min(props.position.left, maxLeft))
+})
+
+const clampedTop = computed(() => {
+  if (typeof window === 'undefined') return props.position.top
+  const maxTop = window.innerHeight - 8
+  return Math.max(8, Math.min(props.position.top, maxTop))
+})
 </script>
 
 <style scoped>
 .walkthrough-tooltip {
   position: fixed;
   z-index: 10001;
-  width: min(320px, calc(100vw - 32px));
+  width: min(320px, calc(100vw - 16px));
+  max-width: calc(100vw - 16px);
   background: white;
   border-radius: 12px;
   box-shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 10px 15px -3px rgba(0, 0, 0, 0.1),
     0 0 0 1px rgba(0, 0, 0, 0.05);
-  padding: 16px;
+  padding: 14px;
+  overflow: hidden;
+  box-sizing: border-box;
   transition: top 0.35s cubic-bezier(0.4, 0, 0.2, 1),
               left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
               opacity 0.3s ease,
@@ -119,6 +137,7 @@ defineEmits<{
 @media (min-width: 640px) {
   .walkthrough-tooltip {
     width: 320px;
+    max-width: 320px;
     padding: 20px;
   }
 }

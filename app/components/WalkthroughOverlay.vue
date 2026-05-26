@@ -31,6 +31,26 @@ const {
 /** Whether the current step requires the user to click the highlighted element */
 const isClickAction = computed(() => currentStepConfig.value?.action === 'click')
 
+/** Computed style for the highlight ring, clamped to viewport bounds */
+const highlightRingStyle = computed(() => {
+  if (!highlightRect.value) return {}
+  const rect = highlightRect.value
+  const top = Math.max(0, rect.y)
+  const left = Math.max(0, rect.x)
+  // Clamp width/height so the ring doesn't exceed viewport
+  const vw = typeof globalThis.window !== 'undefined' ? globalThis.window.innerWidth : 9999
+  const vh = typeof globalThis.window !== 'undefined' ? globalThis.window.innerHeight : 9999
+  const width = Math.min(rect.width, vw - left)
+  const height = Math.min(rect.height, vh - top)
+  return {
+    top: `${top}px`,
+    left: `${left}px`,
+    width: `${Math.max(0, width)}px`,
+    height: `${Math.max(0, height)}px`,
+    borderRadius: `${rect.borderRadius}px`,
+  }
+})
+
 /** Responsive tooltip size based on viewport width */
 const responsiveTooltipSize = computed(() => {
   if (typeof window === 'undefined') return { width: 320, height: 180 }
@@ -55,28 +75,51 @@ function recalculatePositions(): void {
   const rect = element.getBoundingClientRect()
   const padding = 8
   const borderRadius = 8
+  const viewportWidth = window.innerWidth
+  const viewportHeight = window.innerHeight
+
+  // Calculate highlight rect clamped to viewport bounds
+  let x = rect.left - padding
+  let y = rect.top - padding
+  let width = rect.width + padding * 2
+  let height = rect.height + padding * 2
+
+  if (x < 0) {
+    width += x
+    x = 0
+  }
+  if (y < 0) {
+    height += y
+    y = 0
+  }
+  if (x + width > viewportWidth) {
+    width = viewportWidth - x
+  }
+  if (y + height > viewportHeight) {
+    height = viewportHeight - y
+  }
 
   highlightRect.value = {
-    x: rect.left - padding,
-    y: rect.top - padding,
-    width: rect.width + padding * 2,
-    height: rect.height + padding * 2,
+    x,
+    y,
+    width: Math.max(width, 0),
+    height: Math.max(height, 0),
     borderRadius,
     padding,
   }
 
   const targetRect = {
-    x: rect.left - padding,
-    y: rect.top - padding,
-    width: rect.width + padding * 2,
-    height: rect.height + padding * 2,
+    x,
+    y,
+    width: Math.max(width, 0),
+    height: Math.max(height, 0),
   }
   const viewportSize = {
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: viewportWidth,
+    height: viewportHeight,
   }
 
-  tooltipPosition.value = calculateTooltipPosition(targetRect, responsiveTooltipSize.value, viewportSize)
+  tooltipPosition.value = calculateTooltipPosition(targetRect, responsiveTooltipSize.value, viewportSize, 8, currentStepConfig.value.tooltipPlacement)
 }
 
 /**
@@ -248,13 +291,7 @@ watch(isActive, (active) => {
         v-if="highlightRect"
         class="walkthrough-highlight-ring"
         :class="{ 'walkthrough-highlight-ring--clickable': isClickAction }"
-        :style="{
-          top: `${highlightRect.y}px`,
-          left: `${highlightRect.x}px`,
-          width: `${highlightRect.width}px`,
-          height: `${highlightRect.height}px`,
-          borderRadius: `${highlightRect.borderRadius}px`,
-        }"
+        :style="highlightRingStyle"
         @click.stop="handleHighlightClick"
       />
 
@@ -284,6 +321,7 @@ watch(isActive, (active) => {
   inset: 0;
   z-index: 9999;
   pointer-events: auto;
+  overflow: hidden;
 }
 
 .walkthrough-overlay__mask {

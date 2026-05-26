@@ -1,6 +1,25 @@
 import { nextTick } from 'vue'
 import { useWalkthrough } from '~/composables/useWalkthrough'
 import { useTutorialStore } from '~/stores/tutorial'
+import { walkthroughConfig } from '~/config/walkthroughConfig'
+
+/**
+ * Match a route path against the walkthrough config keys.
+ * Supports both exact matches and parameterized patterns like /classes/:id.
+ * Returns the matching config key or null.
+ */
+function findMatchingConfigKey(routePath: string): string | null {
+  if (walkthroughConfig[routePath]) return routePath
+
+  for (const configKey of Object.keys(walkthroughConfig)) {
+    if (!configKey.includes(':')) continue
+    const pattern = configKey.replace(/:[^/]+/g, '[^/]+')
+    const regex = new RegExp(`^${pattern}$`)
+    if (regex.test(routePath)) return configKey
+  }
+
+  return null
+}
 
 export default defineNuxtPlugin({
   name: 'walkthrough-auto-start',
@@ -24,8 +43,11 @@ export default defineNuxtPlugin({
 
       const store = useTutorialStore()
 
-      // If route is already completed or skipped, do nothing
-      if (store.isRouteCompleted(to.path)) {
+      // Resolve the config key for this route (handles parameterized routes)
+      const configKey = findMatchingConfigKey(to.path)
+
+      // If route is already completed or skipped (check config key), do nothing
+      if (configKey && store.isRouteCompleted(configKey)) {
         return
       }
 

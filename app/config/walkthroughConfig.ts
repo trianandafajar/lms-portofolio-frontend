@@ -110,6 +110,7 @@ export const walkthroughConfig: WalkthroughConfig = {
         title: 'Class Cards Grid',
         description:
           'All your classes are displayed here in a responsive grid. Each card shows the class banner, title, teacher, and student count.',
+        tooltipPlacement: 'top',
       },
       {
         target: '[data-walkthrough="classes-card-first"]',
@@ -151,6 +152,7 @@ export const walkthroughConfig: WalkthroughConfig = {
         title: 'Class Overview',
         description:
           'This hero section shows the class title, description, code, visibility, and a color banner.',
+        tooltipPlacement: 'top',
       },
       {
         target: '[data-walkthrough="class-detail-code"]',
@@ -169,6 +171,7 @@ export const walkthroughConfig: WalkthroughConfig = {
         title: 'Lessons & Students Tabs',
         description:
           'Switch between the Lessons tab to view course content and the Students tab to see members.',
+        tooltipPlacement: 'top',
       },
       {
         target: '[data-walkthrough="class-detail-add-lesson"]',

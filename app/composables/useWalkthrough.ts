@@ -128,14 +128,40 @@ function waitForElement(selector: string, timeout: number = ELEMENT_WAIT_TIMEOUT
 
 /**
  * Calculate the highlight rect for a given DOM element.
+ * Clamps the rect to the visible viewport to prevent off-screen highlights
+ * that can't be interacted with on mobile.
  */
 function calculateHighlightRect(element: Element): HighlightRect {
   const rect = element.getBoundingClientRect()
+  const viewportWidth = window.innerWidth
+  const viewportHeight = window.innerHeight
+
+  let x = rect.left - HIGHLIGHT_PADDING
+  let y = rect.top - HIGHLIGHT_PADDING
+  let width = rect.width + HIGHLIGHT_PADDING * 2
+  let height = rect.height + HIGHLIGHT_PADDING * 2
+
+  // Clamp to viewport bounds so the highlight is always visible and clickable
+  if (x < 0) {
+    width += x // reduce width by the amount off-screen
+    x = 0
+  }
+  if (y < 0) {
+    height += y
+    y = 0
+  }
+  if (x + width > viewportWidth) {
+    width = viewportWidth - x
+  }
+  if (y + height > viewportHeight) {
+    height = viewportHeight - y
+  }
+
   return {
-    x: rect.left - HIGHLIGHT_PADDING,
-    y: rect.top - HIGHLIGHT_PADDING,
-    width: rect.width + HIGHLIGHT_PADDING * 2,
-    height: rect.height + HIGHLIGHT_PADDING * 2,
+    x,
+    y,
+    width: Math.max(width, 0),
+    height: Math.max(height, 0),
     borderRadius: HIGHLIGHT_BORDER_RADIUS,
     padding: HIGHLIGHT_PADDING,
   }
@@ -144,7 +170,7 @@ function calculateHighlightRect(element: Element): HighlightRect {
 /**
  * Calculate tooltip position for the current step's target element.
  */
-function calculateCurrentTooltipPosition(element: Element): TooltipPosition {
+function calculateCurrentTooltipPosition(element: Element, preferredPlacement?: 'top' | 'bottom' | 'left' | 'right'): TooltipPosition {
   const rect = element.getBoundingClientRect()
   const targetRect = {
     x: rect.left - HIGHLIGHT_PADDING,
@@ -158,19 +184,22 @@ function calculateCurrentTooltipPosition(element: Element): TooltipPosition {
     height: window.innerHeight,
   }
 
-  return calculateTooltipPosition(targetRect, getResponsiveTooltipSize(), viewportSize)
+  return calculateTooltipPosition(targetRect, getResponsiveTooltipSize(), viewportSize, 8, preferredPlacement)
 }
 
 /**
  * Scroll an element into view with smooth behavior.
+ * On mobile viewports, uses 'center' for inline alignment to ensure
+ * the element is fully visible horizontally (prevents off-screen highlights).
  * Returns a promise that resolves after scroll settles.
  */
 function scrollElementIntoView(element: Element): Promise<void> {
   return new Promise((resolve) => {
+    const isMobile = isMobileViewport()
     element.scrollIntoView({
       behavior: 'smooth',
       block: 'nearest',
-      inline: 'nearest',
+      inline: isMobile ? 'center' : 'nearest',
     })
     // Wait for smooth scroll to settle
     setTimeout(resolve, 350)
@@ -189,7 +218,7 @@ function updatePositions(): boolean {
   if (!element) return false
 
   highlightRect.value = calculateHighlightRect(element)
-  tooltipPosition.value = calculateCurrentTooltipPosition(element)
+  tooltipPosition.value = calculateCurrentTooltipPosition(element, step.tooltipPlacement)
   return true
 }
 
@@ -229,6 +258,21 @@ function closeSidebarIfOpenedByWalkthrough(): void {
     sidebar.closeMobile()
     sidebarOpenedByWalkthrough.value = false
   }
+}
+
+/**
+ * Close all open popovers/dropdowns in the page.
+ * This prevents UI elements like the profile dropdown from staying open
+ * when the walkthrough overlay activates.
+ */
+function closeAllPopovers(): void {
+  if (typeof document === 'undefined') return
+
+  // Click the body to dismiss any open popovers/dropdowns
+  document.body.click()
+
+  // Also try to close Reka UI / Radix popovers by pressing Escape
+  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
 }
 
 /**
@@ -295,8 +339,14 @@ export function useWalkthrough(): UseWalkthroughReturn {
 
     const store = useTutorialStore()
 
-    // Check if route is already completed/skipped (check both actual path and config key)
-    if (store.isRouteCompleted(routePath) || store.isRouteCompleted(configKey)) return
+    // Check if route is already completed/skipped using the config key
+    // This ensures parameterized routes like /classes/48 and /classes/49
+    // are treated as the same walkthrough (both use /classes/:id config key)
+    if (store.isRouteCompleted(configKey)) return
+
+    // Close any open popovers/dropdowns before starting the walkthrough
+    // This prevents the profile dropdown from staying open over the overlay
+    closeAllPopovers()
 
     // Wait for the first target element to appear (up to 5s timeout)
     const firstStep = sequence.steps[0]
@@ -311,7 +361,8 @@ export function useWalkthrough(): UseWalkthroughReturn {
     // Use ALL steps from config (don't pre-filter)
     // Missing targets will be skipped at navigation time
     validSteps.value = sequence.steps
-    currentRoutePath.value = routePath
+    // Store the config key so completion is tracked per pattern, not per instance
+    currentRoutePath.value = configKey
     currentStep.value = 0
     totalSteps.value = sequence.steps.length
     isActive.value = true

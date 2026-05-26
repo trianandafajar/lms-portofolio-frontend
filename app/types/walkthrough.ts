@@ -30,6 +30,13 @@ export interface WalkthroughStep {
    *   The Next button is hidden and the element becomes clickable through the overlay.
    */
   action?: 'click'
+
+  /**
+   * Optional hint to force tooltip placement direction.
+   * When set, the tooltip will be placed on this side regardless of auto-detection.
+   * Useful for large elements where auto-positioning may not work well.
+   */
+  tooltipPlacement?: 'top' | 'bottom' | 'left' | 'right'
 }
 
 /**
