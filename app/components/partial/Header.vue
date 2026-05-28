@@ -13,13 +13,11 @@
 
     <div class="flex items-center gap-3">
       <!-- User popover -->
-      <UPopover placement="bottom-end" arrow>
-        <UTooltip text="My Account">
-          <UButton
-            class="cursor-pointer w-9 h-9 rounded-full bg-gradient-to-br from-green-500 to-pink-500 text-white flex items-center justify-center font-medium focus:outline-none">
-            {{ auth?.user?.profile?.display_name?.charAt(0)?.toUpperCase() || '' }}
-          </UButton>
-        </UTooltip>
+      <UPopover placement="bottom-end" arrow :disabled="walkthroughActive">
+        <UButton
+          class="cursor-pointer w-9 h-9 rounded-full bg-gradient-to-br from-green-500 to-pink-500 text-white flex items-center justify-center font-medium focus:outline-none">
+          {{ auth?.user?.profile?.display_name?.charAt(0)?.toUpperCase() || '' }}
+        </UButton>
 
         <template #content>
           <div class="w-64 p-3">
@@ -50,9 +48,11 @@
 <script setup lang="ts">
 import { useSidebarStore } from '~/stores/sidebar'
 import { useAuthStore } from '~/stores/auth'
+import { useWalkthrough } from '~/composables/useWalkthrough'
 
 const sidebar = useSidebarStore()
 const auth = useAuthStore()
+const { isActive: walkthroughActive } = useWalkthrough()
 
 async function handleLogout() {
   await auth.logout()
