@@ -1,10 +1,10 @@
 <template>
-  <aside @mouseenter="sidebar.hovered = true" @mouseleave="sidebar.hovered = false" :class="[
+  <aside :class="[
     'flex flex-col bg-white transition-all duration-300 ease-in-out h-screen shadow-sm',
     isCompact ? 'w-24' : 'w-72'
   ]">
     <div :class="[
-      'flex items-center px-4 py-3 transition-all',
+      'flex h-16 items-center px-4 transition-all',
       isCompact ? 'justify-center' : 'justify-between'
     ]">
       <NuxtLink to="/classes" v-if="!isCompact" class="block">
@@ -23,7 +23,7 @@
 
     <div class="px-4 pt-2 flex-1 flex flex-col overflow-hidden">
       <div data-walkthrough="sidebar-my-classes" :class="[
-        'flex items-center gap-1 rounded-lg transition',
+        'relative flex items-center gap-1 rounded-lg transition',
         isCompact ? 'justify-center' : '',
         isNavActive('/classes') ? 'bg-green-400' : 'hover:bg-slate-50'
       ]">
@@ -40,26 +40,38 @@
           </span>
         </NuxtLink>
 
-        <button v-if="!isCompact"
+        <button
           @click="sidebar.toggleClassList"
           :class="[
-            'p-2 mr-1 rounded-md transition',
+            'p-2 rounded-md transition shrink-0',
+            isCompact ? 'absolute inset-0 m-0 h-full w-full opacity-0' : 'mr-1',
             isNavActive('/classes') ? 'hover:bg-green-500' : 'hover:bg-slate-100'
           ]"
           :aria-label="sidebar.classListOpen ? 'Collapse class list' : 'Expand class list'">
           <UIcon
             :name="sidebar.classListOpen ? 'heroicons-chevron-up' : 'heroicons-chevron-down'"
-            :class="['h-4 w-4', isNavActive('/classes') ? 'text-white' : 'text-slate-400']" />
+            :class="[
+              'h-4 w-4',
+              isCompact ? 'opacity-0' : 'opacity-100',
+              isNavActive('/classes') ? 'text-white' : 'text-slate-400'
+            ]" />
         </button>
       </div>
 
       <transition name="slide-fade">
-        <div v-if="sidebar.classListOpen && !isCompact"
+        <div v-if="sidebar.classListOpen"
           class="flex-1 overflow-hidden mt-2">
-          <div class="h-full overflow-y-auto">
-            <div data-walkthrough="sidebar-class-list" class="space-y-1 py-1">
+          <div :class="[
+            'h-full overflow-y-auto',
+            isCompact ? 'compact-scrollbar' : ''
+          ]">
+            <div data-walkthrough="sidebar-class-list" :class="[
+              'py-1',
+              isCompact ? 'space-y-2' : 'space-y-1'
+            ]">
               <NuxtLink v-for="(cls, clsIdx) in classesWithColor" :key="cls.id" :to="`/classes/${cls.id}`" :data-walkthrough="clsIdx === 0 ? 'sidebar-class-card-first' : undefined" :class="[
                 'group flex items-center gap-3 p-3 rounded-xl transition-all duration-200',
+                isCompact ? 'justify-center px-2' : '',
                 isClassActive(cls.id)
                   ? 'bg-slate-100 border border-slate-200'
                   : 'hover:bg-slate-50 border border-transparent'
@@ -71,7 +83,7 @@
                 ]">
                   {{ cls.title[0] }}
                 </div>
-                <div class="flex flex-col min-w-0">
+                <div v-if="!isCompact" class="flex flex-col min-w-0">
                   <span :class="[
                     'text-sm leading-5 truncate',
                     isClassActive(cls.id) ? 'font-semibold text-slate-900' : 'font-medium text-slate-700'
@@ -80,7 +92,7 @@
                   </span>
                   <span class="text-xs text-slate-500 truncate">{{ cls.creator.profile?.display_name }}</span>
                 </div>
-                <div v-if="isClassActive(cls.id)" class="ml-auto shrink-0">
+                <div v-if="isClassActive(cls.id) && !isCompact" class="ml-auto shrink-0">
                   <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
                 </div>
               </NuxtLink>
@@ -139,7 +151,7 @@ onMounted(() => {
 // On mobile, sidebar is never "compact" — always shows full content
 const isCompact = computed(() => {
   if (isMobile.value) return false
-  return sidebar.collapsed && !sidebar.hovered
+  return sidebar.collapsed
 })
 
 const footerNav = computed(() => {
@@ -175,7 +187,6 @@ const classesWithColor = computed(() => {
 })
 
 watch(() => route.fullPath, () => {
-  sidebar.setHovered(false)
   // Don't close sidebar if walkthrough is controlling it
   const walkthroughActive = document.querySelector('[data-walkthrough-overlay]')
   if (!walkthroughActive) {
@@ -203,6 +214,24 @@ function isClassActive(classId: number) {
 </script>
 
 <style scoped>
+.compact-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225) transparent;
+}
+
+.compact-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.compact-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.compact-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgb(203 213 225);
+  border-radius: 9999px;
+}
+
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition: all 180ms ease;

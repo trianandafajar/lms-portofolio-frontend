@@ -1,5 +1,5 @@
 <template>
-  <header class="flex items-center justify-between px-4 sm:px-6 py-3 bg-white shadow-sm">
+  <header class="flex h-16 items-center justify-between px-4 sm:px-6 bg-white shadow-sm">
     <div class="flex items-center gap-4">
       <!-- Mobile: toggle sidebar open/close -->
       <button @click="sidebar.toggleMobile" class="p-1 rounded hover:bg-slate-100 lg:hidden">
