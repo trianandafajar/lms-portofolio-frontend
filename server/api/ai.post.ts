@@ -44,10 +44,10 @@ export default defineEventHandler(async (event) => {
         }
       });
       if (!checkRes.success) {
-         throw createError({
-           statusCode: 403,
-           statusMessage: checkRes.error || "AI limit reached"
-         });
+        throw createError({
+          statusCode: 403,
+          statusMessage: checkRes.error || "AI limit reached"
+        });
       }
     } catch (err: any) {
       if (err.statusCode === 403) {
@@ -127,6 +127,17 @@ Return ONLY the JSON array and nothing else.`,
     rewrite: `You are a helpful editor. Rewrite the given Indonesian text to be clearer and concise.`,
     mcq: `You are a quiz maker. Based on the topic, create a 4-option MCQ with answer + explanation.`,
     essay: `You are an assessment writer. Create an essay prompt with word limit + rubric.`,
+    grade_essay: `You are an expert essay grader. Evaluate the student's answer against the essay question and the word limit. Return ONLY a VALID JSON object (no markdown, no backticks) with exactly this schema:
+{
+  "score": <integer between 0 and 100>,
+  "feedback": "<string>",
+  "suggested_improvement": "<string>"
+}
+Rules:
+1. score must be an integer between 0 and 100, 0 being the worst and 100 the best.
+2. feedback must be a concise, constructive summary of the student's answer (use Indonesian if the question is in Indonesian).
+3. suggested_improvement must be a short actionable suggestion for the student.
+4. Do not include any other fields or text.`,
     default: `You are a helpful assistant.`,
   };
 
@@ -164,7 +175,7 @@ Return ONLY the JSON array and nothing else.`,
   try {
     const ai = new GoogleGenAI({ vertexai: false, apiKey: GEMINI_KEY });
 
-    const maxOutputTokens = type === "block" || type === "module" ? 3048 : 512;
+    const maxOutputTokens = type === "block" || type === "module" || type === "grade_essay" ? 3048 : 512;
 
     const resp = await ai.models.generateContent({
       model: MODEL,
@@ -195,6 +206,31 @@ Return ONLY the JSON array and nothing else.`,
         } catch {
           // TODO: ignore parse errors, we'll return raw string
         }
+      }
+    } else if (type === "grade_essay") {
+      try {
+        const obj = JSON.parse(outRaw);
+        const score = Number(obj?.score);
+        if (Number.isNaN(score) || score < 0 || score > 100) {
+          return {
+            success: false,
+            error: "Invalid grade_essay response: score must be 0-100",
+            type,
+            input_messages_count: contents.length,
+          };
+        }
+        parsedJSON = {
+          score,
+          feedback: String(obj?.feedback ?? ""),
+          suggested_improvement: String(obj?.suggested_improvement ?? ""),
+        };
+      } catch {
+        return {
+          success: false,
+          error: "Invalid grade_essay response: expected JSON {score, feedback, suggested_improvement}",
+          type,
+          input_messages_count: contents.length,
+        };
       }
     }
 

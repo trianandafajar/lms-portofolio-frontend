@@ -358,10 +358,14 @@
               <p class="text-sm text-slate-500 mt-0.5">You are viewing this lesson as a teacher.</p>
             </div>
           </div>
+<UButton color="primary" variant="solid" icon="heroicons-clipboard-document-check" :to="`/classes/${classId}/lessons/${lessonId}/grading`" class="mt-3 sm:mt-0">
+            Grading Dashboard
+          </UButton>
           <UButton color="neutral" variant="outline" icon="heroicons-arrow-uturn-left" @click="goToFirstPage">
             Back to Content
           </UButton>
         </div>
+      </div>
 
         <!-- Teacher: Student Submissions -->
         <div v-if="isTeacher" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -429,7 +433,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -469,6 +472,8 @@ const results = ref<Record<number, any>>({})
 const localEssay = reactive<Record<number, string>>({})
 const answers = reactive<Record<number, string>>({})
 const essayTimers = new Map<number, number | undefined>()
+const lessonSubmissionId = ref<number | null>(null)
+const gradingStatus = ref<Record<number, 'pending' | 'done' | 'error'>>({})
 
 const totalPages = computed(() => lessonStore.lesson?.content_json?.length ?? 0)
 const currentBlock = computed(() => lessonStore.lesson?.content_json?.[currentIndex.value])
@@ -639,12 +644,47 @@ async function saveResults() {
   
   // Backend sync
   try {
-    await lessonStore.submitLesson(lessonId.value, payload)
+    const res: any = await lessonStore.submitLesson(lessonId.value, payload)
+    if (res?.id) lessonSubmissionId.value = res.id
   } catch (err: any) {
     console.error("Failed to sync with backend", err)
   }
   
   isReviewMode.value = true
+}
+
+async function gradeEssays() {
+  if (!lessonSubmissionId.value || !lessonStore.lesson?.content_json) return
+  const blocks = lessonStore.lesson.content_json as any[]
+  for (let idx = 0; idx < blocks.length; idx++) {
+    const block = blocks[idx]
+    if (block?.type !== 'essay') continue
+    const saved = results.value[idx]
+    const essayText = (saved?.value ?? localEssay[idx] ?? '').toString().trim()
+    if (!essayText) continue
+
+    gradingStatus.value[idx] = 'pending'
+    const prompt = `Essay question:\n${block.title ?? ''}${block.placeholder ? '\nInstructions: ' + block.placeholder : ''}\nMax length: ${block.max_length ?? '-'} characters\n\nStudent's answer:\n${essayText}`
+
+    try {
+      const aiRes: any = await $fetch('/api/ai?type=grade_essay', {
+        method: 'POST',
+        body: { prompt },
+      })
+      if (!aiRes?.success || !aiRes.output) {
+        gradingStatus.value[idx] = 'error'
+        continue
+      }
+      await lessonStore.gradeEssay(lessonId.value, {
+        lesson_submission_id: lessonSubmissionId.value,
+        block_index: idx,
+        ai_result: aiRes.output,
+      })
+      gradingStatus.value[idx] = 'done'
+    } catch (err) {
+      gradingStatus.value[idx] = 'error'
+    }
+  }
 }
 
 async function loadTeacherSubmissions() {
@@ -699,6 +739,7 @@ async function submitAll() {
   isSubmitted.value = true
 
   await saveResults()
+  await gradeEssays()
 }
 
 function resetAll() {
@@ -729,6 +770,7 @@ onMounted(async () => {
 
   // Check backend first
   const backendSaved = await lessonStore.fetchSubmission(lessonId.value)
+  if (backendSaved?.id) lessonSubmissionId.value = backendSaved.id
   const saved = backendSaved || lessonStore.getSubmission(userId.value, lessonId.value)
   
   if (saved) {

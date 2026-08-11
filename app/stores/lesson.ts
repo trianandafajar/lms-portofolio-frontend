@@ -6,6 +6,7 @@ interface State {
   error: string | null
   submissions: Record<string, any>
   allSubmissions: any[]
+  lessonGrades: any[]
 }
 
 export const useLessonStore = defineStore('lesson', {
@@ -15,6 +16,7 @@ export const useLessonStore = defineStore('lesson', {
     error: null,
     submissions: {},
     allSubmissions: [] as any[],
+    lessonGrades: [] as any[],
   }),
 
   actions: {
@@ -109,6 +111,50 @@ export const useLessonStore = defineStore('lesson', {
         throw err
       } finally {
         this.loading = false
+      }
+    },
+
+    async gradeEssay(id: number, body: any) {
+      try {
+        const res = await LessonService.gradeEssay(id, body)
+        return res.data
+      } catch (err: any) {
+        console.error("Failed to grade essay:", err)
+        throw err
+      }
+    },
+
+    async fetchLessonGrades(id: number): Promise<any[]> {
+      this.loading = true
+      try {
+        const res = await LessonService.listLessonGrades(id)
+        this.lessonGrades = res.data || []
+        return this.lessonGrades
+      } catch (err: any) {
+        console.error("Failed to fetch lesson grades:", err)
+        throw err
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async approveGrade(id: number, gradeId: number) {
+      try {
+        const res = await LessonService.approveGrade(id, gradeId)
+        return res.data
+      } catch (err: any) {
+        console.error("Failed to approve grade:", err)
+        throw err
+      }
+    },
+
+    async overrideGrade(id: number, gradeId: number, body: any) {
+      try {
+        const res = await LessonService.overrideGrade(id, gradeId, body)
+        return res.data
+      } catch (err: any) {
+        console.error("Failed to override grade:", err)
+        throw err
       }
     },
   },
