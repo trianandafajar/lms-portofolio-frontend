@@ -340,6 +340,34 @@
               </div>
             </div>
 
+            <div v-if="essayGrades.length" class="max-w-2xl mx-auto mb-8 text-left">
+              <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 mb-3">AI Essay Feedback</h3>
+              <div
+                v-for="g in essayGrades"
+                :key="g.block_index"
+                class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 mb-3"
+              >
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Essay #{{ ((g.block_index ?? 0) || 0) + 1 }}</span>
+                  <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                    {{ g.status === 'modified' ? 'Edited by Teacher' : 'Graded' }}
+                  </span>
+                </div>
+                <div class="flex items-baseline gap-2 mb-2">
+                  <span class="text-3xl font-black text-slate-900">{{ g.score }}</span>
+                  <span class="text-sm text-slate-400 font-semibold">/ 100</span>
+                </div>
+                <p v-if="g.feedback" class="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">{{ g.feedback }}</p>
+              </div>
+            </div>
+
+            <div v-else-if="lessonHasEssays" class="max-w-2xl mx-auto mb-8">
+              <p class="text-sm text-slate-500 flex items-center gap-2 justify-center">
+                <UIcon name="heroicons-clock" class="h-4 w-4 shrink-0" />
+                Your essays are being reviewed by the teacher.
+              </p>
+            </div>
+
             <div class="flex justify-center">
               <UButton color="primary" size="lg" icon="heroicons-eye" @click="goToFirstPage">
                 Review Answers
@@ -474,9 +502,14 @@ const answers = reactive<Record<number, string>>({})
 const essayTimers = new Map<number, number | undefined>()
 const lessonSubmissionId = ref<number | null>(null)
 const gradingStatus = ref<Record<number, 'pending' | 'done' | 'error'>>({})
+const essayGrades = ref<any[]>([])
 
 const totalPages = computed(() => lessonStore.lesson?.content_json?.length ?? 0)
 const currentBlock = computed(() => lessonStore.lesson?.content_json?.[currentIndex.value])
+const lessonHasEssays = computed(() =>
+  Array.isArray(lessonStore.lesson?.content_json) &&
+  (lessonStore.lesson?.content_json as any[]).some((b: any) => b.type === 'essay')
+)
 
 const blockTypeStyle = computed(() => {
   const type = currentBlock.value?.type
@@ -771,6 +804,7 @@ onMounted(async () => {
   // Check backend first
   const backendSaved = await lessonStore.fetchSubmission(lessonId.value)
   if (backendSaved?.id) lessonSubmissionId.value = backendSaved.id
+  essayGrades.value = (backendSaved && Array.isArray(backendSaved.grades) ? backendSaved.grades : []) as any[]
   const saved = backendSaved || lessonStore.getSubmission(userId.value, lessonId.value)
   
   if (saved) {
