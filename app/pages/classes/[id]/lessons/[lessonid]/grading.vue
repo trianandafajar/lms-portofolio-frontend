@@ -125,15 +125,14 @@
                           {{ statusBadge([item.grade]).label }}
                         </span>
                       </div>
-                      <p class="text-sm text-slate-700 whitespace-pre-wrap">{{ item.grade.feedback || 'No feedback
-                        provided.' }}</p>
+                      <p class="text-sm text-slate-700 whitespace-pre-wrap">{{ item.grade.feedback || 'No feedback provided.' }}</p>
 
                       <template v-if="editingId === item.grade.id">
                         <div class="space-y-2 pt-1">
                           <label class="text-xs font-semibold text-slate-500 block">Override score (0-100)</label>
                           <UInput v-model.number="editModel(item.grade).score" type="number" min="0" max="100" />
                           <label class="text-xs font-semibold text-slate-500 block">Override feedback</label>
-                          <UTextarea v-model="editModel(item.grade).feedback" class="min-h-[90px]" />
+                          <UTextarea v-model="editModel(item.grade).feedback" class="w-full min-h-[100px]" />
                           <div class="flex gap-2">
                             <UButton color="primary" size="sm" icon="heroicons-check" :loading="saving"
                               @click="submitOverride(item.grade)">
@@ -145,7 +144,7 @@
                       </template>
 
                       <div v-else class="flex flex-wrap gap-2 pt-2">
-                        <UButton v-if="item.grade.status === 'draft'" color="primary" size="sm"
+                        <UButton v-if="item.grade.status !== 'approved'" color="primary" size="sm"
                           icon="heroicons-check-circle" :loading="saving" @click="approve(item.grade.id)">
                           Approve
                         </UButton>
