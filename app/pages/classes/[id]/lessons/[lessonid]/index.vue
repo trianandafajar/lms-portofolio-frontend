@@ -229,6 +229,27 @@
                 </span>
               </div>
 
+              <div v-if="isReviewMode" class="flex flex-wrap items-center gap-2 pt-1">
+                <template v-if="gradeForEssay(currentIndex)">
+                  <span class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full"
+                    :class="gradeForEssay(currentIndex).status === 'modified'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-emerald-100 text-emerald-700'">
+                    <UIcon :name="gradeForEssay(currentIndex).status === 'modified' ? 'heroicons-user' : 'heroicons-sparkles'"
+                      class="h-3 w-3" />
+                    Score {{ gradeForEssay(currentIndex).score }}/100 ·
+                    {{ gradeForEssay(currentIndex).status === 'modified' ? 'Edited by Teacher' : 'Graded' }}
+                  </span>
+                  <p v-if="gradeForEssay(currentIndex).feedback" class="text-sm text-slate-600 w-full mt-1.5 whitespace-pre-wrap leading-relaxed">
+                    {{ gradeForEssay(currentIndex).feedback }}
+                  </p>
+                </template>
+                <span v-else class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
+                  <UIcon name="heroicons-clock" class="h-3 w-3" />
+                  Pending review
+                </span>
+              </div>
+
               <div
                 v-if="currentBlock.explanation && isReviewMode"
                 class="p-4 bg-blue-50 border border-blue-100 rounded-xl"
@@ -510,6 +531,8 @@ const lessonHasEssays = computed(() =>
   Array.isArray(lessonStore.lesson?.content_json) &&
   (lessonStore.lesson?.content_json as any[]).some((b: any) => b.type === 'essay')
 )
+const gradeForEssay = (idx: number) =>
+  (essayGrades.value || []).find((g: any) => g.block_index === idx) || null
 
 const blockTypeStyle = computed(() => {
   const type = currentBlock.value?.type
