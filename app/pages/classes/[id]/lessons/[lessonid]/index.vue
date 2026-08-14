@@ -712,10 +712,17 @@ async function gradeEssays() {
     const prompt = `Essay question:\n${block.title ?? ''}${block.placeholder ? '\nInstructions: ' + block.placeholder : ''}\nMax length: ${block.max_length ?? '-'} characters\n\nStudent's answer:\n${essayText}`
 
     try {
-      const aiRes: any = await $fetch('/api/ai?type=grade_essay', {
+      const aiRes: any = await $fetch(`/api/ai?type=grade_essay&lesson_id=${lessonId.value}`, {
         method: 'POST',
         body: { prompt },
       })
+      if (aiRes?.limitReached) {
+        for (let k = idx; k < blocks.length; k++) {
+          if (blocks[k]?.type === 'essay') gradingStatus.value[k] = 'error'
+        }
+        gradingStatus.value[idx] = 'error'
+        break
+      }
       if (!aiRes?.success || !aiRes.output) {
         gradingStatus.value[idx] = 'error'
         continue

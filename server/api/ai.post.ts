@@ -35,25 +35,32 @@ export default defineEventHandler(async (event) => {
 
   // Check AI Limit via Flask Backend
   const token = getCookie(event, 'token');
+  const isGrading = type === 'grade_essay';
   if (token) {
     try {
-      const checkRes: any = await $fetch(`${API_BASE_URL}/subscriptions/check-ai-limit`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      if (!checkRes.success) {
-        throw createError({
-          statusCode: 403,
-          statusMessage: checkRes.error || "AI limit reached"
+      const limitUrl = isGrading
+        ? `${API_BASE_URL}/lessons/${q.lesson_id}/ai-limit`
+        : `${API_BASE_URL}/subscriptions/check-ai-limit`;
+      if (!isGrading || q.lesson_id) {
+        const checkRes: any = await $fetch(limitUrl, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         });
+        if (!checkRes.success) {
+          throw createError({
+            statusCode: 403,
+            statusMessage: checkRes.error || "AI limit reached"
+          });
+        }
       }
     } catch (err: any) {
       if (err.statusCode === 403) {
+        const msg = err.data?.error || err.statusMessage || "AI generation limit reached. Please upgrade your plan.";
         return {
           success: false,
-          error: err.statusMessage || "AI generation limit reached. Please upgrade your plan.",
+          error: msg,
           limitReached: true
         };
       }
@@ -234,8 +241,8 @@ Rules:
       }
     }
 
-    // Record AI usage only after a successful generation
-    if (token) {
+    // Record AI usage only after a successful generation (teacher charged via backend for grading)
+    if (token && !isGrading) {
       try {
         await $fetch(`${API_BASE_URL}/subscriptions/record-ai-usage`, {
           method: 'POST',
