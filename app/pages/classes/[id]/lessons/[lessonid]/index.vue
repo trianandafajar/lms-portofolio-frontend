@@ -11,8 +11,7 @@
     <!-- Empty -->
     <div
       v-else-if="!lessonStore.lesson || !lessonStore.lesson.content_json || lessonStore.lesson.content_json.length === 0"
-      class="bg-white rounded-2xl border border-dashed border-slate-200 p-12 text-center"
-    >
+      class="bg-white rounded-2xl border border-dashed border-slate-200 p-12 text-center">
       <div class="flex justify-center mb-4">
         <div class="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center">
           <UIcon name="heroicons-document-text" class="h-7 w-7 text-slate-400" />
@@ -31,7 +30,8 @@
       <nav data-walkthrough="lesson-breadcrumb" class="flex items-center gap-2 text-sm">
         <NuxtLink to="/classes" class="text-slate-500 hover:text-slate-700 transition-colors">My Classes</NuxtLink>
         <UIcon name="heroicons-chevron-right" class="h-3.5 w-3.5 text-slate-400" />
-        <NuxtLink :to="`/classes/${classId}`" class="text-slate-500 hover:text-slate-700 transition-colors truncate max-w-[200px]">
+        <NuxtLink :to="`/classes/${classId}`"
+          class="text-slate-500 hover:text-slate-700 transition-colors truncate max-w-[200px]">
           {{ lmsClassStore.classDetail?.title || 'Class' }}
         </NuxtLink>
         <UIcon name="heroicons-chevron-right" class="h-3.5 w-3.5 text-slate-400" />
@@ -41,16 +41,19 @@
       <!-- Lesson Hero -->
       <div data-walkthrough="lesson-hero" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
         <div class="flex items-start gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center ring-1 ring-emerald-100 shrink-0">
+          <div
+            class="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center ring-1 ring-emerald-100 shrink-0">
             <UIcon name="heroicons-book-open" class="h-6 w-6 text-emerald-600" />
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex flex-wrap items-center gap-2 mb-1">
-              <span v-if="isTeacher" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 text-[11px] font-semibold uppercase tracking-wider">
+              <span v-if="isTeacher"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 text-[11px] font-semibold uppercase tracking-wider">
                 <UIcon name="heroicons-academic-cap" class="h-3 w-3" />
                 Teacher View
               </span>
-              <span v-else-if="isReviewMode" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-semibold uppercase tracking-wider">
+              <span v-else-if="isReviewMode"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-semibold uppercase tracking-wider">
                 <UIcon name="heroicons-check-circle" class="h-3 w-3" />
                 Submitted
               </span>
@@ -65,10 +68,12 @@
       </div>
       <div v-if="!isSubmitted">
         <!-- Progress Bar -->
-        <div data-walkthrough="lesson-progress" class="bg-white rounded-t-2xl border-t border-x border-slate-200 shadow-sm p-5">
+        <div data-walkthrough="lesson-progress"
+          class="bg-white rounded-t-2xl border-t border-x border-slate-200 shadow-sm p-5">
           <div class="flex items-center justify-between text-sm mb-3">
             <span class="font-semibold text-slate-700">Section {{ currentIndex + 1 }} of {{ totalPages }}</span>
-            <span class="inline-flex items-center gap-1.5 text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full font-semibold">
+            <span
+              class="inline-flex items-center gap-1.5 text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full font-semibold">
               <UIcon name="heroicons-chart-bar" class="h-3 w-3" />
               {{ Math.round(((currentIndex + 1) / totalPages) * 100) }}%
             </span>
@@ -76,36 +81,32 @@
           <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
             <div
               class="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500 ease-out"
-              :style="{ width: ((currentIndex + 1) / totalPages) * 100 + '%' }"
-            />
+              :style="{ width: ((currentIndex + 1) / totalPages) * 100 + '%' }" />
           </div>
           <!-- Step indicators -->
           <div class="flex items-center gap-1.5 mt-3">
-            <button
-              v-for="(_, idx) in totalPages"
-              :key="idx"
-              @click="goToPage(idx)"
-              :class="[
-                'flex-1 h-1 rounded-full transition-all duration-200 cursor-pointer',
-                idx === currentIndex
-                  ? 'bg-emerald-500'
-                  : idx < currentIndex
-                    ? 'bg-emerald-300'
-                    : 'bg-slate-200 hover:bg-slate-300'
-              ]"
-            />
+            <button v-for="(_, idx) in totalPages" :key="idx" @click="goToPage(idx)" :class="[
+              'flex-1 h-1 rounded-full transition-all duration-200 cursor-pointer',
+              idx === currentIndex
+                ? 'bg-emerald-500'
+                : idx < currentIndex
+                  ? 'bg-emerald-300'
+                  : 'bg-slate-200 hover:bg-slate-300'
+            ]" />
           </div>
         </div>
 
         <!-- Content Block -->
-        <div v-if="currentBlock" data-walkthrough="lesson-content-block" class="bg-white border-x border-slate-200 shadow-sm overflow-hidden">
+        <div v-if="currentBlock" data-walkthrough="lesson-content-block"
+          class="bg-white border-x border-slate-200 shadow-sm overflow-hidden">
           <!-- Block type indicator -->
           <div class="px-4 sm:px-8 py-4 border-b border-slate-100 flex items-center gap-3">
             <div :class="['w-10 h-10 rounded-xl flex items-center justify-center', blockTypeStyle.bg]">
               <UIcon :name="blockTypeStyle.icon" :class="['h-5 w-5', blockTypeStyle.text]" />
             </div>
             <div class="flex-1 min-w-0">
-              <span :class="['text-[11px] font-semibold uppercase tracking-wider', blockTypeStyle.text]">{{ blockTypeStyle.label }}</span>
+              <span :class="['text-[11px] font-semibold uppercase tracking-wider', blockTypeStyle.text]">{{
+                blockTypeStyle.label }}</span>
               <p class="text-xs text-slate-500">Block {{ currentIndex + 1 }} of {{ totalPages }}</p>
             </div>
           </div>
@@ -123,24 +124,15 @@
             <!-- Image -->
             <div v-else-if="isType(currentBlock, 'image')" class="flex justify-center">
               <div class="rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
-                <img
-                  :src="currentBlock.url"
-                  :alt="currentBlock.alt ?? currentBlock.title ?? 'image'"
-                  class="max-h-[28rem] object-contain"
-                  @error="onMediaError(currentIndex)"
-                />
+                <img :src="currentBlock.url" :alt="currentBlock.alt ?? currentBlock.title ?? 'image'"
+                  class="max-h-[28rem] object-contain" @error="onMediaError(currentIndex)" />
               </div>
             </div>
 
             <!-- Video -->
             <div v-else-if="isType(currentBlock, 'video')" class="w-full">
               <div class="rounded-xl overflow-hidden bg-black">
-                <video
-                  controls
-                  class="w-full"
-                  :src="currentBlock.url"
-                  @error="onMediaError(currentIndex)"
-                >
+                <video controls class="w-full" :src="currentBlock.url" @error="onMediaError(currentIndex)">
                   Your browser does not support video tags.
                 </video>
               </div>
@@ -153,41 +145,33 @@
               </p>
 
               <div v-if="currentBlock.options && currentBlock.options.length" class="space-y-2">
-                <label
-                  v-for="(option, optIdx) in currentBlock.options"
-                  :key="optIdx"
-                  @click="selectOption(option)"
+                <label v-for="(option, optIdx) in currentBlock.options" :key="optIdx" @click="selectOption(option)"
                   :class="[
                     'flex items-center gap-4 p-4 rounded-xl border-2 transition-all duration-200',
                     isReviewMode ? 'cursor-not-allowed' : 'cursor-pointer',
                     getOptionStyle(option)
-                  ]"
-                >
+                  ]">
                   <div :class="[
                     'w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold shrink-0 transition-all',
                     isReviewMode
-                      ? option.is_correct 
-                        ? 'bg-emerald-500 text-white' 
+                      ? option.is_correct
+                        ? 'bg-emerald-500 text-white'
                         : isOptionSelected(option) ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-400'
-                      : isOptionSelected(option) 
-                        ? 'bg-emerald-500 text-white' 
+                      : isOptionSelected(option)
+                        ? 'bg-emerald-500 text-white'
                         : 'bg-slate-100 text-slate-600'
                   ]">
                     {{ String.fromCharCode(65 + Number(optIdx)) }}
                   </div>
                   <span class="text-sm font-medium text-slate-700 flex-1">{{ option.value ?? option.label }}</span>
-                  <UIcon
-                    v-if="isReviewMode && (option.is_correct || isOptionSelected(option))"
+                  <UIcon v-if="isReviewMode && (option.is_correct || isOptionSelected(option))"
                     :name="option.is_correct ? 'heroicons-check-circle' : 'heroicons-x-circle'"
-                    :class="['h-5 w-5', option.is_correct ? 'text-emerald-500' : 'text-red-500']"
-                  />
+                    :class="['h-5 w-5', option.is_correct ? 'text-emerald-500' : 'text-red-500']" />
                 </label>
 
                 <!-- Explanation -->
-                <div
-                  v-if="currentBlock.explanation && isReviewMode"
-                  class="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-xl"
-                >
+                <div v-if="currentBlock.explanation && isReviewMode"
+                  class="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-xl">
                   <div class="flex items-start gap-2">
                     <UIcon name="heroicons-light-bulb" class="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
                     <div>
@@ -206,17 +190,13 @@
 
             <!-- Essay -->
             <div v-else-if="isType(currentBlock, 'essay')" class="space-y-3">
-              <UTextarea
-                :placeholder="currentBlock.placeholder ?? 'Write your answer here...'"
-                class="min-h-[160px] w-full"
-                v-model="localEssay[currentIndex]"
-                :disabled="isReviewMode"
-                @blur="submitEssayDebounced(currentIndex, true)"
-                @input="submitEssayDebounced(currentIndex, false)"
-              />
+              <UTextarea :placeholder="currentBlock.placeholder ?? 'Write your answer here...'"
+                class="min-h-[160px] w-full" v-model="localEssay[currentIndex]" :disabled="isReviewMode"
+                @blur="submitEssayDebounced(currentIndex, true)" @input="submitEssayDebounced(currentIndex, false)" />
 
               <div class="flex items-center justify-between">
-                <span v-if="results[currentIndex]?.submitted" class="text-sm text-emerald-600 flex items-center gap-1.5 font-medium">
+                <span v-if="results[currentIndex]?.submitted"
+                  class="text-sm text-emerald-600 flex items-center gap-1.5 font-medium">
                   <UIcon name="heroicons-check-circle" class="h-4 w-4" />
                   Answer saved
                 </span>
@@ -231,29 +211,31 @@
 
               <div v-if="isReviewMode" class="flex flex-wrap items-center gap-2 pt-1">
                 <template v-if="gradeForEssay(currentIndex)">
-                  <span class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full"
+                  <span
+                    class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full"
                     :class="gradeForEssay(currentIndex).status === 'modified'
                       ? 'bg-blue-100 text-blue-700'
                       : 'bg-emerald-100 text-emerald-700'">
-                    <UIcon :name="gradeForEssay(currentIndex).status === 'modified' ? 'heroicons-user' : 'heroicons-sparkles'"
+                    <UIcon
+                      :name="gradeForEssay(currentIndex).status === 'modified' ? 'heroicons-user' : 'heroicons-sparkles'"
                       class="h-3 w-3" />
                     Score {{ gradeForEssay(currentIndex).score }}/100 ·
                     {{ gradeForEssay(currentIndex).status === 'modified' ? 'Edited by Teacher' : 'Graded' }}
                   </span>
-                  <p v-if="gradeForEssay(currentIndex).feedback" class="text-sm text-slate-600 w-full mt-1.5 whitespace-pre-wrap leading-relaxed">
+                  <p v-if="gradeForEssay(currentIndex).feedback"
+                    class="text-sm text-slate-600 w-full mt-1.5 whitespace-pre-wrap leading-relaxed">
                     {{ gradeForEssay(currentIndex).feedback }}
                   </p>
                 </template>
-                <span v-else class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
+                <span v-else
+                  class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
                   <UIcon name="heroicons-clock" class="h-3 w-3" />
                   Pending review
                 </span>
               </div>
 
-              <div
-                v-if="currentBlock.explanation && isReviewMode"
-                class="p-4 bg-blue-50 border border-blue-100 rounded-xl"
-              >
+              <div v-if="currentBlock.explanation && isReviewMode"
+                class="p-4 bg-blue-50 border border-blue-100 rounded-xl">
                 <div class="flex items-start gap-2">
                   <UIcon name="heroicons-light-bulb" class="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
                   <p class="text-sm text-blue-700">{{ currentBlock.explanation }}</p>
@@ -268,7 +250,8 @@
             </div>
 
             <!-- Error display -->
-            <div v-if="results[currentIndex]?.error" class="mt-3 p-3 bg-red-50 rounded-xl text-sm text-red-600 flex items-center gap-2">
+            <div v-if="results[currentIndex]?.error"
+              class="mt-3 p-3 bg-red-50 rounded-xl text-sm text-red-600 flex items-center gap-2">
               <UIcon name="heroicons-exclamation-circle" class="h-4 w-4 shrink-0" />
               {{ results[currentIndex].error }}
             </div>
@@ -276,7 +259,8 @@
         </div>
 
         <!-- Pagination Controls -->
-        <div data-walkthrough="lesson-pagination" class="flex items-center justify-between bg-white rounded-b-2xl border-x border-b border-slate-200 px-3 sm:px-5 py-3">
+        <div data-walkthrough="lesson-pagination"
+          class="flex items-center justify-between bg-white rounded-b-2xl border-x border-b border-slate-200 px-3 sm:px-5 py-3">
           <UButton v-if="!isReviewMode" variant="ghost" color="neutral" icon="heroicons-arrow-path" @click="resetAll">
             Reset
           </UButton>
@@ -285,31 +269,17 @@
           </UButton>
 
           <div class="flex items-center gap-2">
-            <UButton
-              variant="outline"
-              color="neutral"
-              icon="heroicons-chevron-left"
-              :disabled="currentIndex === 0"
-              @click="prevPage"
-            >
+            <UButton variant="outline" color="neutral" icon="heroicons-chevron-left" :disabled="currentIndex === 0"
+              @click="prevPage">
               Prev
             </UButton>
 
-            <UButton
-              v-if="currentIndex < totalPages - 1"
-              color="neutral"
-              trailing-icon="heroicons-chevron-right"
-              @click="nextPage"
-            >
+            <UButton v-if="currentIndex < totalPages - 1" color="neutral" trailing-icon="heroicons-chevron-right"
+              @click="nextPage">
               Next
             </UButton>
 
-            <UButton
-              v-else-if="!isReviewMode"
-              color="primary"
-              icon="heroicons-paper-airplane"
-              @click="submitAll"
-            >
+            <UButton v-else-if="!isReviewMode" color="primary" icon="heroicons-paper-airplane" @click="submitAll">
               Submit All
             </UButton>
           </div>
@@ -322,7 +292,8 @@
           <!-- Banner -->
           <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 px-8 py-10 text-center text-white">
             <div class="flex justify-center mb-4">
-              <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center ring-4 ring-white/10">
+              <div
+                class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center ring-4 ring-white/10">
                 <UIcon name="heroicons-trophy" class="h-8 w-8" />
               </div>
             </div>
@@ -342,7 +313,9 @@
               </div>
               <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center">
                 <p class="text-3xl font-bold text-slate-700">
-                  {{ score.correct + score.wrong > 0 ? Math.round((score.correct / (score.correct + score.wrong)) * 100) : 0 }}%
+                  {{ score.correct + score.wrong > 0 ? Math.round((score.correct / (score.correct + score.wrong)) * 100)
+                  : 0
+                  }}%
                 </p>
                 <p class="text-xs text-slate-600 mt-1 font-semibold uppercase tracking-wider">Accuracy</p>
               </div>
@@ -356,21 +329,20 @@
               <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                 <div
                   class="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-700"
-                  :style="{ width: (score.correct / (score.correct + score.wrong)) * 100 + '%' }"
-                />
+                  :style="{ width: (score.correct / (score.correct + score.wrong)) * 100 + '%' }" />
               </div>
             </div>
 
             <div v-if="essayGrades.length" class="max-w-2xl mx-auto mb-8 text-left">
               <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 mb-3">AI Essay Feedback</h3>
-              <div
-                v-for="g in essayGrades"
-                :key="g.block_index"
-                class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 mb-3"
-              >
+              <div v-for="g in essayGrades" :key="g.block_index"
+                class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 mb-3">
                 <div class="flex items-center justify-between mb-1">
-                  <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Essay #{{ ((g.block_index ?? 0) || 0) + 1 }}</span>
-                  <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Essay #{{ ((g.block_index ??
+                    0) ||
+                    0) + 1 }}</span>
+                  <span
+                    class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
                     {{ g.status === 'modified' ? 'Edited by Teacher' : 'Graded' }}
                   </span>
                 </div>
@@ -378,7 +350,8 @@
                   <span class="text-3xl font-black text-slate-900">{{ g.score }}</span>
                   <span class="text-sm text-slate-400 font-semibold">/ 100</span>
                 </div>
-                <p v-if="g.feedback" class="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">{{ g.feedback }}</p>
+                <p v-if="g.feedback" class="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">{{ g.feedback }}
+                </p>
               </div>
             </div>
 
@@ -397,9 +370,11 @@
           </div>
         </div>
 
-        <div v-else class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div v-else
+          class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div class="flex items-start gap-3">
-            <div class="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center ring-1 ring-violet-100 shrink-0">
+            <div
+              class="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center ring-1 ring-violet-100 shrink-0">
               <UIcon name="heroicons-chart-bar" class="h-5 w-5 text-violet-600" />
             </div>
             <div>
@@ -407,81 +382,95 @@
               <p class="text-sm text-slate-500 mt-0.5">You are viewing this lesson as a teacher.</p>
             </div>
           </div>
-<UButton color="primary" variant="solid" icon="heroicons-clipboard-document-check" :to="`/classes/${classId}/lessons/${lessonId}/grading`" class="mt-3 sm:mt-0">
-            Grading Dashboard
-          </UButton>
-          <UButton color="neutral" variant="outline" icon="heroicons-arrow-uturn-left" @click="goToFirstPage">
-            Back to Content
-          </UButton>
+          <div class="flex items-center gap-3">
+            <UButton color="primary" variant="solid" icon="heroicons-clipboard-document-check"
+              :to="`/classes/${classId}/lessons/${lessonId}/grading`" class="mt-3 sm:mt-0">
+              Grading Dashboard
+            </UButton>
+            <UButton color="neutral" variant="outline" icon="heroicons-arrow-uturn-left" @click="goToFirstPage">
+              Back to Content
+            </UButton>
+          </div>
         </div>
       </div>
 
-        <!-- Teacher: Student Submissions -->
-        <div v-if="isTeacher" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center ring-1 ring-emerald-100 shrink-0">
-                <UIcon name="heroicons-users" class="h-5 w-5 text-emerald-600" />
-              </div>
-              <div>
-                <h3 class="font-semibold text-slate-900">Student Submissions</h3>
-                <p class="text-xs text-slate-500">{{ allMembersSubmissions.filter(s => s.has_submitted).length }} of {{ allMembersSubmissions.length }} students submitted</p>
-              </div>
+      <!-- Teacher: Student Submissions -->
+      <div v-if="isTeacher" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center ring-1 ring-emerald-100 shrink-0">
+              <UIcon name="heroicons-users" class="h-5 w-5 text-emerald-600" />
             </div>
-            <UButton variant="outline" color="neutral" size="sm" icon="heroicons-arrow-path" @click="loadTeacherSubmissions" :loading="lessonStore.loading">
-              Refresh
-            </UButton>
+            <div>
+              <h3 class="font-semibold text-slate-900">Student Submissions</h3>
+              <p class="text-xs text-slate-500">{{allMembersSubmissions.filter(s => s.has_submitted).length}} of {{
+                allMembersSubmissions.length }} students submitted</p>
+            </div>
           </div>
-          
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                  <th class="px-8 py-4 font-semibold">Student</th>
-                  <th class="px-8 py-4 font-semibold text-center">Status</th>
-                  <th class="px-8 py-4 font-semibold text-center">Correct</th>
-                  <th class="px-8 py-4 font-semibold text-center">Wrong</th>
-                  <th class="px-8 py-4 font-semibold text-center">Accuracy</th>
-                  <th class="px-8 py-4 font-semibold">Submitted At</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100">
-                <tr v-for="sub in allMembersSubmissions" :key="sub.user_id" class="hover:bg-slate-50/50 transition-colors">
-                  <td class="px-8 py-4">
-                    <div class="flex flex-col">
-                      <span class="font-medium text-slate-700">{{ sub.user_name }}</span>
-                      <span class="text-[10px] uppercase text-slate-400 font-bold tracking-tight">{{ sub.role }}</span>
-                    </div>
-                  </td>
-                  <td class="px-8 py-4 text-center">
-                    <span v-if="sub.has_submitted" class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase">
-                      Submitted
-                    </span>
-                    <span v-else class="inline-flex items-center px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold uppercase">
-                      Pending
-                    </span>
-                  </td>
-                  <td class="px-8 py-4 text-center text-emerald-600 font-semibold">{{ sub.has_submitted ? sub.score_correct : '-' }}</td>
-                  <td class="px-8 py-4 text-center text-red-600 font-semibold">{{ sub.has_submitted ? sub.score_wrong : '-' }}</td>
-                  <td class="px-8 py-4 text-center">
-                    <span v-if="sub.has_submitted && (sub.score_correct + sub.score_wrong > 0)" class="inline-flex items-center px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 text-xs font-bold">
-                      {{ Math.round((sub.score_correct / (sub.score_correct + sub.score_wrong)) * 100) }}%
-                    </span>
-                    <span v-else class="text-slate-400">-</span>
-                  </td>
-                  <td class="px-8 py-4 text-sm text-slate-500">
-                    {{ sub.submitted_at ? new Date(sub.submitted_at).toLocaleDateString() : '-' }}
-                  </td>
-                </tr>
-                <tr v-if="!allMembersSubmissions.length">
-                  <td colspan="6" class="px-8 py-12 text-center text-slate-400 italic">No students joined yet</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <UButton variant="outline" color="neutral" size="sm" icon="heroicons-arrow-path"
+            @click="loadTeacherSubmissions" :loading="lessonStore.loading">
+            Refresh
+          </UButton>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                <th class="px-8 py-4 font-semibold">Student</th>
+                <th class="px-8 py-4 font-semibold text-center">Status</th>
+                <th class="px-8 py-4 font-semibold text-center">Correct</th>
+                <th class="px-8 py-4 font-semibold text-center">Wrong</th>
+                <th class="px-8 py-4 font-semibold text-center">Accuracy</th>
+                <th class="px-8 py-4 font-semibold">Submitted At</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr v-for="sub in allMembersSubmissions" :key="sub.user_id"
+                class="hover:bg-slate-50/50 transition-colors">
+                <td class="px-8 py-4">
+                  <div class="flex flex-col">
+                    <span class="font-medium text-slate-700">{{ sub.user_name }}</span>
+                    <span class="text-[10px] uppercase text-slate-400 font-bold tracking-tight">{{ sub.role }}</span>
+                  </div>
+                </td>
+                <td class="px-8 py-4 text-center">
+                  <span v-if="sub.has_submitted"
+                    class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase">
+                    Submitted
+                  </span>
+                  <span v-else
+                    class="inline-flex items-center px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold uppercase">
+                    Pending
+                  </span>
+                </td>
+                <td class="px-8 py-4 text-center text-emerald-600 font-semibold">{{ sub.has_submitted ?
+                  sub.score_correct :
+                  '-' }}</td>
+                <td class="px-8 py-4 text-center text-red-600 font-semibold">{{ sub.has_submitted ? sub.score_wrong :
+                  '-' }}
+                </td>
+                <td class="px-8 py-4 text-center">
+                  <span v-if="sub.has_submitted && (sub.score_correct + sub.score_wrong > 0)"
+                    class="inline-flex items-center px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 text-xs font-bold">
+                    {{ Math.round((sub.score_correct / (sub.score_correct + sub.score_wrong)) * 100) }}%
+                  </span>
+                  <span v-else class="text-slate-400">-</span>
+                </td>
+                <td class="px-8 py-4 text-sm text-slate-500">
+                  {{ sub.submitted_at ? new Date(sub.submitted_at).toLocaleDateString() : '-' }}
+                </td>
+              </tr>
+              <tr v-if="!allMembersSubmissions.length">
+                <td colspan="6" class="px-8 py-12 text-center text-slate-400 italic">No students joined yet</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -581,8 +570,8 @@ function getOptionStyle(option: any) {
   const selected = isOptionSelected(option)
 
   if (!isReviewMode.value) {
-    return selected 
-      ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500/20' 
+    return selected
+      ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500/20'
       : 'border-slate-200 hover:border-emerald-200 hover:bg-slate-50'
   }
 
@@ -694,10 +683,10 @@ async function saveResults() {
     localEssay: localEssay,
     savedAt: new Date().toISOString(),
   }
-  
+
   // Local backup
   lessonStore.saveSubmission(userId.value, lessonId.value, payload)
-  
+
   // Backend sync
   try {
     const res: any = await lessonStore.submitLesson(lessonId.value, payload)
@@ -705,7 +694,7 @@ async function saveResults() {
   } catch (err: any) {
     console.error("Failed to sync with backend", err)
   }
-  
+
   isReviewMode.value = true
 }
 
@@ -812,11 +801,11 @@ function resetAll() {
 
 onMounted(async () => {
   await lessonStore.getDetailLesson(lessonId.value)
-  
+
   if (!lmsClassStore.classDetail || lmsClassStore.classDetail.id !== classId.value) {
     await lmsClassStore.getDetailsClass(classId.value)
   }
-  
+
   if (isTeacher.value) {
     isReviewMode.value = true
     isSubmitted.value = false // Start with content view for teachers
@@ -829,11 +818,11 @@ onMounted(async () => {
   if (backendSaved?.id) lessonSubmissionId.value = backendSaved.id
   essayGrades.value = (backendSaved && Array.isArray(backendSaved.grades) ? backendSaved.grades : []) as any[]
   const saved = backendSaved || lessonStore.getSubmission(userId.value, lessonId.value)
-  
+
   if (saved) {
     isSubmitted.value = true
     isReviewMode.value = true
-    
+
     // Auto-sync if it was only local
     if (!backendSaved && saved.results) {
       try {
@@ -843,11 +832,11 @@ onMounted(async () => {
         console.warn("Auto-sync failed", err)
       }
     }
-    
+
     Object.assign(results.value, saved.results || {})
     score.value.correct = saved.score_correct || saved.score?.correct || 0
     score.value.wrong = saved.score_wrong || saved.score?.wrong || 0
-    
+
     Object.assign(answers, saved.answers || {})
     Object.assign(localEssay, saved.localEssay || {})
   } else {
@@ -862,13 +851,16 @@ onMounted(async () => {
 .prose img {
   max-width: 100%;
 }
+
 .prose :deep(p) {
   margin-bottom: 0.75rem;
   line-height: 1.8;
 }
+
 .prose :deep(strong) {
   color: #1e293b;
 }
+
 .prose :deep(code) {
   background: #f1f5f9;
   padding: 0.125rem 0.375rem;
