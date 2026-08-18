@@ -179,19 +179,62 @@ Rules:
     parts: [{ text: m.content }],
   }));
 
+  const isTransient = (err: any) => {
+    const raw = String(err?.message || err?.status || err?.code || "");
+    const msg = raw.toLowerCase();
+    return (
+      err?.status === 503 ||
+      err?.status === 429 ||
+      /unavailable|resource_exhausted|too many requests|high demand|temporar|rate limit|timeout|econnreset|socket hang up/.test(msg)
+    );
+  };
+
+  const prettyError = (err: any) => {
+    const raw = err?.message || String(err || "");
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed?.error?.message || raw;
+    } catch {
+      return raw;
+    }
+  };
+
+  const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+  const MAX_RETRIES = 3;
+  const BACKOFF_MS = 1500;
+
   try {
     const ai = new GoogleGenAI({ vertexai: false, apiKey: GEMINI_KEY });
 
     const maxOutputTokens = type === "block" || type === "module" || type === "grade_essay" ? 3048 : 512;
 
-    const resp = await ai.models.generateContent({
-      model: MODEL,
-      contents,
-      config: {
-        temperature: 0.1,
-        maxOutputTokens,
+    let resp: any;
+    let attempt = 0;
+    while (true) {
+      try {
+        resp = await ai.models.generateContent({
+          model: MODEL,
+          contents,
+          config: {
+            temperature: 0.1,
+            maxOutputTokens,
+          }
+        });
+        break;
+      } catch (err: any) {
+        if (!isTransient(err) || attempt >= MAX_RETRIES) {
+          return {
+            success: false,
+            error: prettyError(err),
+            type,
+            input_messages_count: contents.length,
+          };
+        }
+        attempt++;
+        await sleep(BACKOFF_MS * attempt);
       }
-    });
+    }
 
     //* The SDK response exposes a .text accessor for the generated text
     let outRaw: string = (resp as any)?.text ?? JSON.stringify(resp);

@@ -158,8 +158,8 @@
 
                   <div v-else>
                     <p class="text-sm text-amber-600 flex items-center gap-2">
-                      <UIcon name="heroicons-clock" class="h-4 w-4" />
-                      Not graded yet. AI grading runs once the student submits.
+                      <UIcon name="heroicons-arrow-path" class="h-4 w-4 animate-spin" />
+                      Not graded yet. AI grading runs once the student submits &mdash; refreshing automatically.
                     </p>
                   </div>
                 </div>
@@ -205,6 +205,15 @@ const reviewItems = computed(() => {
   }))
 })
 
+const hasUngraded = computed(() =>
+  students.value.some((s: any) =>
+    (s.essays || []).some(
+      (e: any) =>
+        !(s.grades || []).some((g: any) => g.block_index === e.block_index)
+    )
+  )
+)
+
 function statusBadge(grades: any[]) {
   if (!grades?.length) return { label: 'Ungraded', classes: 'bg-slate-100 text-slate-500' }
   const statuses = grades.map((g) => g.status)
@@ -230,6 +239,17 @@ async function load() {
   if (students.value.length && selectedId.value == null) {
     selectedId.value = students.value[0].id
   }
+  schedulePoll()
+}
+
+let pollTimer: ReturnType<typeof setTimeout> | null = null
+
+function schedulePoll() {
+  if (pollTimer) window.clearTimeout(pollTimer)
+  if (!hasUngraded.value) return
+  pollTimer = window.setTimeout(() => {
+    load()
+  }, 5000)
 }
 
 async function approve(gradeId: number) {
@@ -275,5 +295,9 @@ async function submitOverride(grade: any) {
 
 onMounted(() => {
   load()
+})
+
+onUnmounted(() => {
+  if (pollTimer) window.clearTimeout(pollTimer)
 })
 </script>
