@@ -126,7 +126,6 @@
                         </span>
                       </div>
                       <p class="text-sm text-slate-700 whitespace-pre-wrap">{{ item.grade.feedback || 'No feedback provided.' }}</p>
-
                       <template v-if="editingId === item.grade.id">
                         <div class="space-y-2 pt-1">
                           <label class="text-xs font-semibold text-slate-500 block">Override score (0-100)</label>
@@ -242,14 +241,14 @@ async function load() {
   schedulePoll()
 }
 
-let pollTimer: ReturnType<typeof setTimeout> | null = null
+let pollTimer: ReturnType<typeof window.setTimeout> | null = null
 
 function schedulePoll() {
   if (pollTimer) window.clearTimeout(pollTimer)
   if (!hasUngraded.value) return
   pollTimer = window.setTimeout(() => {
     load()
-  }, 5000)
+  }, 5000) as any
 }
 
 async function approve(gradeId: number) {
