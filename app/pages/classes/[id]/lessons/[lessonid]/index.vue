@@ -302,34 +302,44 @@
           </div>
 
           <div class="p-8">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
-              <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center">
-                <p class="text-3xl font-bold text-emerald-600">{{ score.correct }}</p>
-                <p class="text-xs text-emerald-700 mt-1 font-semibold uppercase tracking-wider">Correct</p>
+            <template v-if="mcqStats.nMcq > 0">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+                <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center">
+                  <p class="text-3xl font-bold text-emerald-600">{{ score.correct }}</p>
+                  <p class="text-xs text-emerald-700 mt-1 font-semibold uppercase tracking-wider">Correct</p>
+                </div>
+                <div class="bg-red-50 border border-red-200 rounded-2xl p-5 text-center">
+                  <p class="text-3xl font-bold text-red-600">{{ score.wrong }}</p>
+                  <p class="text-xs text-red-700 mt-1 font-semibold uppercase tracking-wider">Wrong</p>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center">
+                  <p class="text-3xl font-bold text-slate-700">
+                    {{ finalScore != null ? finalScore + '%' : '—' }}
+                  </p>
+                  <p class="text-xs text-slate-600 mt-1 font-semibold uppercase tracking-wider">Accuracy</p>
+                </div>
               </div>
-              <div class="bg-red-50 border border-red-200 rounded-2xl p-5 text-center">
-                <p class="text-3xl font-bold text-red-600">{{ score.wrong }}</p>
-                <p class="text-xs text-red-700 mt-1 font-semibold uppercase tracking-wider">Wrong</p>
+            </template>
+            <template v-else>
+              <div class="flex justify-center max-w-2xl mx-auto mb-8">
+                <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center min-w-48">
+                  <p class="text-3xl font-bold text-emerald-600">
+                    {{ essayAvg != null ? Math.round(essayAvg) : '—' }}
+                  </p>
+                  <p class="text-xs text-emerald-700 mt-1 font-semibold uppercase tracking-wider">Essay Score</p>
+                </div>
               </div>
-              <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center">
-                <p class="text-3xl font-bold text-slate-700">
-                  {{ score.correct + score.wrong > 0 ? Math.round((score.correct / (score.correct + score.wrong)) * 100)
-                  : 0
-                  }}%
-                </p>
-                <p class="text-xs text-slate-600 mt-1 font-semibold uppercase tracking-wider">Accuracy</p>
-              </div>
-            </div>
+            </template>
 
-            <div v-if="score.correct + score.wrong > 0" class="max-w-md mx-auto mb-8">
+            <div v-if="finalScore != null" class="max-w-md mx-auto mb-8">
               <div class="flex items-center justify-between text-xs text-slate-500 mb-2">
                 <span class="font-medium">Score</span>
-                <span>{{ score.correct }}/{{ score.correct + score.wrong }}</span>
+                <span>{{ finalScore }}/100</span>
               </div>
               <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                 <div
                   class="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-700"
-                  :style="{ width: (score.correct / (score.correct + score.wrong)) * 100 + '%' }" />
+                  :style="{ width: finalScore + '%' }" />
               </div>
             </div>
 
@@ -446,15 +456,15 @@
                   </span>
                 </td>
                 <td class="px-8 py-4 text-center text-emerald-600 font-semibold">{{ sub.has_submitted ?
-                  sub.score_correct :
+                  sub.correct :
                   '-' }}</td>
-                <td class="px-8 py-4 text-center text-red-600 font-semibold">{{ sub.has_submitted ? sub.score_wrong :
+                <td class="px-8 py-4 text-center text-red-600 font-semibold">{{ sub.has_submitted ? sub.wrong :
                   '-' }}
                 </td>
                 <td class="px-8 py-4 text-center">
-                  <span v-if="sub.has_submitted && (sub.score_correct + sub.score_wrong > 0)"
+                  <span v-if="sub.has_submitted && sub.accuracy != null"
                     class="inline-flex items-center px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 text-xs font-bold">
-                    {{ Math.round((sub.score_correct / (sub.score_correct + sub.score_wrong)) * 100) }}%
+                    {{ sub.accuracy }}%
                   </span>
                   <span v-else class="text-slate-400">-</span>
                 </td>
@@ -492,11 +502,23 @@ const allMembersSubmissions = computed(() => {
   const members = lmsClassStore.classDetail?.memberships || []
   return members.map(member => {
     const submission = lessonStore.allSubmissions.find(s => s.user_id === member.user.id)
+    const grades: any[] = submission?.grades || []
+
+    const mcqCorrect = Number(submission?.score_correct ?? 0)
+    const mcqWrong = Number(submission?.score_wrong ?? 0)
+    const essayCorrect = grades.filter(g => Number(g.score) >= 50).length
+    const essayWrong = grades.filter(g => Number(g.score) < 50).length
+    const correct = mcqCorrect + essayCorrect
+    const wrong = mcqWrong + essayWrong
+
     return {
       user_id: member.user.id,
       user_name: member.user.profile?.display_name || member.user.email,
       role: member.role,
       ...submission,
+      correct,
+      wrong,
+      accuracy: correct + wrong > 0 ? Math.round((correct / (correct + wrong)) * 100) : null,
       has_submitted: !!submission
     }
   })
@@ -522,6 +544,52 @@ const lessonHasEssays = computed(() =>
 )
 const gradeForEssay = (idx: number) =>
   (essayGrades.value || []).find((g: any) => g.block_index === idx) || null
+
+const mcqStats = computed(() => {
+  const blocks = (lessonStore.lesson?.content_json || []) as any[]
+  const nMcq = blocks.filter((b: any) => b.type === 'multiple_choice').length
+  let correct = 0
+  let wrong = 0
+  for (const res of Object.values(results.value)) {
+    if (res?.type === 'multiple_choice') {
+      if (res.isCorrect) correct++
+      else wrong++
+    }
+  }
+  return { nMcq, correct, wrong }
+})
+
+const mcqPct = computed<number | null>(() =>
+  mcqStats.value.nMcq > 0 ? (mcqStats.value.correct / mcqStats.value.nMcq) * 100 : null
+)
+
+const essayBlocks = computed(() =>
+  ((lessonStore.lesson?.content_json || []) as any[]).filter((b: any) => b.type === 'essay')
+)
+
+const essayAvg = computed<number | null>(() => {
+  const blocks = essayBlocks.value
+  if (!blocks.length) return null
+  const scores = blocks
+    .map((_: any, i: number) => gradeForEssay(i)?.score)
+    .filter((s: any): s is number => s != null)
+  if (scores.length !== blocks.length) return null
+  return scores.reduce((a: number, b: number) => a + b, 0) / scores.length
+})
+
+const finalScore = computed<number | null>(() => {
+  const m = mcqPct.value
+  const e = essayAvg.value
+  if (m != null && e != null) {
+    return Math.round(
+      (m * mcqStats.value.nMcq + e * essayBlocks.value.length) /
+      (mcqStats.value.nMcq + essayBlocks.value.length)
+    )
+  }
+  if (m != null) return Math.round(m)
+  if (e != null) return Math.round(e)
+  return null
+})
 
 const blockTypeStyle = computed(() => {
   const type = currentBlock.value?.type
