@@ -302,44 +302,32 @@
           </div>
 
           <div class="p-8">
-            <template v-if="mcqStats.nMcq > 0">
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
-                <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center">
-                  <p class="text-3xl font-bold text-emerald-600">{{ score.correct }}</p>
-                  <p class="text-xs text-emerald-700 mt-1 font-semibold uppercase tracking-wider">Correct</p>
-                </div>
-                <div class="bg-red-50 border border-red-200 rounded-2xl p-5 text-center">
-                  <p class="text-3xl font-bold text-red-600">{{ score.wrong }}</p>
-                  <p class="text-xs text-red-700 mt-1 font-semibold uppercase tracking-wider">Wrong</p>
-                </div>
-                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center">
-                  <p class="text-3xl font-bold text-slate-700">
-                    {{ finalScore != null ? finalScore + '%' : '—' }}
-                  </p>
-                  <p class="text-xs text-slate-600 mt-1 font-semibold uppercase tracking-wider">Accuracy</p>
-                </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+              <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center">
+                <p class="text-3xl font-bold text-emerald-600">{{ correct }}</p>
+                <p class="text-xs text-emerald-700 mt-1 font-semibold uppercase tracking-wider">Correct</p>
               </div>
-            </template>
-            <template v-else>
-              <div class="flex justify-center max-w-2xl mx-auto mb-8">
-                <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center min-w-48">
-                  <p class="text-3xl font-bold text-emerald-600">
-                    {{ essayAvg != null ? Math.round(essayAvg) : '—' }}
-                  </p>
-                  <p class="text-xs text-emerald-700 mt-1 font-semibold uppercase tracking-wider">Essay Score</p>
-                </div>
+              <div class="bg-red-50 border border-red-200 rounded-2xl p-5 text-center">
+                <p class="text-3xl font-bold text-red-600">{{ wrong }}</p>
+                <p class="text-xs text-red-700 mt-1 font-semibold uppercase tracking-wider">Wrong</p>
               </div>
-            </template>
+              <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center">
+                <p class="text-3xl font-bold text-slate-700">
+                  {{ accuracy != null ? accuracy + '%' : '—' }}
+                </p>
+                <p class="text-xs text-slate-600 mt-1 font-semibold uppercase tracking-wider">Accuracy</p>
+              </div>
+            </div>
 
-            <div v-if="finalScore != null" class="max-w-md mx-auto mb-8">
+            <div v-if="accuracy != null" class="max-w-md mx-auto mb-8">
               <div class="flex items-center justify-between text-xs text-slate-500 mb-2">
                 <span class="font-medium">Score</span>
-                <span>{{ finalScore }}/100</span>
+                <span>{{ accuracy }}/100</span>
               </div>
               <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                 <div
                   class="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-700"
-                  :style="{ width: finalScore + '%' }" />
+                  :style="{ width: accuracy + '%' }" />
               </div>
             </div>
 
@@ -545,51 +533,23 @@ const lessonHasEssays = computed(() =>
 const gradeForEssay = (idx: number) =>
   (essayGrades.value || []).find((g: any) => g.block_index === idx) || null
 
-const mcqStats = computed(() => {
-  const blocks = (lessonStore.lesson?.content_json || []) as any[]
-  const nMcq = blocks.filter((b: any) => b.type === 'multiple_choice').length
-  let correct = 0
-  let wrong = 0
-  for (const res of Object.values(results.value)) {
-    if (res?.type === 'multiple_choice') {
-      if (res.isCorrect) correct++
-      else wrong++
-    }
-  }
-  return { nMcq, correct, wrong }
-})
+const mcqCorrect = computed(() => score.value.correct)
+const mcqWrong = computed(() => score.value.wrong)
 
-const mcqPct = computed<number | null>(() =>
-  mcqStats.value.nMcq > 0 ? (mcqStats.value.correct / mcqStats.value.nMcq) * 100 : null
+const essayCorrect = computed(() =>
+  (essayGrades.value || []).filter(g => Number(g.score) >= 50).length
+)
+const essayWrong = computed(() =>
+  (essayGrades.value || []).filter(g => Number(g.score) < 50).length
 )
 
-const essayBlocks = computed(() =>
-  ((lessonStore.lesson?.content_json || []) as any[]).filter((b: any) => b.type === 'essay')
+const correct = computed(() => mcqCorrect.value + essayCorrect.value)
+const wrong = computed(() => mcqWrong.value + essayWrong.value)
+const accuracy = computed<number | null>(() =>
+  correct.value + wrong.value > 0
+    ? Math.round((correct.value / (correct.value + wrong.value)) * 100)
+    : null
 )
-
-const essayAvg = computed<number | null>(() => {
-  const blocks = essayBlocks.value
-  if (!blocks.length) return null
-  const scores = blocks
-    .map((_: any, i: number) => gradeForEssay(i)?.score)
-    .filter((s: any): s is number => s != null)
-  if (scores.length !== blocks.length) return null
-  return scores.reduce((a: number, b: number) => a + b, 0) / scores.length
-})
-
-const finalScore = computed<number | null>(() => {
-  const m = mcqPct.value
-  const e = essayAvg.value
-  if (m != null && e != null) {
-    return Math.round(
-      (m * mcqStats.value.nMcq + e * essayBlocks.value.length) /
-      (mcqStats.value.nMcq + essayBlocks.value.length)
-    )
-  }
-  if (m != null) return Math.round(m)
-  if (e != null) return Math.round(e)
-  return null
-})
 
 const blockTypeStyle = computed(() => {
   const type = currentBlock.value?.type
