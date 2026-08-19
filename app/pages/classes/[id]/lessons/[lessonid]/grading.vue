@@ -160,6 +160,11 @@
                       <UIcon name="heroicons-arrow-path" class="h-4 w-4 animate-spin" />
                       Not graded yet. AI grading runs once the student submits &mdash; refreshing automatically.
                     </p>
+                    <UButton variant="outline" color="primary" size="sm" icon="heroicons-sparkles"
+                      class="mt-3" :loading="retryingIndex === item.essay.block_index"
+                      @click="retryGrading(item.essay)">
+                      Retry AI grading
+                    </UButton>
                   </div>
                 </div>
               </div>
@@ -190,6 +195,7 @@ const selectedId = ref<number | null>(null)
 const editingId = ref<number | null>(null)
 const saving = ref(false)
 const editForm = reactive<Record<number, { score: number | null; feedback: string }>>({})
+const retryingIndex = ref<number | null>(null)
 
 const loading = computed(() => lessonStore.loading)
 const selected = computed(() => students.value.find((s) => s.id === selectedId.value) || students.value[0])
@@ -208,6 +214,7 @@ const hasUngraded = computed(() =>
   students.value.some((s: any) =>
     (s.essays || []).some(
       (e: any) =>
+        e.answer && e.answer.trim() &&
         !(s.grades || []).some((g: any) => g.block_index === e.block_index)
     )
   )
@@ -242,13 +249,50 @@ async function load() {
 }
 
 let pollTimer: ReturnType<typeof window.setTimeout> | null = null
+let pollCount = 0
+const MAX_POLLS = 60
 
 function schedulePoll() {
   if (pollTimer) window.clearTimeout(pollTimer)
-  if (!hasUngraded.value) return
+  if (!hasUngraded.value || pollCount >= MAX_POLLS) return
+  pollCount++
   pollTimer = window.setTimeout(() => {
     load()
   }, 5000) as any
+}
+
+async function retryGrading(essay: any) {
+  if (!essay?.block_index || retryingIndex.value !== null) return
+  const submission = selected.value
+  if (!submission?.id || !essay.answer) return
+
+  retryingIndex.value = essay.block_index
+  try {
+    const prompt = `Essay question:\n${essay.question ?? ''}${essay.placeholder ? '\nInstructions: ' + essay.placeholder : ''}\nMax length: ${essay.max_length ?? '-'} characters\n\nStudent's answer:\n${essay.answer}`
+
+    const aiRes: any = await $fetch(`/api/ai?type=grade_essay&lesson_id=${lessonId.value}`, {
+      method: 'POST',
+      body: { prompt },
+    })
+    if (!aiRes?.success || !aiRes.output) {
+      throw new Error(aiRes?.error || 'AI grading failed')
+    }
+    await lessonStore.gradeEssay(lessonId.value, {
+      lesson_submission_id: submission.id,
+      block_index: essay.block_index,
+      ai_result: aiRes.output,
+    })
+  } catch (err: any) {
+    console.error("Retry AI grading failed:", err)
+    useToast().add({
+      title: 'AI grading failed',
+      description: err?.data?.error || err?.message || 'Please try again later.',
+      color: 'error',
+    })
+  } finally {
+    retryingIndex.value = null
+    await load()
+  }
 }
 
 async function approve(gradeId: number) {
