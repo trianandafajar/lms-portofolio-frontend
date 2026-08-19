@@ -50,8 +50,8 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    geminiApiKey: process.env.GEMINI_API_KEY,
-    geminiModel: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+    groqApiKey: process.env.GROQ_API_KEY,
+    groqModel: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
     public: {
       apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL,
       paypalClientId: process.env.NUXT_PUBLIC_PAYPAL_CLIENT_ID,

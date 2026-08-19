@@ -1,7 +1,5 @@
 import { readBody, defineEventHandler, getQuery, getCookie } from "h3";
 
-import { GoogleGenAI } from "@google/genai";
-
 type PromptMessage = {
   type: "system" | "user" | "assistant";
   content: string | undefined;
@@ -22,14 +20,14 @@ export default defineEventHandler(async (event) => {
   const prompt = typeof body?.prompt === "string" ? body.prompt : "";
 
   const config = useRuntimeConfig();
-  const GEMINI_KEY = config.geminiApiKey;
-  const MODEL = config.geminiModel;
+  const GROQ_API_KEY = config.groqApiKey;
+  const MODEL = config.groqModel;
   const API_BASE_URL = config.public.apiBaseUrl;
 
-  if (!GEMINI_KEY) {
+  if (!GROQ_API_KEY) {
     return {
       success: false,
-      error: "Server misconfigured: missing geminiApiKey",
+      error: "Server misconfigured: missing groqApiKey",
     };
   }
 
@@ -174,11 +172,6 @@ Rules:
     return fixed;
   }
 
-  const contents = messages.map((m) => ({
-    role: m.type === "system" ? "user" : m.type,
-    parts: [{ text: m.content }],
-  }));
-
   const isTransient = (err: any) => {
     const raw = String(err?.message || err?.status || err?.code || "");
     const msg = raw.toLowerCase();
@@ -205,22 +198,31 @@ Rules:
   const BACKOFF_MS = 1500;
 
   try {
-    const ai = new GoogleGenAI({ vertexai: false, apiKey: GEMINI_KEY });
-
     const maxOutputTokens = type === "block" || type === "module" || type === "grade_essay" ? 3048 : 512;
 
-    let resp: any;
+    const chatMessages = messages.map((m) => ({
+      role: m.type,
+      content: m.content || "",
+    }));
+
+    let outRaw: string = "";
     let attempt = 0;
     while (true) {
       try {
-        resp = await ai.models.generateContent({
-          model: MODEL,
-          contents,
-          config: {
+        const resp: any = await $fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${GROQ_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: {
+            model: MODEL,
+            messages: chatMessages,
             temperature: 0.1,
-            maxOutputTokens,
-          }
+            max_tokens: maxOutputTokens,
+          },
         });
+        outRaw = resp?.choices?.[0]?.message?.content ?? "";
         break;
       } catch (err: any) {
         if (!isTransient(err) || attempt >= MAX_RETRIES) {
@@ -228,16 +230,13 @@ Rules:
             success: false,
             error: prettyError(err),
             type,
-            input_messages_count: contents.length,
+            input_messages_count: messages.length,
           };
         }
         attempt++;
         await sleep(BACKOFF_MS * attempt);
       }
     }
-
-    //* The SDK response exposes a .text accessor for the generated text
-    let outRaw: string = (resp as any)?.text ?? JSON.stringify(resp);
 
     //* strip code fences if present
     outRaw = outRaw
@@ -266,7 +265,7 @@ Rules:
             success: false,
             error: "Invalid grade_essay response: score must be 0-100",
             type,
-            input_messages_count: contents.length,
+            input_messages_count: messages.length,
           };
         }
         parsedJSON = {
@@ -279,7 +278,7 @@ Rules:
           success: false,
           error: "Invalid grade_essay response: expected JSON {score, feedback, suggested_improvement}",
           type,
-          input_messages_count: contents.length,
+          input_messages_count: messages.length,
         };
       }
     }
@@ -301,7 +300,7 @@ Rules:
     return {
       success: true,
       type,
-      input_messages_count: contents.length,
+      input_messages_count: messages.length,
       output: parsedJSON ?? outRaw,
     };
   } catch (err: any) {
@@ -309,7 +308,7 @@ Rules:
       success: false,
       error: err?.message || String(err),
       type,
-      input_messages_count: contents.length,
+      input_messages_count: messages.length,
     };
   }
 });
